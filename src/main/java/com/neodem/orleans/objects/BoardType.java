@@ -5,5 +5,5 @@ package com.neodem.orleans.objects;
  * Created on 12/26/19
  */
 public enum BoardType {
-    Standard
+    Original
 }

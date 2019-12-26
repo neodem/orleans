@@ -1,8 +1,17 @@
 package com.neodem.orleans.objects;
 
+import com.google.common.collect.Sets;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import static com.neodem.orleans.objects.HourGlassTile.*;
+import static com.neodem.orleans.objects.PlaceTile.*;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -11,22 +20,54 @@ import java.util.Map;
 public class GameState {
     private String gameId;
 
-    private int round;
-    private GamePhase gamePhase;
+    private int round = 1;
+    private GamePhase gamePhase = GamePhase.HourGlass;
 
-    private List<PlayerState> players;
+    private final List<PlayerState> players = new ArrayList<>();
 
-    private BoardState boardState;
-    private Map<GoodType, Integer> goodsInventory;
+    private final BoardState boardState;
+    private final Map<GoodType, Integer> goodsInventory = new HashMap<>();
 
-    private Collection<PlaceTile> placeTiles1;
-    private Collection<PlaceTile> placeTiles2;
+    private final Collection<PlaceTile> placeTiles1 = new HashSet<>();
+    private final Collection<PlaceTile> placeTiles2 = new HashSet<>();
 
-    private List<HourGlassTile> hourGlassStack;
-    private List<HourGlassTile> usedHourGlassTiles;
+    private final List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
+    private final List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
 
-    public GameState(String gameId) {
+    public GameState(String gameId, BoardState boardState) {
         this.gameId = gameId;
+
+        this.boardState = boardState;
+
+        goodsInventory.put(GoodType.Grain, 24);
+        goodsInventory.put(GoodType.Cheese, 21);
+        goodsInventory.put(GoodType.Wine, 18);
+        goodsInventory.put(GoodType.Wool, 15);
+        goodsInventory.put(GoodType.Brocade, 12);
+
+
+        placeTiles1.addAll(Sets.newHashSet(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop));
+        placeTiles2.addAll(Sets.newHashSet(GunpowderTower, Cellar, Office, School, Pharmacy, HorseWagon, ShippingLine, Laboratory));
+
+        hourGlassTileStack.add(Pilgrimage);
+        hourGlassTileStack.add(Pilgrimage);
+        hourGlassTileStack.add(Plague);
+        hourGlassTileStack.add(Plague);
+        hourGlassTileStack.add(Plague);
+        hourGlassTileStack.add(Taxes);
+        hourGlassTileStack.add(Taxes);
+        hourGlassTileStack.add(Taxes);
+        hourGlassTileStack.add(TradingDay);
+        hourGlassTileStack.add(TradingDay);
+        hourGlassTileStack.add(TradingDay);
+        hourGlassTileStack.add(Income);
+        hourGlassTileStack.add(Income);
+        hourGlassTileStack.add(Income);
+        hourGlassTileStack.add(Harvest);
+        hourGlassTileStack.add(Harvest);
+        hourGlassTileStack.add(Harvest);
+        Collections.shuffle(hourGlassTileStack);
+        hourGlassTileStack.add(0, Pilgrimage);
     }
 
     public String getGameId() {
@@ -53,55 +94,31 @@ public class GameState {
         return players;
     }
 
-    public void setPlayers(List<PlayerState> players) {
-        this.players = players;
+    public void addPlayer(PlayerState player) {
+        this.players.add(player);
     }
 
     public BoardState getBoardState() {
         return boardState;
     }
 
-    public void setBoardState(BoardState boardState) {
-        this.boardState = boardState;
-    }
-
     public Map<GoodType, Integer> getGoodsInventory() {
         return goodsInventory;
-    }
-
-    public void setGoodsInventory(Map<GoodType, Integer> goodsInventory) {
-        this.goodsInventory = goodsInventory;
     }
 
     public Collection<PlaceTile> getPlaceTiles1() {
         return placeTiles1;
     }
 
-    public void setPlaceTiles1(Collection<PlaceTile> placeTiles1) {
-        this.placeTiles1 = placeTiles1;
-    }
-
     public Collection<PlaceTile> getPlaceTiles2() {
         return placeTiles2;
     }
 
-    public void setPlaceTiles2(Collection<PlaceTile> placeTiles2) {
-        this.placeTiles2 = placeTiles2;
-    }
-
     public List<HourGlassTile> getHourGlassStack() {
-        return hourGlassStack;
-    }
-
-    public void setHourGlassStack(List<HourGlassTile> hourGlassStack) {
-        this.hourGlassStack = hourGlassStack;
+        return hourGlassTileStack;
     }
 
     public List<HourGlassTile> getUsedHourGlassTiles() {
         return usedHourGlassTiles;
-    }
-
-    public void setUsedHourGlassTiles(List<HourGlassTile> usedHourGlassTiles) {
-        this.usedHourGlassTiles = usedHourGlassTiles;
     }
 }

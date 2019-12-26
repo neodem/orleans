@@ -1,7 +1,7 @@
 package com.neodem.orleans.service;
 
+import com.neodem.orleans.objects.BoardType;
 import com.neodem.orleans.objects.GameState;
-import com.neodem.orleans.objects.PlayerState;
 
 import java.util.List;
 
@@ -10,6 +10,5 @@ import java.util.List;
  * Created on 12/26/19
  */
 public interface GameController {
-
-    GameState makeGame(String gameId, List<PlayerState> players);
+    GameState makeGame(String gameId, List<String> playerNames, BoardType boardType);
 }
