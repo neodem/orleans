@@ -5,6 +5,7 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -13,6 +14,8 @@ import java.util.HashSet;
 public class Path {
     private final TokenLocation from;
     private final TokenLocation to;
+
+    private final Set<TokenLocation> locationKey = new HashSet<>();
     private final PathType pathType;
 
     private Collection<GoodType> goods = new HashSet<>();
@@ -24,6 +27,8 @@ public class Path {
         this.from = from;
         this.to = to;
         this.pathType = pathType;
+        this.locationKey.add(from);
+        this.locationKey.add(to);
     }
 
     @Override
@@ -39,14 +44,13 @@ public class Path {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Path path = (Path) o;
-        return from == path.from &&
-                to == path.to &&
+        return locationKey.equals(path.locationKey) &&
                 pathType == path.pathType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(from, to, pathType);
+        return Objects.hashCode(locationKey, pathType);
     }
 
     public void addGood(GoodType goodType) {

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static com.neodem.orleans.objects.HourGlassTile.*;
 import static com.neodem.orleans.objects.PathType.Land;
+import static com.neodem.orleans.objects.PathType.Sea;
 import static com.neodem.orleans.objects.PlaceTile.*;
 import static com.neodem.orleans.objects.TokenLocation.*;
 
@@ -89,8 +90,69 @@ public class DefaultGameEngine implements GameEngine {
         addPath(boardState, Chartres, Chateaudun, Land, goodsInventory);
         addPath(boardState, Chartres, LeMans, Land, goodsInventory);
 
-        addPath(boardState, Etampes, Chartres, Land, goodsInventory);
         addPath(boardState, Etampes, Montargis, Land, goodsInventory);
+
+        addPath(boardState, LeMans, Chateaudun, Land, goodsInventory);
+        addPath(boardState, LeMans, Venedome, Land, goodsInventory);
+        addPath(boardState, LeMans, Tours, Land, goodsInventory);
+
+        addPath(boardState, Chateaudun, Venedome, Land, goodsInventory);
+        addPath(boardState, Chateaudun, Orleans, Land, goodsInventory);
+
+        addPath(boardState, Orleans, Montargis, Land, goodsInventory);
+        addPath(boardState, Orleans, Vierzon, Land, goodsInventory);
+        addPath(boardState, Orleans, Briare, Sea, goodsInventory);
+        addPath(boardState, Orleans, Blois, Sea, goodsInventory);
+
+        addPath(boardState, Venedome, Blois, Land, goodsInventory);
+
+        addPath(boardState, Montargis, Briare, Land, goodsInventory);
+
+        addPath(boardState, Briare, Sancerre, Sea, goodsInventory);
+
+        addPath(boardState, Blois, Tours, Sea, goodsInventory);
+        addPath(boardState, Blois, Vierzon, Land, goodsInventory);
+
+        addPath(boardState, Tours, Montrichard, Sea, goodsInventory);
+        addPath(boardState, Tours, Loches, Sea, goodsInventory);
+        addPath(boardState, Tours, Chinon, Sea, goodsInventory);
+
+        addPath(boardState, Chinon, Chatelleraut, Sea, goodsInventory);
+        addPath(boardState, Chinon, LeBlanc, Sea, goodsInventory);
+        addPath(boardState, Chinon, Chatelleraut, Land, goodsInventory);
+
+        addPath(boardState, Montrichard, Vierzon, Sea, goodsInventory);
+        addPath(boardState, Montrichard, Loches, Land, goodsInventory);
+
+        addPath(boardState, Vierzon, Chateauroux, Land, goodsInventory);
+        addPath(boardState, Vierzon, Bourges, Sea, goodsInventory);
+        addPath(boardState, Vierzon, SAmandMontrond, Sea, goodsInventory);
+
+        addPath(boardState, Sancerre, Bourges, Land, goodsInventory);
+        addPath(boardState, Sancerre, Nevers, Sea, goodsInventory);
+
+        addPath(boardState, Loches, Chateauroux, Land, goodsInventory);
+
+        addPath(boardState, Chatelleraut, ArgentonSurCreuse, Land, goodsInventory);
+
+        addPath(boardState, LeBlanc, ArgentonSurCreuse, Sea, goodsInventory);
+        addPath(boardState, LeBlanc, Chinon, Sea, goodsInventory);
+        addPath(boardState, LeBlanc, Chateauroux, Land, goodsInventory);
+
+        addPath(boardState, ArgentonSurCreuse, LaChatre, Land, goodsInventory);
+
+        addPath(boardState, LaChatre, SAmandMontrond, Land, goodsInventory);
+
+        addPath(boardState, Bourges, SAmandMontrond, Land, goodsInventory);
+        addPath(boardState, Bourges, Nevers, Land, goodsInventory);
+
+        addPath(boardState, Chateauroux, Vierzon, Land, goodsInventory);
+        addPath(boardState, Chateauroux, Loches, Land, goodsInventory);
+        addPath(boardState, Chateauroux, LeBlanc, Land, goodsInventory);
+        addPath(boardState, Chateauroux, ArgentonSurCreuse, Land, goodsInventory);
+        addPath(boardState, Chateauroux, LaChatre, Land, goodsInventory);
+
+        addPath(boardState, SAmandMontrond, Nevers, Land, goodsInventory);
 
         return boardState;
     }
@@ -101,7 +163,7 @@ public class DefaultGameEngine implements GameEngine {
             if (goodType != null) {
                 Path path = new Path(from, to, pathType);
                 path.addGood(goodType);
-                boardState.addPath(from, path);
+                boardState.addPath(path);
             } else {
                 throw new RuntimeException("trying to init path with no goods available");
             }

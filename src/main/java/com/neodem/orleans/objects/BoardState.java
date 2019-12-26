@@ -18,12 +18,18 @@ public class BoardState {
         allPaths = new HashSet<>();
     }
 
-    public void addPath(TokenLocation from, Path path) {
+    public void addPath(Path path) {
+        allPaths.add(path);
+        addSpecificPath(path.getFrom(), path);
+        addSpecificPath(path.getTo(), path);
+        allPaths.add(path);
+    }
+
+    private void addSpecificPath(TokenLocation from, Path path) {
         Collection<Path> pathCollection = specificPaths.get(from);
         if(pathCollection == null) pathCollection = new HashSet<>();
         pathCollection.add(path);
         specificPaths.put(from, pathCollection);
-        allPaths.add(path);
     }
 
     public Collection<Path> getSpecificPaths(TokenLocation from) {
