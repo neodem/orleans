@@ -12,10 +12,8 @@ import com.neodem.orleans.objects.PathType;
 import com.neodem.orleans.objects.TokenLocation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +33,8 @@ public class DefaultGameEngine implements GameEngine {
     public GameState initializeGame(String gameId) {
         GameState gameState = new GameState(gameId);
 
-        gameState.setRound(0);
-        gameState.setGamePhase(GamePhase.Setup);
+        gameState.setRound(1);
+        gameState.setGamePhase(GamePhase.HourGlass);
 
         Map<GoodType, Integer> goodsInventory = new HashMap<>();
         goodsInventory.put(GoodType.Grain, 24);
@@ -71,7 +69,7 @@ public class DefaultGameEngine implements GameEngine {
         hourGlassTileStack.add(Harvest);
         hourGlassTileStack.add(Harvest);
         Collections.shuffle(hourGlassTileStack);
-        hourGlassTileStack.add(Pilgrimage);
+        hourGlassTileStack.add(0, Pilgrimage);
         gameState.setHourGlassStack(hourGlassTileStack);
         gameState.setUsedHourGlassTiles(new ArrayList<>());
 
@@ -158,7 +156,7 @@ public class DefaultGameEngine implements GameEngine {
     }
 
     private void addPath(BoardState boardState, TokenLocation from, TokenLocation to, PathType pathType, Map<GoodType, Integer> goodsInventory) {
-        if(!boardState.doesPathExist(from, to, pathType)) {
+        if (!boardState.doesPathExist(from, to, pathType)) {
             GoodType goodType = getRandomGoodFromInventory(goodsInventory);
             if (goodType != null) {
                 Path path = new Path(from, to, pathType);
@@ -173,7 +171,7 @@ public class DefaultGameEngine implements GameEngine {
     private GoodType getRandomGoodFromInventory(Map<GoodType, Integer> goodsInventory) {
         GoodType result = null;
 
-        if(goodsAvailable(goodsInventory)) {
+        if (goodsAvailable(goodsInventory)) {
             do {
                 GoodType candidate = GoodType.randomGood();
                 int amountAvailable = goodsInventory.get(candidate);
@@ -188,8 +186,8 @@ public class DefaultGameEngine implements GameEngine {
     }
 
     private boolean goodsAvailable(Map<GoodType, Integer> goodsInventory) {
-        for(GoodType goodType : GoodType.values()) {
-            if(goodsInventory.get(goodType) > 0) {
+        for (GoodType goodType : GoodType.values()) {
+            if (goodsInventory.get(goodType) > 0) {
                 return true;
             }
         }

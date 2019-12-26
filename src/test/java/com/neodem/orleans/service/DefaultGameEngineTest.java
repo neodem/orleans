@@ -2,8 +2,10 @@ package com.neodem.orleans.service;
 
 import com.neodem.orleans.objects.BoardState;
 import com.neodem.orleans.objects.BoardType;
+import com.neodem.orleans.objects.GamePhase;
 import com.neodem.orleans.objects.GameState;
 import com.neodem.orleans.objects.GoodType;
+import com.neodem.orleans.objects.HourGlassTile;
 import com.neodem.orleans.objects.Path;
 import com.neodem.orleans.objects.PathType;
 import com.neodem.orleans.objects.TokenLocation;
@@ -16,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.neodem.orleans.objects.PlaceTile.*;
+import static com.neodem.orleans.objects.PlaceTile.TailorShop;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,6 +42,30 @@ public class DefaultGameEngineTest {
     @Test
     void initializeGameShouldInitBoard() {
         GameState gameState = defaultGameEngine.initializeGame("gameId");
+        assertThat(gameState.getGameId()).isEqualTo("gameId");
+        assertThat(gameState.getRound()).isEqualTo(1);
+        assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.HourGlass);
+        assertThat(gameState.getPlayers()).isNull();
+
+        Map<GoodType, Integer> goodsInventory = gameState.getGoodsInventory();
+        // 5 good types
+        assertThat(goodsInventory).hasSize(5);
+        // 90 minus 43 = 47 left before players added
+        int totalGoods = 0;
+        for(GoodType type: goodsInventory.keySet()) {
+            totalGoods += goodsInventory.get(type);
+        }
+        assertThat(totalGoods).isEqualTo(47);
+
+        assertThat(gameState.getPlaceTiles1()).hasSize(12);
+        assertThat(gameState.getPlaceTiles1()).contains(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop);
+
+        assertThat(gameState.getPlaceTiles2()).hasSize(8);
+        assertThat(gameState.getPlaceTiles2()).contains(GunpowderTower, Cellar, Office, School, Pharmacy, HorseWagon, ShippingLine, Laboratory);
+
+        assertThat(gameState.getUsedHourGlassTiles()).hasSize(0);
+        assertThat(gameState.getHourGlassStack()).hasSize(18);
+        assertThat(gameState.getHourGlassStack().get(0)).isEqualTo(HourGlassTile.Pilgrimage);
     }
 
     @Test
