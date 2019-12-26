@@ -1,0 +1,2 @@
+docker build -t orleans .
+docker run --rm --name=orleans -p 8080:8080 -t orleans
