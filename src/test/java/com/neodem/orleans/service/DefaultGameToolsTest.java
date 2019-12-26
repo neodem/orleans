@@ -26,22 +26,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class DefaultGameEngineTest {
-    private DefaultGameEngine defaultGameEngine;
+public class DefaultGameToolsTest {
+    private DefaultGameTools defaultGameTools;
 
     @BeforeEach
     void setUp() {
-        defaultGameEngine = new DefaultGameEngine();
+        defaultGameTools = new DefaultGameTools();
     }
 
     @AfterEach
     void tearDown() {
-        defaultGameEngine = null;
+        defaultGameTools = null;
     }
 
     @Test
     void initializeGameShouldInitBoard() {
-        GameState gameState = defaultGameEngine.initializeGame("gameId");
+        GameState gameState = defaultGameTools.initializeGame("gameId");
         assertThat(gameState.getGameId()).isEqualTo("gameId");
         assertThat(gameState.getRound()).isEqualTo(1);
         assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.HourGlass);
@@ -80,7 +80,7 @@ public class DefaultGameEngineTest {
         goodsInventory.put(GoodType.Brocade, 12);
         gameState.setGoodsInventory(goodsInventory);
 
-        BoardState boardState = defaultGameEngine.initializeBoard(BoardType.Standard, gameState);
+        BoardState boardState = defaultGameTools.initializeBoard(BoardType.Standard, gameState);
         spotCheck(boardState, TokenLocation.Chartres, 4);
         spotCheck(boardState, TokenLocation.Etampes, 2);
         spotCheck(boardState, TokenLocation.LeMans, 4);

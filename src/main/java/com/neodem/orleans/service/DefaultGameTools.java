@@ -1,19 +1,13 @@
 package com.neodem.orleans.service;
 
 import com.google.common.collect.Sets;
-import com.neodem.orleans.objects.BoardState;
-import com.neodem.orleans.objects.BoardType;
-import com.neodem.orleans.objects.GamePhase;
-import com.neodem.orleans.objects.GameState;
-import com.neodem.orleans.objects.GoodType;
-import com.neodem.orleans.objects.HourGlassTile;
-import com.neodem.orleans.objects.Path;
-import com.neodem.orleans.objects.PathType;
-import com.neodem.orleans.objects.TokenLocation;
+import com.neodem.orleans.objects.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +21,7 @@ import static com.neodem.orleans.objects.TokenLocation.*;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class DefaultGameEngine implements GameEngine {
+public class DefaultGameTools implements GameTools {
 
     @Override
     public GameState initializeGame(String gameId) {
@@ -153,6 +147,28 @@ public class DefaultGameEngine implements GameEngine {
         addPath(boardState, SAmandMontrond, Nevers, Land, goodsInventory);
 
         return boardState;
+    }
+
+/*
+    private String playerId;
+    private int coinCount;
+    private Collection<TrackInfo> tracks;
+
+    private Bag<Token> bag;
+    private TokenLocation tokenLocation;
+    private Collection<PlaceTile> placeTiles;
+
+    private Collection<TokenLocation> tradingStationLocations;
+    private Map<GoodType, Integer> goodCounts;
+ */
+
+    @Override
+    public PlayerState initializePlayer(String playerName) {
+        PlayerState playerState = new PlayerState(playerName);
+
+
+
+        return playerState;
     }
 
     private void addPath(BoardState boardState, TokenLocation from, TokenLocation to, PathType pathType, Map<GoodType, Integer> goodsInventory) {

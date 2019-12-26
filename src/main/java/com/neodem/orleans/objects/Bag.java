@@ -32,6 +32,14 @@ public class Bag<T> extends HashSet<T> implements Set<T> {
         return result;
     }
 
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        for(T value : c) {
+            super.add(value);
+        }
+        return true;
+    }
+
     public void randomize() {
         List<T> list = new ArrayList<>(this);
         Collections.shuffle(list);

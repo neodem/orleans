@@ -6,7 +6,7 @@ package com.neodem.orleans.objects;
  */
 public enum Track {
     Farmers,
-    Chraftsmen,
+    Craftsmen,
     Traders,
     Boatmen,
     Knights,
