@@ -14,51 +14,15 @@ public abstract class BoardState {
     protected final Collection<Path> allPaths;
     protected final Map<PathBetween, Collection<Path>> pathsBetween;
 
-    public BoardState(Map<GoodType, Integer> goodsInventory, int playerCount) {
+    private BoardState() {
         pathsFromTown = new HashMap<>();
         pathsBetween = new HashMap<>();
         allPaths = new HashSet<>();
+    }
+
+    public BoardState(Map<GoodType, Integer> goodsInventory, int playerCount) {
+        this();
         init(goodsInventory, playerCount);
-    }
-
-    protected abstract void init(Map<GoodType, Integer> goodsInventory, int playerCount);
-
-    protected void addPath(TokenLocation from, TokenLocation to, PathType pathType, Map<GoodType, Integer> goodsInventory) {
-        addPath(from, to, pathType, goodsInventory, 1);
-    }
-
-    protected void addPath(TokenLocation from, TokenLocation to, PathType pathType, Map<GoodType, Integer> goodsInventory, int goodCount) {
-        if (!doesPathExist(from, to, pathType)) {
-            Path path = new Path(from, to, pathType);
-            for (int i = 0; i < goodCount; i++)
-                addGoodToPath(goodsInventory, path);
-
-            allPaths.add(path);
-
-            Collection<Path> paths = pathsBetween.get(path.getPathBetween());
-            if (paths == null) paths = new HashSet<>();
-            paths.add(path);
-            pathsBetween.put(path.getPathBetween(), paths);
-
-            addSpecificPath(from, path);
-            addSpecificPath(to, path);
-        }
-    }
-
-    protected void addGoodToPath(Map<GoodType, Integer> goodsInventory, Path path) {
-        GoodType goodType = getRandomGoodFromInventory(goodsInventory);
-        if (goodType != null) {
-            path.addGood(goodType);
-        } else {
-            throw new RuntimeException("trying to init path with no goods available");
-        }
-    }
-
-    protected void addSpecificPath(TokenLocation from, Path path) {
-        Collection<Path> pathCollection = pathsFromTown.get(from);
-        if (pathCollection == null) pathCollection = new HashSet<>();
-        pathCollection.add(path);
-        pathsFromTown.put(from, pathCollection);
     }
 
     public Map<TokenLocation, Collection<Path>> getPathsFromTown() {
@@ -73,8 +37,71 @@ public abstract class BoardState {
         return allPaths;
     }
 
-    protected boolean doesPathExist(TokenLocation from, TokenLocation to, PathType pathType) {
-        return getPathBetween(from, to, pathType) != null;
+    public Path getPathBetween(PathBetween pathBetween, PathType pathType) {
+        Collection<Path> allPathsBetween = pathsBetween.get(pathBetween);
+        if (allPathsBetween != null) {
+            for (Path p : allPathsBetween) {
+                if (p.getPathType() == pathType) return p;
+            }
+        }
+        return null;
+    }
+
+    //////////////////////////
+
+    protected abstract void init(Map<GoodType, Integer> goodsInventory, int playerCount);
+
+    protected void addPath(TokenLocation location1, TokenLocation location2, PathType pathType, Map<GoodType, Integer> goodsInventory) {
+        addPath(new PathBetween(location1, location2), pathType, goodsInventory, 1);
+    }
+
+
+    protected void addPath(TokenLocation location1, TokenLocation location2, PathType pathType, Map<GoodType, Integer> goodsInventory, int goodCount) {
+        addPath(new PathBetween(location1, location2), pathType, goodsInventory, goodCount);
+    }
+
+    protected void addPath(PathBetween pathBetween, PathType pathType, Map<GoodType, Integer> goodsInventory, int goodCount) {
+
+        if (!doesPathExist(pathBetween, pathType)) {
+            Path path = new Path(pathBetween, pathType);
+            for (int i = 0; i < goodCount; i++)
+                addDifferentRandomGoodToPath(goodsInventory, path);
+
+            allPaths.add(path);
+
+            Collection<Path> paths = pathsBetween.get(path.getPathBetween());
+            if (paths == null) paths = new HashSet<>();
+            paths.add(path);
+            pathsBetween.put(path.getPathBetween(), paths);
+
+            addSpecificPath(pathBetween.getLocation1(), path);
+            addSpecificPath(pathBetween.getLocation2(), path);
+        }
+    }
+
+    protected void addDifferentRandomGoodToPath(Map<GoodType, Integer> goodsInventory, Path path) {
+        GoodType goodType;
+        do {
+            goodType = getRandomGoodFromInventory(goodsInventory);
+            if (goodType == null) throw new RuntimeException("trying to init path with no goods available");
+        } while (path.getGoods().contains(goodType));
+
+        if (goodType != null) {
+            path.addGood(goodType);
+        } else {
+            throw new RuntimeException("trying to init path with no goods available");
+        }
+    }
+
+    protected void addSpecificPath(TokenLocation from, Path path) {
+        Collection<Path> pathCollection = pathsFromTown.get(from);
+        if (pathCollection == null) pathCollection = new HashSet<>();
+        pathCollection.add(path);
+        pathsFromTown.put(from, pathCollection);
+    }
+
+    protected boolean doesPathExist(PathBetween pathBetween, PathType pathType) {
+        return getPathBetween(pathBetween, pathType) != null;
     }
 
     protected GoodType getRandomGoodFromInventory(Map<GoodType, Integer> goodsInventory) {
@@ -101,19 +128,5 @@ public abstract class BoardState {
             }
         }
         return false;
-    }
-
-    public Collection<Path> getPathsBetween(TokenLocation from, TokenLocation to) {
-        return pathsBetween.get(new PathBetween(from, to));
-    }
-
-    public Path getPathBetween(TokenLocation from, TokenLocation to, PathType pathType) {
-        Collection<Path> pathsBetween = getPathsBetween(from, to);
-        if (pathsBetween != null) {
-            for (Path p : pathsBetween) {
-                if (p.getPathType() == pathType) return p;
-            }
-        }
-        return null;
     }
 }

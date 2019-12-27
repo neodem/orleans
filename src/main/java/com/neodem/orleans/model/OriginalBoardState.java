@@ -86,4 +86,6 @@ public class OriginalBoardState extends BoardState {
         addPath(Chateauroux, LaChatre, Land, goodsInventory);
     }
 
+
+
 }

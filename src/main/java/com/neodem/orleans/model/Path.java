@@ -5,6 +5,7 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -21,10 +22,6 @@ public class Path {
         this.pathBetween = pathBetween;
         this.pathType = pathType;
         this.goods = new HashSet<>();
-    }
-
-    public Path(TokenLocation from, TokenLocation to, PathType pathType) {
-        this(new PathBetween(from, to), pathType);
     }
 
     @Override
@@ -62,5 +59,9 @@ public class Path {
 
     public Collection<GoodType> getGoods() {
         return goods;
+    }
+
+    public static final Collection<Path> getPathsOfType(Collection<Path> allPaths, PathType pathType) {
+        return allPaths.stream().filter(p -> p.getPathType() == pathType).collect(Collectors.toSet());
     }
 }

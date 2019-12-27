@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +52,7 @@ public class OriginalBoardStateTest {
         Collection<Path> allPaths = board.getAllPaths();
         assertThat(allPaths).hasSize(43);
 
-        Collection<Path> waterPaths = getPathsOfType(allPaths, PathType.Sea);
+        Collection<Path> waterPaths = Path.getPathsOfType(allPaths, PathType.Sea);
         assertThat(waterPaths).hasSize(14);
     }
 
@@ -95,14 +94,14 @@ public class OriginalBoardStateTest {
         Collection<Path> allPaths = board.getAllPaths();
         assertThat(allPaths).hasSize(43);
 
-        Collection<Path> waterPaths = getPathsOfType(allPaths, PathType.Sea);
+        Collection<Path> waterPaths = Path.getPathsOfType(allPaths, PathType.Sea);
         assertThat(waterPaths).hasSize(14);
 
-        checkTwoGoods(board,TokenLocation.LeMans, TokenLocation.Tours, PathType.Land);
-        checkTwoGoods(board,TokenLocation.Orleans, TokenLocation.Briare, PathType.Sea);
-        checkTwoGoods(board,TokenLocation.Orleans, TokenLocation.Vierzon, PathType.Land);
-        checkTwoGoods(board,TokenLocation.Sancerre, TokenLocation.Briare, PathType.Sea);
-        checkTwoGoods(board,TokenLocation.Chinon, TokenLocation.LeBlanc, PathType.Sea);
+        checkTwoGoods(board, TokenLocation.LeMans, TokenLocation.Tours, PathType.Land);
+        checkTwoGoods(board, TokenLocation.Orleans, TokenLocation.Briare, PathType.Sea);
+        checkTwoGoods(board, TokenLocation.Orleans, TokenLocation.Vierzon, PathType.Land);
+        checkTwoGoods(board, TokenLocation.Sancerre, TokenLocation.Briare, PathType.Sea);
+        checkTwoGoods(board, TokenLocation.Chinon, TokenLocation.LeBlanc, PathType.Sea);
     }
 
     @Test
@@ -143,13 +142,13 @@ public class OriginalBoardStateTest {
         Collection<Path> allPaths = board.getAllPaths();
         assertThat(allPaths).hasSize(43);
 
-        Collection<Path> waterPaths = getPathsOfType(allPaths, PathType.Sea);
+        Collection<Path> waterPaths = Path.getPathsOfType(allPaths, PathType.Sea);
         assertThat(waterPaths).hasSize(14);
 
-        checkTwoGoods(board,TokenLocation.Chatelleraut, TokenLocation.ArgentonSurCreuse, PathType.Land);
-        checkTwoGoods(board,TokenLocation.Nevers, TokenLocation.SAmandMontrond, PathType.Land);
-        checkTwoGoods(board,TokenLocation.LeMans, TokenLocation.Chartres, PathType.Land);
-        checkTwoGoods(board,TokenLocation.Etampes, TokenLocation.Montargis, PathType.Land);
+        checkTwoGoods(board, TokenLocation.Chatelleraut, TokenLocation.ArgentonSurCreuse, PathType.Land);
+        checkTwoGoods(board, TokenLocation.Nevers, TokenLocation.SAmandMontrond, PathType.Land);
+        checkTwoGoods(board, TokenLocation.LeMans, TokenLocation.Chartres, PathType.Land);
+        checkTwoGoods(board, TokenLocation.Etampes, TokenLocation.Montargis, PathType.Land);
     }
 
     private void spotCheck(BoardState boardState, TokenLocation location, int land) {
@@ -158,28 +157,16 @@ public class OriginalBoardStateTest {
 
     private void spotCheck(BoardState boardState, TokenLocation location, int land, int sea) {
         Collection<Path> paths = boardState.getPathsFromTown().get(location);
-        Collection<Path> waterPaths = getPathsOfType(paths, PathType.Sea);
+        Collection<Path> waterPaths = Path.getPathsOfType(paths, PathType.Sea);
         assertThat(waterPaths).hasSize(sea);
-        Collection<Path> landPaths = getPathsOfType(paths, PathType.Land);
+        Collection<Path> landPaths = Path.getPathsOfType(paths, PathType.Land);
         assertThat(landPaths).hasSize(land);
     }
 
     private void checkTwoGoods(BoardState boardState, TokenLocation from, TokenLocation to, PathType pathType) {
-        Path path = boardState.getPathBetween(from, to, pathType);
+        Path path = boardState.getPathBetween(new PathBetween(from, to), pathType);
+        System.out.println(path);
         assertThat(path).isNotNull();
         assertThat(path.getGoods()).hasSize(2);
     }
-
-    private Collection<Path> getPathsOfType(Collection<Path> allPaths, PathType pathType) {
-        return allPaths.stream().filter(p -> p.getPathType() == pathType).collect(Collectors.toSet());
-    }
-
-    private Path getPathTo(Collection<Path> pathCollection, TokenLocation to) {
-        for (Path path : pathCollection) {
-            PathBetween pathBetween = path.getPathBetween();
-            if(pathBetween.contains(to)) return path;
-        }
-        return null;
-    }
-
 }
