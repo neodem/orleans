@@ -29,6 +29,21 @@ public class GameStateTest {
         }
 
         @Override
+        protected void initFor4Players() {
+
+        }
+
+        @Override
+        protected void initFor3Players() {
+
+        }
+
+        @Override
+        protected void initFor2Players() {
+
+        }
+
+        @Override
         public void initGame(int playerCount) {
             //noop
         }
