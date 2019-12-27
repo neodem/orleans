@@ -18,8 +18,8 @@ public class OriginalGameState extends GameState {
 
     @Override
     public void initGame(int playerCount) {
-        round = 1;
-        gamePhase = GamePhase.HourGlass;
+        round = 0;
+        gamePhase = GamePhase.Setup;
 
         placeTiles1.addAll(Sets.newHashSet(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop));
         placeTiles2.addAll(Sets.newHashSet(GunpowderTower, Cellar, Office, School, Pharmacy, HorseWagon, ShippingLine, Laboratory));
@@ -50,14 +50,15 @@ public class OriginalGameState extends GameState {
         goodsInventory.put(GoodType.Wool, 15);
         goodsInventory.put(GoodType.Brocade, 12);
 
+        currentHourGlass = null;
+        startPlayer = playerCount-1;
+
         initForPlayerCount(playerCount);
+
+        gameLog("Original game is set up. Welcome!");
     }
 
-    protected void initForPlayerCount(int playerCount) {
-        if (playerCount == 2) initFor2Players();
-        else if (playerCount == 3) initFor3Players();
-        else initFor4Players();
-    }
+
 
     private void initFor2Players() {
         // 2p removes 12 random goods

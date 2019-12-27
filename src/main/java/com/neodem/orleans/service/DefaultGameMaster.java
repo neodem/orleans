@@ -1,11 +1,14 @@
 package com.neodem.orleans.service;
 
+import com.neodem.orleans.model.GamePhase;
 import com.neodem.orleans.model.GameState;
 import com.neodem.orleans.model.GameVersion;
+import com.neodem.orleans.model.HourGlassTile;
 import com.neodem.orleans.model.OriginalGameState;
 import com.neodem.orleans.model.OriginalPlayerState;
 import com.neodem.orleans.model.PlayerColor;
 import com.neodem.orleans.model.PlayerState;
+import com.neodem.orleans.model.Track;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,5 +59,78 @@ public class DefaultGameMaster implements GameMaster {
         }
 
         return gameState;
+    }
+
+    @Override
+    public GameState nextPhase(String gameId) {
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            GamePhase gamePhase = gameState.getGamePhase();
+            switch (gamePhase) {
+                case Setup:
+                case StartPlayer:
+                    doStartPlayerPhase(gameState);
+                    gameState.setGamePhase(GamePhase.HourGlass);
+                    break;
+                case HourGlass:
+                    doHourGlassPhase(gameState);
+                    gameState.setGamePhase(GamePhase.Census);
+                    break;
+                case Census:
+                    doCensusPhase(gameState);
+                    gameState.setGamePhase(GamePhase.Followers);
+                    break;
+
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId=" + gameId);
+        }
+        return gameState;
+    }
+
+    private void doCensusPhase(GameState gameState) {
+        String most = gameState.mostFarmers();
+        if(most != null) {
+            gameState.getPlayer(most).addCoin();
+            gameState.gameLog("" + most + " gets a coin for being the farthest on the Census/Farmer track");
+        } else {
+            gameState.gameLog("No one gets a coin for the Census.");
+        }
+
+        String least = gameState.leastFarmers();
+        if(least != null) {
+            gameState.getPlayer(least).removeCoin();
+            gameState.gameLog("" + least + " pays a coin for being the least far on the Census/Farmer track");
+
+            int coinCount = gameState.getPlayer(least).getCoinCount();
+            if(coinCount < 0) {
+                gameState.gameLog("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
+                //TODO torture
+            }
+        }
+    }
+
+    private void doStartPlayerPhase(GameState gameState) {
+        gameState.advancePlayer();
+
+        int round = gameState.getRound();
+        if (round == 18) { // we are done
+            gameState.gameLog("We are at the end of the game!");
+        }
+    }
+
+    private void doHourGlassPhase(GameState gameState) {
+
+        int round = gameState.getRound();
+        if (round == 18) { // we are done
+            // TODO
+        } else {
+            gameState.setRound(++round);
+        }
+
+        HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
+        if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
+        gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
+        gameState.getHourGlassStack().remove(0);
     }
 }

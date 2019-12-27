@@ -3,6 +3,7 @@ package com.neodem.orleans.web;
 import com.neodem.orleans.model.GameState;
 import com.neodem.orleans.model.GameVersion;
 import com.neodem.orleans.service.GameMaster;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,11 +23,17 @@ public class GameController {
     private GameMaster gameMaster;
 
     @RequestMapping("/game/init")
-    public GameState greeting(@RequestParam(value = "playerNames") List<String> names) {
+    public GameState gameInit(@RequestParam(value = "playerNames") List<String> names) {
         UUID uuid = UUID.randomUUID();
         String gameId = uuid.toString();
 
         GameState gameState = gameMaster.makeGame(gameId, names, GameVersion.Original);
+        return gameState;
+    }
+
+    @RequestMapping("/game/{gameId}/nextPhase")
+    public GameState gameStart(@PathVariable(value = "gameId") String gameId) {
+        GameState gameState = gameMaster.nextPhase(gameId);
         return gameState;
     }
 
