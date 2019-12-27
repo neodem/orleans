@@ -83,6 +83,18 @@ public abstract class GameState {
         gameLog("HourGlass changed to: " + currentHourGlass);
     }
 
+    public int getPlayerCount() {
+        return playerCount;
+    }
+
+    public Map<FollowerType, Integer> getFollowerInventory() {
+        return followerInventory;
+    }
+
+    public List<String> getGameLog() {
+        return gameLog;
+    }
+
     /**
      * determine who has the most farmers. In a tie, we return null
      *
@@ -156,6 +168,7 @@ public abstract class GameState {
 
     public void setGamePhase(GamePhase gamePhase) {
         this.gamePhase = gamePhase;
+        gameLog("Phase: " + gamePhase);
     }
 
     public List<PlayerState> getPlayers() {
