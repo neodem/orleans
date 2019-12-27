@@ -1,33 +1,37 @@
 package com.neodem.orleans.model;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static com.neodem.orleans.model.PlaceTile.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
 public class OriginalGameStateTest {
-    private OriginalGameState gameState;
 
-    @BeforeEach
-    void setUp() {
-        gameState = new OriginalGameState("gameId", 2);
+    @Test
+    void gamesMayNotHave1Player() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new OriginalGameState("gameId", 1));
     }
 
-    @AfterEach
-    void tearDown() {
-        gameState = null;
+    @Test
+    void gamesMayNotHave5Players() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new OriginalGameState("gameId", 5));
     }
 
     @Test
     void initShouldWork() {
+        OriginalGameState gameState = new OriginalGameState("gameId", 4);
+
         assertThat(gameState.getGameId()).isEqualTo("gameId");
         assertThat(gameState.getRound()).isEqualTo(1);
         assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.HourGlass);
@@ -40,8 +44,8 @@ public class OriginalGameStateTest {
         for (GoodType type : goodsInventory.keySet()) {
             totalGoods += goodsInventory.get(type);
         }
-        // reflects 90-43 (assigned to board)
-        assertThat(totalGoods).isEqualTo(47);
+        // reflects 90-47 (assigned to board)
+        assertThat(totalGoods).isEqualTo(43);
 
         assertThat(gameState.getPlaceTiles1()).hasSize(12);
         assertThat(gameState.getPlaceTiles1()).contains(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop);

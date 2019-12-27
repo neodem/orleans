@@ -32,7 +32,7 @@ public abstract class GameState {
     protected final List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
 
     public GameState(String gameId, int playerCount) {
-        Assert.isTrue(playerCount>1 && playerCount > 5, "playerCount should be 2-4");
+        Assert.isTrue(playerCount>1 && playerCount < 5, "playerCount should be 2-4");
         this.gameId = gameId;
         initGame(playerCount);
     }
