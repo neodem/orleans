@@ -22,6 +22,8 @@ public abstract class PlayerState {
     private final Bag<FollowerType> bag = new Bag<>();
     private final List<FollowerType> market = new ArrayList<>();
 
+    private final Map<ActionType, List<FollowerType>> plans = new HashMap<>();
+
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
     protected TokenLocation tokenLocation;
@@ -74,6 +76,14 @@ public abstract class PlayerState {
 
     public int addCoin() {
         return ++coinCount;
+    }
+
+    public Map<ActionType, List<FollowerType>> getPlans() {
+        return plans;
+    }
+
+    public boolean isPlanLocked() {
+        return planLocked;
     }
 
     public int getTrackValue(Track track) {
@@ -167,7 +177,13 @@ public abstract class PlayerState {
     }
 
     public void addToPlan(ActionType actionType, List<FollowerType> followerTypes) {
-
+        List<FollowerType> allocatedFollowers = plans.get(actionType);
+        if(allocatedFollowers == null) allocatedFollowers = new ArrayList<>();
+        for(FollowerType followerType : followerTypes) {
+            allocatedFollowers.add(followerType);
+            // TODO game log
+        }
+        plans.put(actionType, allocatedFollowers);
     }
 
     public void removeFromMarket(List<FollowerType> followerTypes) {
@@ -191,6 +207,6 @@ public abstract class PlayerState {
 
     public void resetPlan() {
         planLocked = false;
-        //TODO
+        plans.clear();
     }
 }
