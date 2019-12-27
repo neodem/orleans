@@ -1,49 +1,60 @@
 package com.neodem.orleans.model;
 
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 /**
- * a set that randomizes on each add.
+ * a non unique Collection that randomizes on each add.
  * <p>
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class Bag<T> extends HashSet<T> implements Set<T> {
+public class Bag<T> implements Iterable<T> {
+
+    private List<T> data = new ArrayList<>();
 
     public Bag() {
     }
 
-    public Bag(Collection<? extends T> c) {
-        super(c);
+    /**
+     * add an item to the bag
+     *
+     * @param t
+     */
+    public void add(T t) {
+        data.add(t);
+        Collections.shuffle(data);
     }
 
-    public Bag(int initialCapacity, float loadFactor) {
-        super(initialCapacity, loadFactor);
-    }
-
-    public Bag(int initialCapacity) {
-        super(initialCapacity);
+    /**
+     * remove an item from the bag
+     *
+     * @return the item or null if empty
+     */
+    public T take() {
+        if (data.isEmpty()) return null;
+        T item = data.get(0);
+        data.remove(0);
+        return item;
     }
 
     @Override
-    public boolean add(T t) {
-        boolean result = super.add(t);
-        randomize();
-        return result;
+    public Iterator<T> iterator() {
+        return data.iterator();
     }
 
     @Override
-    public boolean addAll(Collection<? extends T> c) {
-        for(T value : c) {
-            super.add(value);
-        }
-        return true;
+    public void forEach(Consumer<? super T> action) {
+        data.forEach(action);
     }
 
-    public void randomize() {
-        List<T> list = new ArrayList<>(this);
-        Collections.shuffle(list);
-        this.clear();
-        this.addAll(list);
+    @Override
+    public Spliterator<T> spliterator() {
+        return data.spliterator();
     }
 }

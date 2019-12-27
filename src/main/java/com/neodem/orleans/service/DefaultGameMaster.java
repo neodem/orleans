@@ -1,5 +1,7 @@
 package com.neodem.orleans.service;
 
+import com.neodem.orleans.model.ActionType;
+import com.neodem.orleans.model.FollowerType;
 import com.neodem.orleans.model.GamePhase;
 import com.neodem.orleans.model.GameState;
 import com.neodem.orleans.model.GameVersion;
@@ -24,6 +26,12 @@ import java.util.Set;
 public class DefaultGameMaster implements GameMaster {
 
     private Map<String, GameState> storedGames = new HashMap<>();
+
+    private final ActionService actionService;
+
+    public DefaultGameMaster(ActionService actionService) {
+        this.actionService = actionService;
+    }
 
     @Override
     public GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion) {
@@ -69,8 +77,11 @@ public class DefaultGameMaster implements GameMaster {
             switch (gamePhase) {
                 case Setup:
                 case StartPlayer:
-                    doStartPlayerPhase(gameState);
-                    gameState.setGamePhase(GamePhase.HourGlass);
+                    if(doStartPlayerPhase(gameState)) {
+                        gameState.setGamePhase(GamePhase.HourGlass);
+                    } else {
+                        // at game end
+                    }
                     break;
                 case HourGlass:
                     doHourGlassPhase(gameState);
@@ -80,6 +91,13 @@ public class DefaultGameMaster implements GameMaster {
                     doCensusPhase(gameState);
                     gameState.setGamePhase(GamePhase.Followers);
                     break;
+                case Followers:
+                    doFollowersPhase(gameState);
+                    gameState.setGamePhase(GamePhase.Planning);
+                    break;
+                case Planning:
+                    if(doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
+                    break;
 
             }
         } else {
@@ -87,6 +105,72 @@ public class DefaultGameMaster implements GameMaster {
         }
         return gameState;
     }
+
+    @Override
+    public GameState addToPlan(String gameId, String playerId, ActionType actionType, List<FollowerType> followerTypes) {
+
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            PlayerState player = gameState.getPlayer(playerId);
+            if(player != null) {
+                // 1) validate followers can fit on the action type
+                if(actionService.validAction(actionType, followerTypes)) {
+                    if(player.availableInMarket(followerTypes)) {
+                        player.removeFromMarket(followerTypes);
+                        player.addToPlan(actionType, followerTypes);
+                    } else {
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more of these followers in their market");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Player playerId='" + playerId + "' has applied the incorrect followers to this action");
+                }
+            } else {
+                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
+        }
+        return gameState;
+    }
+
+    @Override
+    public GameState planSet(String gameId, String playerId) {
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            PlayerState player = gameState.getPlayer(playerId);
+            if(player != null) {
+                player.lockPlan();
+            } else {
+                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
+        }
+        return gameState;
+    }
+
+    private boolean doPlanningPhase(GameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        boolean planningNeeded = false;
+        for(PlayerState playerState : players) {
+            if(!playerState.isPlanSet()) {
+                gameState.gameLog("" + playerState.getPlayerId() + " has not completed their planning!");
+                planningNeeded = true;
+            }
+        }
+
+        return !planningNeeded;
+    }
+
+    private void doFollowersPhase(GameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        for(PlayerState playerState : players) {
+            int knightTrackLocation = playerState.getTracks().get(Track.Knights);
+            int drawCount = determineDrawFromKnight(knightTrackLocation);
+            playerState.drawFollowers(drawCount);
+        }
+    }
+
 
     private void doCensusPhase(GameState gameState) {
         String most = gameState.mostFarmers();
@@ -110,27 +194,46 @@ public class DefaultGameMaster implements GameMaster {
         }
     }
 
-    private void doStartPlayerPhase(GameState gameState) {
+    /**
+     *
+     * @param gameState
+     * @return false if we should not proceed
+     */
+    private boolean doStartPlayerPhase(GameState gameState) {
         gameState.advancePlayer();
 
         int round = gameState.getRound();
         if (round == 18) { // we are done
             gameState.gameLog("We are at the end of the game!");
-        }
-    }
-
-    private void doHourGlassPhase(GameState gameState) {
-
-        int round = gameState.getRound();
-        if (round == 18) { // we are done
-            // TODO
+            return false;
         } else {
             gameState.setRound(++round);
         }
 
+        return true;
+    }
+
+    private void doHourGlassPhase(GameState gameState) {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
         gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
         gameState.getHourGlassStack().remove(0);
+    }
+
+    private int determineDrawFromKnight(int knightTrackLocation) {
+        switch (knightTrackLocation) {
+            case 0:
+                return 4;
+            case 1:
+                return 5;
+            case 2:
+                return 6;
+            case 3:
+            case 4:
+                return 7;
+            case 5:
+                return 8;
+        }
+        return 0;
     }
 }
