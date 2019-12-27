@@ -51,16 +51,15 @@ public class OriginalGameState extends GameState {
         goodsInventory.put(GoodType.Brocade, 12);
 
         currentHourGlass = null;
-        startPlayer = playerCount-1;
+        startPlayer = playerCount - 1;
 
         initForPlayerCount(playerCount);
 
         gameLog("Original game is set up. Welcome!");
     }
 
-
-
-    private void initFor2Players() {
+    @Override
+    protected void initFor2Players() {
         // 2p removes 12 random goods
         removeRandomGoods(12);
 
@@ -75,7 +74,8 @@ public class OriginalGameState extends GameState {
         followerInventory.put(FollowerType.Monk, 8);
     }
 
-    private void initFor3Players() {
+    @Override
+    protected void initFor3Players() {
         // 3p removes 6 random goods
         removeRandomGoods(6);
 
@@ -90,7 +90,8 @@ public class OriginalGameState extends GameState {
         followerInventory.put(FollowerType.Monk, 11);
     }
 
-    private void initFor4Players() {
+    @Override
+    protected void initFor4Players() {
 
         boardState = new OriginalBoardState(goodsInventory, 4);
 
