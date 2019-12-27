@@ -1,9 +1,9 @@
 package com.neodem.orleans.service;
 
 import com.neodem.orleans.objects.GamePhase;
-import com.neodem.orleans.objects.GameState;
 import com.neodem.orleans.objects.GoodType;
 import com.neodem.orleans.objects.HourGlassTile;
+import com.neodem.orleans.objects.OriginalGameState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,12 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class GameStateTest {
-    private GameState gameState;
+public class OriginalGameStateTest {
+    private OriginalGameState gameState;
 
     @BeforeEach
     void setUp() {
-        gameState = new GameState("gameId", null);
+        gameState = new OriginalGameState("gameId");
     }
 
     @AfterEach
@@ -44,7 +44,8 @@ public class GameStateTest {
         for (GoodType type : goodsInventory.keySet()) {
             totalGoods += goodsInventory.get(type);
         }
-        assertThat(totalGoods).isEqualTo(90);
+        // reflects 90-43 (assigned to board)
+        assertThat(totalGoods).isEqualTo(47);
 
         assertThat(gameState.getPlaceTiles1()).hasSize(12);
         assertThat(gameState.getPlaceTiles1()).contains(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop);

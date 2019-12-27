@@ -2,7 +2,7 @@ package com.neodem.orleans.service;
 
 import com.neodem.orleans.objects.Bag;
 import com.neodem.orleans.objects.GoodType;
-import com.neodem.orleans.objects.PlayerState;
+import com.neodem.orleans.objects.OriginalPlayerState;
 import com.neodem.orleans.objects.Token;
 import com.neodem.orleans.objects.TokenLocation;
 import com.neodem.orleans.objects.Track;
@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class PlayerStateTest {
-    private PlayerState playerState;
+public class OriginalPlayerStateTest {
+    private OriginalPlayerState playerState;
 
     @BeforeEach
     void setUp() {
-        playerState = new PlayerState("someone");
+        playerState = new OriginalPlayerState("someone");
     }
 
     @AfterEach

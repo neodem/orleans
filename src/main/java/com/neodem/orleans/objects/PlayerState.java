@@ -11,44 +11,26 @@ import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
- * Created on 12/26/19
+ * Created on 12/27/19
  */
-public class PlayerState {
-    private final String playerId;
-    private int coinCount = 5;
-    private final Map<Track, Integer> tracks = new HashMap<>();
+public abstract class PlayerState {
+    protected final String playerId;
+    protected final Map<Track, Integer> tracks = new HashMap<>();
+    protected final Map<GoodType, Integer> goodCounts= new HashMap<>();
     private final Bag<Token> bag = new Bag<>();
-    private TokenLocation tokenLocation;
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
+    protected TokenLocation tokenLocation;
+    private int coinCount = 5;
     private int tradingStationCount = 10;
-    private final Map<GoodType, Integer> goodCounts= new HashMap<>();
 
     public PlayerState(String playerId) {
         Assert.notNull(playerId, "playerId may not be null");
         this.playerId = playerId;
-
-        tracks.put(Track.Farmers, 0);
-        tracks.put(Track.Craftsmen, 0);
-        tracks.put(Track.Traders, 0);
-        tracks.put(Track.Boatmen, 0);
-        tracks.put(Track.Knights, 0);
-        tracks.put(Track.Scholars, 0);
-        tracks.put(Track.Development, 0);
-
-        addToBag(Token.StarterBoatmen);
-        addToBag(Token.StarterCraftsman);
-        addToBag(Token.StarterFarmer);
-        addToBag(Token.StarterTrader);
-
-        goodCounts.put(GoodType.Grain, 0);
-        goodCounts.put(GoodType.Cheese, 0);
-        goodCounts.put(GoodType.Wine, 0);
-        goodCounts.put(GoodType.Wool, 0);
-        goodCounts.put(GoodType.Brocade, 0);
-
-        tokenLocation = TokenLocation.Orleans;
+        initState();
     }
+
+    protected abstract void initState();
 
     @Override
     public boolean equals(Object o) {
