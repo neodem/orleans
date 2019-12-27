@@ -1,14 +1,18 @@
 package com.neodem.orleans.service;
 
-import com.neodem.orleans.objects.GameState;
-import com.neodem.orleans.objects.GameVersion;
-import com.neodem.orleans.objects.OriginalGameState;
-import com.neodem.orleans.objects.OriginalPlayerState;
-import com.neodem.orleans.objects.PlayerState;
+import com.neodem.orleans.model.GameState;
+import com.neodem.orleans.model.GameVersion;
+import com.neodem.orleans.model.OriginalGameState;
+import com.neodem.orleans.model.OriginalPlayerState;
+import com.neodem.orleans.model.PlayerColor;
+import com.neodem.orleans.model.PlayerState;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -21,23 +25,35 @@ public class DefaultGameMaster implements GameMaster {
     @Override
     public GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion) {
 
-        if(storedGames.containsKey(gameId)) {
+        GameState gameState;
+
+        if (storedGames.containsKey(gameId)) {
             throw new IllegalArgumentException("Game with id = " + gameId + " exists already!");
         }
 
-        GameState gameState;
-        if (gameVersion == GameVersion.Original) {
-            gameState = new OriginalGameState(gameId);
+        if (!playerNames.isEmpty() && playerNames.size() > 1 && playerNames.size() <= 4) {
+
+            if (gameVersion == GameVersion.Original) {
+                gameState = new OriginalGameState(gameId, playerNames.size());
+            } else {
+                throw new IllegalArgumentException("Only Original game is implemented");
+            }
+
+            Set<PlayerColor> playerColors = new HashSet<>();
+            do {
+                playerColors.add(PlayerColor.randomColor());
+            } while (playerColors.size() != playerNames.size());
+            Iterator<PlayerColor> pci = playerColors.iterator();
+
+            for (String playerName : playerNames) {
+                PlayerState playerState = new OriginalPlayerState(playerName, pci.next());
+                gameState.addPlayer(playerState);
+            }
+
+            storedGames.put(gameId, gameState);
         } else {
-            throw new IllegalArgumentException("Only Original game is implemented");
+            throw new IllegalArgumentException("we must have 2-4 players to init game");
         }
-
-        for(String playerName : playerNames) {
-            PlayerState playerState = new OriginalPlayerState(playerName);
-            gameState.addPlayer(playerState);
-        }
-
-        storedGames.put(gameId, gameState);
 
         return gameState;
     }

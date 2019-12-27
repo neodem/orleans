@@ -1,4 +1,4 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
 
 import java.util.*;
 

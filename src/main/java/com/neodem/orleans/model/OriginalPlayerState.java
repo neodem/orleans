@@ -1,4 +1,4 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -6,8 +6,8 @@ package com.neodem.orleans.objects;
  */
 public class OriginalPlayerState extends PlayerState {
 
-    public OriginalPlayerState(String playerId) {
-        super(playerId);
+    public OriginalPlayerState(String playerId, PlayerColor playerColor) {
+        super(playerId, playerColor);
     }
 
     @Override
@@ -21,10 +21,10 @@ public class OriginalPlayerState extends PlayerState {
         tracks.put(Track.Scholars, 0);
         tracks.put(Track.Development, 0);
 
-        addToBag(Token.StarterBoatmen);
-        addToBag(Token.StarterCraftsman);
-        addToBag(Token.StarterFarmer);
-        addToBag(Token.StarterTrader);
+        addToBag(FollowerType.StarterBoatmen);
+        addToBag(FollowerType.StarterCraftsman);
+        addToBag(FollowerType.StarterFarmer);
+        addToBag(FollowerType.StarterTrader);
 
         goodCounts.put(GoodType.Grain, 0);
         goodCounts.put(GoodType.Cheese, 0);

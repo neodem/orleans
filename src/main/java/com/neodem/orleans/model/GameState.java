@@ -1,4 +1,6 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
+
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +23,7 @@ public abstract class GameState {
 
     protected BoardState boardState;
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
+    protected final Map<FollowerType, Integer> followerInventory = new HashMap<>();
 
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
@@ -28,12 +31,13 @@ public abstract class GameState {
     protected final List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
     protected final List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
 
-    public GameState(String gameId) {
+    public GameState(String gameId, int playerCount) {
+        Assert.isTrue(playerCount>1 && playerCount > 5, "playerCount should be 2-4");
         this.gameId = gameId;
-        initGame();
+        initGame(playerCount);
     }
 
-    public abstract void initGame();
+    public abstract void initGame(int playerCount);
 
     public String getGameId() {
         return gameId;

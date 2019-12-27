@@ -1,8 +1,5 @@
-package com.neodem.orleans.service;
+package com.neodem.orleans.model;
 
-import com.neodem.orleans.objects.Path;
-import com.neodem.orleans.objects.PathType;
-import com.neodem.orleans.objects.TokenLocation;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

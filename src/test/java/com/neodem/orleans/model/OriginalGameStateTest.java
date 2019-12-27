@@ -1,16 +1,12 @@
-package com.neodem.orleans.service;
+package com.neodem.orleans.model;
 
-import com.neodem.orleans.objects.GamePhase;
-import com.neodem.orleans.objects.GoodType;
-import com.neodem.orleans.objects.HourGlassTile;
-import com.neodem.orleans.objects.OriginalGameState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.neodem.orleans.objects.PlaceTile.*;
+import static com.neodem.orleans.model.PlaceTile.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -22,7 +18,7 @@ public class OriginalGameStateTest {
 
     @BeforeEach
     void setUp() {
-        gameState = new OriginalGameState("gameId");
+        gameState = new OriginalGameState("gameId", 2);
     }
 
     @AfterEach

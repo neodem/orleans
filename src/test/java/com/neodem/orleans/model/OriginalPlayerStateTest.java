@@ -1,11 +1,5 @@
-package com.neodem.orleans.service;
+package com.neodem.orleans.model;
 
-import com.neodem.orleans.objects.Bag;
-import com.neodem.orleans.objects.GoodType;
-import com.neodem.orleans.objects.OriginalPlayerState;
-import com.neodem.orleans.objects.Token;
-import com.neodem.orleans.objects.TokenLocation;
-import com.neodem.orleans.objects.Track;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +18,7 @@ public class OriginalPlayerStateTest {
 
     @BeforeEach
     void setUp() {
-        playerState = new OriginalPlayerState("someone");
+        playerState = new OriginalPlayerState("someone", PlayerColor.Blue);
     }
 
     @AfterEach
@@ -35,14 +29,15 @@ public class OriginalPlayerStateTest {
     @Test
     void initShouldInitProperly() {
         assertThat(playerState.getPlayerId()).isEqualTo("someone");
+        assertThat(playerState.getPlayerColor()).isEqualTo(PlayerColor.Blue);
         assertThat(playerState.getCoinCount()).isEqualTo(5);
         assertThat(playerState.getTokenLocation()).isEqualTo(TokenLocation.Orleans);
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();
-        Bag<Token> bag = playerState.getBag();
+        Bag<FollowerType> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
-        assertThat(bag).contains(Token.StarterBoatmen, Token.StarterCraftsman, Token.StarterFarmer, Token.StarterTrader);
+        assertThat(bag).contains(FollowerType.StarterBoatmen, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader);
 
         Map<GoodType, Integer> goodCounts = playerState.getGoodCounts();
         assertThat(goodCounts.get(GoodType.Grain)).isEqualTo(0);

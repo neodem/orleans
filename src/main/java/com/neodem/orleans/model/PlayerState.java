@@ -1,4 +1,4 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
 
 import com.google.common.base.Objects;
 import org.springframework.util.Assert;
@@ -15,18 +15,21 @@ import java.util.Map;
  */
 public abstract class PlayerState {
     protected final String playerId;
+    protected final PlayerColor playerColor;
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts= new HashMap<>();
-    private final Bag<Token> bag = new Bag<>();
+    private final Bag<FollowerType> bag = new Bag<>();
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
     protected TokenLocation tokenLocation;
     private int coinCount = 5;
     private int tradingStationCount = 10;
 
-    public PlayerState(String playerId) {
+    public PlayerState(String playerId, PlayerColor playerColor) {
         Assert.notNull(playerId, "playerId may not be null");
+        Assert.notNull(playerColor, "playerColor may not be null");
         this.playerId = playerId;
+        this.playerColor = playerColor;
         initState();
     }
 
@@ -43,6 +46,10 @@ public abstract class PlayerState {
     @Override
     public int hashCode() {
         return Objects.hashCode(playerId);
+    }
+
+    public PlayerColor getPlayerColor() {
+        return playerColor;
     }
 
     public String getPlayerId() {
@@ -70,14 +77,14 @@ public abstract class PlayerState {
         tracks.put(track, ++value);
     }
 
-    public Token pullFromBag() {
-        Token token = bag.iterator().next();
-        bag.remove(token);
-        return token;
+    public FollowerType pullFromBag() {
+        FollowerType followerType = bag.iterator().next();
+        bag.remove(followerType);
+        return followerType;
     }
 
-    public void addToBag(Token token) {
-        this.bag.add(token);
+    public void addToBag(FollowerType followerType) {
+        this.bag.add(followerType);
     }
 
     public TokenLocation getTokenLocation() {
@@ -131,7 +138,7 @@ public abstract class PlayerState {
         return tracks;
     }
 
-    public Bag<Token> getBag() {
+    public Bag<FollowerType> getBag() {
         return bag;
     }
 

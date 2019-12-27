@@ -1,4 +1,4 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)

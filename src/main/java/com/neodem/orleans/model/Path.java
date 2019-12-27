@@ -1,40 +1,35 @@
-package com.neodem.orleans.objects;
+package com.neodem.orleans.model;
 
 import com.google.common.base.Objects;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
 public class Path {
-    private final TokenLocation from;
-    private final TokenLocation to;
-
-    private final Set<TokenLocation> locationKey = new HashSet<>();
+    private final PathBetween pathBetween;
     private final PathType pathType;
+    private final Collection<GoodType> goods;
 
-    private Collection<GoodType> goods = new HashSet<>();
+    public Path(PathBetween pathBetween, PathType pathType) {
+        Assert.notNull(pathBetween, "pathBetween may not be null");
+        Assert.notNull(pathType, "pathType may not be null");
+        this.pathBetween = pathBetween;
+        this.pathType = pathType;
+        this.goods = new HashSet<>();
+    }
 
     public Path(TokenLocation from, TokenLocation to, PathType pathType) {
-        Assert.notNull(from, "from location may not be null");
-        Assert.notNull(to, "to location may not be null");
-        Assert.notNull(pathType, "pathType may not be null");
-        this.from = from;
-        this.to = to;
-        this.pathType = pathType;
-        this.locationKey.add(from);
-        this.locationKey.add(to);
+        this(new PathBetween(from, to), pathType);
     }
 
     @Override
     public String toString() {
-        return from +
-                "->" + to +
+        return pathBetween +
                 ", pathType=" + pathType +
                 ", goods=" + goods;
     }
@@ -44,25 +39,21 @@ public class Path {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Path path = (Path) o;
-        return locationKey.equals(path.locationKey) &&
+        return pathBetween.equals(path.pathBetween) &&
                 pathType == path.pathType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(locationKey, pathType);
+        return Objects.hashCode(pathBetween, pathType);
     }
 
     public void addGood(GoodType goodType) {
         goods.add(goodType);
     }
 
-    public TokenLocation getFrom() {
-        return from;
-    }
-
-    public TokenLocation getTo() {
-        return to;
+    public PathBetween getPathBetween() {
+        return pathBetween;
     }
 
     public PathType getPathType() {

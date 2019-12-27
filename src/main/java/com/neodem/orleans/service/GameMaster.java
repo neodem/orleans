@@ -1,7 +1,7 @@
 package com.neodem.orleans.service;
 
-import com.neodem.orleans.objects.GameVersion;
-import com.neodem.orleans.objects.GameState;
+import com.neodem.orleans.model.GameVersion;
+import com.neodem.orleans.model.GameState;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.neodem.orleans.web;
 
-import com.neodem.orleans.objects.GameState;
-import com.neodem.orleans.objects.GameVersion;
+import com.neodem.orleans.model.GameState;
+import com.neodem.orleans.model.GameVersion;
 import com.neodem.orleans.service.GameMaster;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
