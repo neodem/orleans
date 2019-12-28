@@ -1,10 +1,10 @@
 package com.neodem.orleans.web;
 
-import com.neodem.orleans.model.ActionType;
-import com.neodem.orleans.model.Follower;
-import com.neodem.orleans.model.GameState;
-import com.neodem.orleans.model.GameVersion;
-import com.neodem.orleans.service.GameMaster;
+import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GameVersion;
+import com.neodem.orleans.engine.core.GameMaster;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

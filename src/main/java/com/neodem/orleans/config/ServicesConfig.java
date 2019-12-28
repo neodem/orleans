@@ -1,9 +1,9 @@
 package com.neodem.orleans.config;
 
-import com.neodem.orleans.service.ActionHelper;
-import com.neodem.orleans.service.OriginalActionHelper;
-import com.neodem.orleans.service.OriginalGameMaster;
-import com.neodem.orleans.service.GameMaster;
+import com.neodem.orleans.engine.core.ActionHelper;
+import com.neodem.orleans.engine.original.OriginalActionHelper;
+import com.neodem.orleans.engine.original.OriginalGameMaster;
+import com.neodem.orleans.engine.core.GameMaster;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
