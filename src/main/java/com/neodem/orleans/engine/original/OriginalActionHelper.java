@@ -1,18 +1,18 @@
 package com.neodem.orleans.engine.original;
 
-import com.neodem.orleans.engine.core.actions.CoinBumpProcessor;
-import com.neodem.orleans.engine.core.actions.DevelopmentBumpProcessor;
-import com.neodem.orleans.engine.core.actions.GoodsBumpProcessor;
-import com.neodem.orleans.engine.core.model.GoodType;
-import com.neodem.orleans.engine.original.actions.*;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.BaseActionHelper;
+import com.neodem.orleans.engine.core.actions.CoinBumpProcessor;
+import com.neodem.orleans.engine.core.actions.DevelopmentBumpProcessor;
+import com.neodem.orleans.engine.core.actions.GoodsBumpProcessor;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.original.actions.*;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -78,13 +78,12 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionProcessors.put(ShippingLine, new DevelopmentBumpProcessor(1));
         actionProcessors.put(Brewery, new CoinBumpProcessor(2));
         actionProcessors.put(Hayrick, new GoodsBumpProcessor(GoodType.Grain));
-        actionProcessors.put(Sacristy, new SacristyProcessor());
         actionProcessors.put(WoolManufacturer, new GoodsBumpProcessor(GoodType.Wool));
         actionProcessors.put(CheeseFactory, new GoodsBumpProcessor(GoodType.Cheese));
         actionProcessors.put(Hospital, new HospitalProcessor());
         actionProcessors.put(TailorShop, new GoodsBumpProcessor(GoodType.Brocade));
         actionProcessors.put(Windmill, new WindmillProcessor());
-        actionProcessors.put(Library,  new DevelopmentBumpProcessor(2));
+        actionProcessors.put(Library, new DevelopmentBumpProcessor(2));
         actionProcessors.put(Office, new OfficeProcessor());
         actionProcessors.put(Cellar, new CoinBumpProcessor(4));
         actionProcessors.put(Laboratory, new LaboratoryProcessor());
@@ -94,9 +93,13 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionProcessors.put(Pharmacy, new PharmacyProcessor());
     }
 
-
     public OriginalActionHelper() {
         super(actionMappings, actionProcessors);
+    }
+
+    @Override
+    public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
+        super.processAction(actionType, gameState, player);
     }
 
     @Override
@@ -126,10 +129,4 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
 
         return super.canPlaceIntoAction(actionType, followersToPlace, placedInActionAlready);
     }
-
-    @Override
-    public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
-        super.processAction(actionType, gameState, player);
-    }
-
 }

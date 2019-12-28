@@ -12,10 +12,12 @@ public class OfficeProcessor implements ActionProcessor {
 
     @Override
     public boolean isAllowed(GameState gameState, PlayerState player) {
-        return false;
+        return true;
     }
+
     @Override
     public void process(GameState gameState, PlayerState player) {
-
+        int tradingStationsPlaced = player.getTradingStationLocations().size();
+        player.addCoin(tradingStationsPlaced);
     }
 }

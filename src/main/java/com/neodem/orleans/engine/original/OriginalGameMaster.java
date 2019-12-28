@@ -130,10 +130,14 @@ public class OriginalGameMaster implements GameMaster {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
-                    if (gameState.getStartPlayer().equals(player.getPlayerId())) {
+                    if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
                         List<Follower> plannedFollowers = player.getPlans().get(actionType);
                         if(actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
-                            processAction(gameState, player, actionType);
+                            if(actionHelper.isActionAllowed(actionType, gameState, player)) {
+                                processAction(gameState, player, actionType);
+                            } else {
+                                throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
+                            }
                         } else {
                             throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
                         }
@@ -158,6 +162,9 @@ public class OriginalGameMaster implements GameMaster {
 
         // do action
         actionHelper.processAction(actionType, gameState, player);
+
+        // move to the next unpassed player
+        gameState.advanceActionPlayer();
     }
 
     @Override

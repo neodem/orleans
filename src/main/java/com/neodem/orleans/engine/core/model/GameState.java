@@ -223,4 +223,18 @@ public abstract class GameState implements Loggable {
     public void citizenClaimed(CitizenType citizenType) {
         claimedCitizens.add(citizenType);
     }
+
+    int currentActionPlayerIndex = 0;
+
+    public String getCurrentActionPlayer() {
+        return players.get(currentActionPlayerIndex).getPlayerId();
+    }
+
+    public void advanceActionPlayer() {
+        int count = 1;
+        do {
+            currentActionPlayerIndex++;
+            count++;
+        } while(players.get(currentActionPlayerIndex).isPassed() && count == playerCount);
+    }
 }

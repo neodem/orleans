@@ -37,4 +37,16 @@ public class DevelopmentHelper {
             player.addCoin(5);
         }
     }
+
+    public static int getLevel(int index) {
+        int level = 1;
+
+        if(index >= 4) level = 2;
+        else if(index >= 9) level = 3;
+        else if(index >= 15) level = 4;
+        else if(index >= 22) level = 5;
+        else if(index == 30) level = 6;
+
+        return level;
+    }
 }

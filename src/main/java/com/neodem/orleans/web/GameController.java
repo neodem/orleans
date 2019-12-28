@@ -87,7 +87,7 @@ public class GameController {
     }
 
     @RequestMapping("/game/{gameId}/{playerId}/pass")
-    public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
+    public GameState passActionPhase(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
         GameState gameState = gameMaster.pass(gameId, playerId);
         return gameState;
     }
