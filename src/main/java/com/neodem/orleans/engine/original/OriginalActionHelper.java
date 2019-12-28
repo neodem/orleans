@@ -8,6 +8,7 @@ import com.neodem.orleans.engine.core.actions.CoinBumpProcessor;
 import com.neodem.orleans.engine.core.actions.DevelopmentBumpProcessor;
 import com.neodem.orleans.engine.core.actions.GoodsBumpProcessor;
 import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
@@ -98,8 +99,13 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
     }
 
     @Override
-    public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
-        super.processAction(actionType, gameState, player);
+    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+        return super.isActionAllowed(actionType, gameState, player, additionalDataMap);
+    }
+
+    @Override
+    public void processAction(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+        super.processAction(actionType, gameState, player, additionalDataMap);
     }
 
     @Override

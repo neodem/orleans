@@ -3,16 +3,17 @@ package com.neodem.orleans.engine.original;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.HourGlassTile;
-import com.neodem.orleans.engine.original.model.OriginalGameState;
-import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
+import com.neodem.orleans.engine.original.model.OriginalGameState;
+import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -124,7 +125,7 @@ public class OriginalGameMaster implements GameMaster {
     }
 
     @Override
-    public GameState doAction(String gameId, String playerId, ActionType actionType) {
+    public GameState doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
@@ -133,8 +134,8 @@ public class OriginalGameMaster implements GameMaster {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
                         List<Follower> plannedFollowers = player.getPlans().get(actionType);
                         if(actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
-                            if(actionHelper.isActionAllowed(actionType, gameState, player)) {
-                                processAction(gameState, player, actionType);
+                            if(actionHelper.isActionAllowed(actionType, gameState, player, additionalDataMap)) {
+                                processAction(gameState, player, actionType, additionalDataMap);
                             } else {
                                 throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
                             }
@@ -156,12 +157,12 @@ public class OriginalGameMaster implements GameMaster {
         return gameState;
     }
 
-    private void processAction(GameState gameState, PlayerState player, ActionType actionType) {
+    private void processAction(GameState gameState, PlayerState player, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
         // send back to bag and remove plan
         player.unPlan(actionType);
 
         // do action
-        actionHelper.processAction(actionType, gameState, player);
+        actionHelper.processAction(actionType, gameState, player, additionalDataMap);
 
         // move to the next unpassed player
         gameState.advanceActionPlayer();

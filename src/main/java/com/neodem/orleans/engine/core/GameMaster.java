@@ -1,11 +1,13 @@
 package com.neodem.orleans.engine.core;
 
 import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
-import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GameVersion;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -54,9 +56,10 @@ public interface GameMaster {
      * @param gameId
      * @param playerId
      * @param actionType
+     * @param additionalDataMap other data from the request
      * @return
      */
-    GameState doAction(String gameId, String playerId, ActionType actionType);
+    GameState doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap);
 
     /**
      * player does an action

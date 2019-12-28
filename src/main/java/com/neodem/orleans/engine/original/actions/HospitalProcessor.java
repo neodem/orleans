@@ -1,10 +1,13 @@
 package com.neodem.orleans.engine.original.actions;
 
 import com.neodem.orleans.engine.core.ActionProcessor;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.DevelopmentHelper;
+
+import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -13,12 +16,12 @@ import com.neodem.orleans.engine.original.DevelopmentHelper;
 public class HospitalProcessor implements ActionProcessor {
 
     @Override
-    public boolean isAllowed(GameState gameState, PlayerState player) {
+    public boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         return true;
     }
 
     @Override
-    public void process(GameState gameState, PlayerState player) {
+    public void process(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int index = player.getTrackValue(Track.Development);
         int level = DevelopmentHelper.getLevel(index);
         player.addCoin(level);

@@ -1,10 +1,11 @@
 package com.neodem.orleans.web;
 
+import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
-import com.neodem.orleans.engine.core.GameMaster;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -43,7 +46,12 @@ public class GameController {
     }
 
     @RequestMapping("/game/{gameId}/{playerId}/plan")
-    public GameState submitPlan(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action, @RequestParam(value = "followers") List<String> followers) {
+    public GameState submitPlan(
+            @PathVariable(value = "gameId") String gameId,
+            @PathVariable(value = "playerId") String playerId,
+            @RequestParam(value = "action") String action,
+            @RequestParam(value = "followers") List<String> followers
+    ) {
 
         ActionType actionType = null;
         try {
@@ -74,7 +82,7 @@ public class GameController {
     }
 
     @RequestMapping("/game/{gameId}/{playerId}/action")
-    public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action) {
+    public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action, @RequestParam Map<String, String> allParams) {
         ActionType actionType = null;
         try {
             actionType = ActionType.valueOf(action);
@@ -82,7 +90,21 @@ public class GameController {
             // TODO
         }
 
-        GameState gameState = gameMaster.doAction(gameId, playerId, actionType);
+        Map<AdditionalDataType, String> additionalDataMap = new HashMap<>();
+        if(allParams != null) {
+            for(String key : allParams.keySet()) {
+                AdditionalDataType type = null;
+                try {
+                    type = AdditionalDataType.valueOf(key);
+                } catch (IllegalArgumentException e) {
+                }
+                if(type != null) {
+                    additionalDataMap.put(type, allParams.get(key));
+                }
+            }
+        }
+
+        GameState gameState = gameMaster.doAction(gameId, playerId, actionType, additionalDataMap);
         return gameState;
     }
 

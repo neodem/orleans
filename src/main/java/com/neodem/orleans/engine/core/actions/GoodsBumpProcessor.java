@@ -1,9 +1,12 @@
 package com.neodem.orleans.engine.core.actions;
 
 import com.neodem.orleans.engine.core.ActionProcessor;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerState;
+
+import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -18,12 +21,12 @@ public class GoodsBumpProcessor implements ActionProcessor {
     }
 
     @Override
-    public boolean isAllowed(GameState gameState, PlayerState player) {
+    public boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         return gameState.getGoodsInventory().get(type) > 0;
     }
 
     @Override
-    public void process(GameState gameState, PlayerState player) {
+    public void process(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
        int amount = gameState.getGoodsInventory().get(type);
        gameState.getGoodsInventory().put(type, --amount);
        player.addGood(type);

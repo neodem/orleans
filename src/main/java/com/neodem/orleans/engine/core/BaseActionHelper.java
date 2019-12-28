@@ -2,6 +2,7 @@ package com.neodem.orleans.engine.core;
 
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
@@ -26,21 +27,22 @@ public abstract class BaseActionHelper implements ActionHelper {
     }
 
     @Override
-    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player) {
+    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         ActionProcessor actionProcessor = actionProcessors.get(actionType);
         if(actionProcessor != null) {
-            return actionProcessor.isAllowed(gameState, player);
+            return actionProcessor.isAllowed(gameState, player, additionalDataMap);
         }
         return false;
     }
 
     @Override
-    public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
+    public void processAction(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+
         gameState.writeLine("" + player.getPlayerId() + " doing action: " + actionType);
 
         ActionProcessor actionProcessor = actionProcessors.get(actionType);
         if(actionProcessor != null) {
-            actionProcessor.process(gameState, player);
+            actionProcessor.process(gameState, player, additionalDataMap);
         }
     }
 
