@@ -4,11 +4,11 @@ package com.neodem.orleans.model;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public enum FollowerType {
+public enum Follower {
     Farmer,
     StarterFarmer,
-    Boatmen,
-    StarterBoatmen,
+    Boatman,
+    StarterBoatman,
     Craftsman,
     StarterCraftsman,
     Trader,

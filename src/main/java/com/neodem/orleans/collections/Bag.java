@@ -1,4 +1,4 @@
-package com.neodem.orleans.model;
+package com.neodem.orleans.collections;
 
 
 import java.util.ArrayList;

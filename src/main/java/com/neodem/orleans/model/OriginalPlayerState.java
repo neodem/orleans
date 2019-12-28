@@ -21,10 +21,10 @@ public class OriginalPlayerState extends PlayerState {
         tracks.put(Track.Scholars, 0);
         tracks.put(Track.Development, 0);
 
-        addToBag(FollowerType.StarterBoatmen);
-        addToBag(FollowerType.StarterCraftsman);
-        addToBag(FollowerType.StarterFarmer);
-        addToBag(FollowerType.StarterTrader);
+        addToBag(Follower.StarterBoatman);
+        addToBag(Follower.StarterCraftsman);
+        addToBag(Follower.StarterFarmer);
+        addToBag(Follower.StarterTrader);
 
         goodCounts.put(GoodType.Grain, 0);
         goodCounts.put(GoodType.Cheese, 0);

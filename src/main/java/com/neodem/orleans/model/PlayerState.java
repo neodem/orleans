@@ -1,6 +1,7 @@
 package com.neodem.orleans.model;
 
 import com.google.common.base.Objects;
+import com.neodem.orleans.collections.Bag;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -19,10 +20,10 @@ public abstract class PlayerState {
     protected final PlayerColor playerColor;
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts= new HashMap<>();
-    private final Bag<FollowerType> bag = new Bag<>();
-    private final List<FollowerType> market = new ArrayList<>();
+    private final Bag<Follower> bag = new Bag<>();
+    private final List<Follower> market = new ArrayList<>();
 
-    private final Map<ActionType, List<FollowerType>> plans = new HashMap<>();
+    private final Map<ActionType, List<Follower>> plans = new HashMap<>();
 
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
@@ -62,7 +63,7 @@ public abstract class PlayerState {
         return playerId;
     }
 
-    public List<FollowerType> getMarket() {
+    public List<Follower> getMarket() {
         return market;
     }
 
@@ -78,7 +79,7 @@ public abstract class PlayerState {
         return ++coinCount;
     }
 
-    public Map<ActionType, List<FollowerType>> getPlans() {
+    public Map<ActionType, List<Follower>> getPlans() {
         return plans;
     }
 
@@ -95,8 +96,8 @@ public abstract class PlayerState {
         tracks.put(track, ++value);
     }
 
-    public void addToBag(FollowerType followerType) {
-        this.bag.add(followerType);
+    public void addToBag(Follower follower) {
+        this.bag.add(follower);
     }
 
     public TokenLocation getTokenLocation() {
@@ -150,7 +151,7 @@ public abstract class PlayerState {
         return tracks;
     }
 
-    public Bag<FollowerType> getBag() {
+    public Bag<Follower> getBag() {
         return bag;
     }
 
@@ -165,7 +166,7 @@ public abstract class PlayerState {
      */
     public void drawFollowers(int drawCount) {
         for(int i=0;i<drawCount;i++) {
-            FollowerType follower = bag.take();
+            Follower follower = bag.take();
             if(follower != null) {
                 market.add(follower);
             }
@@ -176,24 +177,24 @@ public abstract class PlayerState {
         return planLocked;
     }
 
-    public void addToPlan(ActionType actionType, List<FollowerType> followerTypes) {
-        List<FollowerType> allocatedFollowers = plans.get(actionType);
+    public void addToPlan(ActionType actionType, List<Follower> followers) {
+        List<Follower> allocatedFollowers = plans.get(actionType);
         if(allocatedFollowers == null) allocatedFollowers = new ArrayList<>();
-        for(FollowerType followerType : followerTypes) {
-            allocatedFollowers.add(followerType);
+        for(Follower follower : followers) {
+            allocatedFollowers.add(follower);
             // TODO game log
         }
         plans.put(actionType, allocatedFollowers);
     }
 
-    public void removeFromMarket(List<FollowerType> followerTypes) {
-        for(FollowerType follower : followerTypes) {
+    public void removeFromMarket(List<Follower> followers) {
+        for(Follower follower : followers) {
             market.remove(follower);
             // TODO game log
         }
     }
 
-    public boolean availableInMarket(List<FollowerType> followerTypes) {
+    public boolean availableInMarket(List<Follower> followers) {
         boolean result = false;
 
         // TODO

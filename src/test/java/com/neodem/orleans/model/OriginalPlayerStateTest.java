@@ -1,5 +1,6 @@
 package com.neodem.orleans.model;
 
+import com.neodem.orleans.collections.Bag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,9 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();
-        Bag<FollowerType> bag = playerState.getBag();
+        Bag<Follower> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
-        assertThat(bag).contains(FollowerType.StarterBoatmen, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader);
+        assertThat(bag).contains(Follower.StarterBoatman, Follower.StarterCraftsman, Follower.StarterFarmer, Follower.StarterTrader);
 
         Map<GoodType, Integer> goodCounts = playerState.getGoodCounts();
         assertThat(goodCounts.get(GoodType.Grain)).isEqualTo(0);

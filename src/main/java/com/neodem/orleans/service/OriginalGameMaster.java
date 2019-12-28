@@ -1,7 +1,7 @@
 package com.neodem.orleans.service;
 
 import com.neodem.orleans.model.ActionType;
-import com.neodem.orleans.model.FollowerType;
+import com.neodem.orleans.model.Follower;
 import com.neodem.orleans.model.GamePhase;
 import com.neodem.orleans.model.GameState;
 import com.neodem.orleans.model.GameVersion;
@@ -23,13 +23,13 @@ import java.util.Set;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/27/19
  */
-public class DefaultGameMaster implements GameMaster {
+public class OriginalGameMaster implements GameMaster {
 
     private Map<String, GameState> storedGames = new HashMap<>();
 
     private final ActionService actionService;
 
-    public DefaultGameMaster(ActionService actionService) {
+    public OriginalGameMaster(ActionService actionService) {
         this.actionService = actionService;
     }
 
@@ -107,17 +107,19 @@ public class DefaultGameMaster implements GameMaster {
     }
 
     @Override
-    public GameState addToPlan(String gameId, String playerId, ActionType actionType, List<FollowerType> followerTypes) {
+    public GameState addToPlan(String gameId, String playerId, ActionType actionType, List<Follower> followers) {
 
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if(player != null) {
                 // 1) validate followers can fit on the action type
-                if(actionService.validAction(actionType, followerTypes)) {
-                    if(player.availableInMarket(followerTypes)) {
-                        player.removeFromMarket(followerTypes);
-                        player.addToPlan(actionType, followerTypes);
+                if(actionService.validAction(actionType, followers)) {
+                    // 2) does the player have the followers avail in the market?
+                    if(player.availableInMarket(followers)) {
+                        // remove from market and add to the plan
+                        player.removeFromMarket(followers);
+                        player.addToPlan(actionType, followers);
                     } else {
                         throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more of these followers in their market");
                     }

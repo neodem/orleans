@@ -1,12 +1,11 @@
 package com.neodem.orleans.service;
 
 import com.neodem.orleans.model.ActionType;
-import com.neodem.orleans.model.FollowerType;
+import com.neodem.orleans.model.Follower;
 import com.neodem.orleans.model.GameVersion;
 import com.neodem.orleans.model.GameState;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -45,8 +44,8 @@ public interface GameMaster {
      * @param gameId
      * @param playerId
      * @param actionType
-     * @param followerTypes
+     * @param followers
      * @return
      */
-    GameState addToPlan(String gameId, String playerId, ActionType actionType, List<FollowerType> followerTypes);
+    GameState addToPlan(String gameId, String playerId, ActionType actionType, List<Follower> followers);
 }

@@ -26,7 +26,7 @@ public abstract class GameState {
     protected BoardState boardState;
 
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
-    protected final Map<FollowerType, Integer> followerInventory = new HashMap<>();
+    protected final Map<Follower, Integer> followerInventory = new HashMap<>();
 
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
@@ -87,7 +87,7 @@ public abstract class GameState {
         return playerCount;
     }
 
-    public Map<FollowerType, Integer> getFollowerInventory() {
+    public Map<Follower, Integer> getFollowerInventory() {
         return followerInventory;
     }
 

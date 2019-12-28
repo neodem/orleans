@@ -1,7 +1,7 @@
 package com.neodem.orleans.web;
 
 import com.neodem.orleans.model.ActionType;
-import com.neodem.orleans.model.FollowerType;
+import com.neodem.orleans.model.Follower;
 import com.neodem.orleans.model.GameState;
 import com.neodem.orleans.model.GameVersion;
 import com.neodem.orleans.service.GameMaster;
@@ -52,11 +52,11 @@ public class GameController {
             // TODO
         }
 
-        List<FollowerType> followerTypes = new ArrayList<>(followers.size());
+        List<Follower> followerTypes = new ArrayList<>(followers.size());
         for(String follower : followers) {
-            FollowerType followerType = null;
+            Follower followerType = null;
             try {
-                followerType = FollowerType.valueOf(follower);
+                followerType = Follower.valueOf(follower);
                 followerTypes.add(followerType);
             } catch (IllegalArgumentException e) {
                 // TODO
