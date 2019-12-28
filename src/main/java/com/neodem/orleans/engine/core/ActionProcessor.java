@@ -8,5 +8,6 @@ import com.neodem.orleans.engine.core.model.PlayerState;
  * Created on 12/28/19
  */
 public interface ActionProcessor {
+    boolean isAllowed(GameState gameState, PlayerState player);
     void process(GameState gameState, PlayerState player);
 }

@@ -132,7 +132,7 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
                     if (gameState.getStartPlayer().equals(player.getPlayerId())) {
                         List<Follower> plannedFollowers = player.getPlans().get(actionType);
-                        if(actionHelper.fullAction(actionType, plannedFollowers, null)) {
+                        if(actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
                             processAction(gameState, player, actionType);
                         } else {
                             throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
@@ -191,7 +191,7 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     // 1) validate followers can fit on the action type
-                    if (actionHelper.validAction(actionType, followers)) {
+                    if (actionHelper.actionCanAccept(actionType, followers)) {
                         // 2) does the player have the followers avail in the market?
                         if (player.availableInMarket(followers)) {
                             // 3) are there available open slots in the plan?
@@ -342,6 +342,6 @@ public class OriginalGameMaster implements GameMaster {
     public boolean canPlan(PlayerState player, ActionType actionType, List<Follower> followersToPlace) {
         List<Follower> placedInActionAlready = player.getPlans().get(actionType);
         if (placedInActionAlready == null || placedInActionAlready.isEmpty()) return true;
-        return actionHelper.canPlace(actionType, followersToPlace, placedInActionAlready);
+        return actionHelper.canPlaceIntoAction(actionType, followersToPlace, placedInActionAlready);
     }
 }

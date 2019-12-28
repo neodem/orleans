@@ -48,21 +48,21 @@ public class BaseActionHelperTest {
     void canPlaceShouldFailIfFilledSpot() {
         List<Follower> followersToPlace = Lists.newArrayList(Boatman);
         List<Follower> placedAlready = Lists.newArrayList(Farmer, Boatman);
-        assertThat(actionService.canPlace(Village, followersToPlace, placedAlready)).isFalse();
+        assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isFalse();
     }
 
     @Test
     void canPlaceShouldPassIfAllCorrect() {
         List<Follower> followersToPlace = Lists.newArrayList(Boatman);
         List<Follower> placedAlready = Lists.newArrayList(Farmer, Craftsman);
-        assertThat(actionService.canPlace(Village, followersToPlace, placedAlready)).isTrue();
+        assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isTrue();
     }
 
     @Test
     void canPlaceShouldNotMindStarters() {
         List<Follower> followersToPlace = Lists.newArrayList(StarterBoatman);
         List<Follower> placedAlready = Lists.newArrayList(Farmer, Craftsman);
-        assertThat(actionService.canPlace(Village, followersToPlace, placedAlready)).isTrue();
+        assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isTrue();
     }
 }
 

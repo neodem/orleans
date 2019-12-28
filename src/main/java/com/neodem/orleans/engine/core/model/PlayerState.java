@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.neodem.orleans.collections.Bag;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.Loggable;
+import com.neodem.orleans.engine.original.model.CitizenType;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public abstract class PlayerState {
     protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
     private final Bag<Follower> bag = new Bag<>();
     private Grouping<Follower> market = new Grouping<>();
+    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
 
     private final Map<ActionType, List<Follower>> plans = new HashMap<>();
 
@@ -80,6 +82,7 @@ public abstract class PlayerState {
     }
 
     public int addCoin() {
+        log.writeLine("" + playerId + " gains 1 coin");
         return ++coinCount;
     }
 
@@ -247,5 +250,19 @@ public abstract class PlayerState {
             addToBag(follower);
         }
         plans.remove(actionType);
+    }
+
+    public Collection<CitizenType> getClaimedCitizens() {
+        return claimedCitizens;
+    }
+
+    public void addCitizen(CitizenType citizenType) {
+        claimedCitizens.add(citizenType);
+    }
+
+    public int addCoin(int coins) {
+        log.writeLine("" + playerId + " gains " + coins + " coins");
+        coinCount += coins;
+        return coinCount;
     }
 }

@@ -1,6 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
 import com.neodem.orleans.engine.core.Loggable;
+import com.neodem.orleans.engine.original.model.CitizenType;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public abstract class GameState implements Loggable {
 
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
+
+    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
 
     protected HourGlassTile currentHourGlass;
 
@@ -211,5 +214,13 @@ public abstract class GameState implements Loggable {
             if (playerState.getPlayerId().equals(playerId)) return playerState;
         }
         return null;
+    }
+
+    public boolean isCitizenClaimed(CitizenType citizenType) {
+        return claimedCitizens.contains(citizenType);
+    }
+
+    public void citizenClaimed(CitizenType citizenType) {
+        claimedCitizens.add(citizenType);
     }
 }

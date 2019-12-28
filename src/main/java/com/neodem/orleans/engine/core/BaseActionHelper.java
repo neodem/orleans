@@ -26,7 +26,18 @@ public abstract class BaseActionHelper implements ActionHelper {
     }
 
     @Override
+    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player) {
+        ActionProcessor actionProcessor = actionProcessors.get(actionType);
+        if(actionProcessor != null) {
+            return actionProcessor.isAllowed(gameState, player);
+        }
+        return false;
+    }
+
+    @Override
     public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
+        gameState.writeLine("" + player.getPlayerId() + " doing action: " + actionType);
+
         ActionProcessor actionProcessor = actionProcessors.get(actionType);
         if(actionProcessor != null) {
             actionProcessor.process(gameState, player);
@@ -34,7 +45,7 @@ public abstract class BaseActionHelper implements ActionHelper {
     }
 
     @Override
-    public boolean validAction(ActionType actionType, List<Follower> followers) {
+    public boolean actionCanAccept(ActionType actionType, List<Follower> followers) {
         Assert.notNull(actionType, "actionType may not be null");
         Assert.notNull(followers, "followers may not be null");
 
@@ -46,8 +57,8 @@ public abstract class BaseActionHelper implements ActionHelper {
     }
 
     @Override
-    public boolean canPlace(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
-        if(placedInActionAlready == null || placedInActionAlready.isEmpty() && validAction(actionType, followersToPlace)) return true;
+    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
+        if(placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace)) return true;
 
         // returns a copy
         List<Follower> template = actionMappings.get(actionType).getTemplate();
@@ -65,7 +76,7 @@ public abstract class BaseActionHelper implements ActionHelper {
     }
 
     @Override
-    public boolean fullAction(ActionType actionType, List<Follower> followers, Follower techToken) {
+    public boolean actionIsFull(ActionType actionType, List<Follower> followers, Follower techToken) {
         //TODO techToken
 
         List<Follower> sanitizedFollowers = sanitizeFollowers(followers);

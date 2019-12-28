@@ -19,7 +19,7 @@ public interface ActionHelper {
      * @param followers
      * @return
      */
-    boolean validAction(ActionType actionType, List<Follower> followers);
+    boolean actionCanAccept(ActionType actionType, List<Follower> followers);
 
     /**
      * return true if the given action accepts all the types in the followerTypes list and
@@ -30,7 +30,7 @@ public interface ActionHelper {
      * @param techToken  if there is a tech token override
      * @return
      */
-    boolean fullAction(ActionType actionType, List<Follower> followers, Follower techToken);
+    boolean actionIsFull(ActionType actionType, List<Follower> followers, Follower techToken);
 
     /**
      * determine if we can place all followers into an action with some placed already
@@ -40,7 +40,9 @@ public interface ActionHelper {
      * @param placedInActionAlready
      * @return
      */
-    boolean canPlace(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready);
+    boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready);
+
+    boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player);
 
     /**
      *

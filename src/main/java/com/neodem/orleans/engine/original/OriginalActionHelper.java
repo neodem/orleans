@@ -1,5 +1,9 @@
 package com.neodem.orleans.engine.original;
 
+import com.neodem.orleans.engine.core.actions.CoinBumpProcessor;
+import com.neodem.orleans.engine.core.actions.DevelopmentBumpProcessor;
+import com.neodem.orleans.engine.core.actions.GoodsBumpProcessor;
+import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.original.actions.*;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.ActionHelper;
@@ -63,7 +67,7 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionProcessors.put(Village, new VillageProcessor());
         actionProcessors.put(University, new UniversityProcessor());
         actionProcessors.put(Castle, new CastleProcessor());
-        actionProcessors.put(Scriptorium, new ScriptoriumProcessor());
+        actionProcessors.put(Scriptorium, new DevelopmentBumpProcessor(1));
         actionProcessors.put(TownHall, new TownHallProcessor());
         actionProcessors.put(Monastery, new MonasteryProcessor());
         actionProcessors.put(Ship, new ShipProcessor());
@@ -71,21 +75,21 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionProcessors.put(GuildHall, new GuildHallProcessor());
 
         //places
-        actionProcessors.put(ShippingLine, new ShippingLineProcessor());
-        actionProcessors.put(Brewery, new BreweryProcessor());
-        actionProcessors.put(Hayrick, new HayrickProcessor());
+        actionProcessors.put(ShippingLine, new DevelopmentBumpProcessor(1));
+        actionProcessors.put(Brewery, new CoinBumpProcessor(2));
+        actionProcessors.put(Hayrick, new GoodsBumpProcessor(GoodType.Grain));
         actionProcessors.put(Sacristy, new SacristyProcessor());
-        actionProcessors.put(WoolManufacturer, new WoolManufacturerProcessor());
-        actionProcessors.put(CheeseFactory, new CheeseFactoryProcessor());
-        actionProcessors.put(Hospital, new Hospitalrocessor());
-        actionProcessors.put(TailorShop, new TailorShopProcessor());
+        actionProcessors.put(WoolManufacturer, new GoodsBumpProcessor(GoodType.Wool));
+        actionProcessors.put(CheeseFactory, new GoodsBumpProcessor(GoodType.Cheese));
+        actionProcessors.put(Hospital, new HospitalProcessor());
+        actionProcessors.put(TailorShop, new GoodsBumpProcessor(GoodType.Brocade));
         actionProcessors.put(Windmill, new WindmillProcessor());
-        actionProcessors.put(Library, new LibraryProcessor());
+        actionProcessors.put(Library,  new DevelopmentBumpProcessor(2));
         actionProcessors.put(Office, new OfficeProcessor());
-        actionProcessors.put(Cellar, new CellarProcessor());
+        actionProcessors.put(Cellar, new CoinBumpProcessor(4));
         actionProcessors.put(Laboratory, new LaboratoryProcessor());
         actionProcessors.put(HorseWagon, new HorseWagonProcessor());
-        actionProcessors.put(Winery, new WineryProcessor());
+        actionProcessors.put(Winery, new GoodsBumpProcessor(GoodType.Wine));
         actionProcessors.put(GunpowderTower, new GunpowderTowerProcessor());
         actionProcessors.put(Pharmacy, new PharmacyProcessor());
     }
@@ -96,7 +100,7 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
     }
 
     @Override
-    public boolean validAction(ActionType actionType, List<Follower> followers) {
+    public boolean actionCanAccept(ActionType actionType, List<Follower> followers) {
         Assert.notNull(actionType, "actionType may not be null");
         Assert.notNull(followers, "followers may not be null");
 
@@ -104,12 +108,12 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
             return followers != null && !followers.isEmpty();
         }
 
-        return super.validAction(actionType, followers);
+        return super.actionCanAccept(actionType, followers);
     }
 
     @Override
-    public boolean canPlace(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
-        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && validAction(actionType, followersToPlace))
+    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
+        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace))
             return true;
 
         if (actionType == Pharmacy) {
@@ -120,7 +124,7 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
             return (placedInActionAlready == null || placedInActionAlready.size() < 2) && (followersToPlace != null && !followersToPlace.isEmpty());
         }
 
-        return super.canPlace(actionType, followersToPlace, placedInActionAlready);
+        return super.canPlaceIntoAction(actionType, followersToPlace, placedInActionAlready);
     }
 
     @Override
