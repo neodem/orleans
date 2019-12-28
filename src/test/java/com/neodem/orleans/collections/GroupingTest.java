@@ -24,12 +24,6 @@ public class GroupingTest {
         grouping = null;
     }
 
-//    @Test
-//    void canFitIntoShouldNotAllowDiffTypes() {
-//        Grouping test = new Grouping("1", "2");
-//        test.canFitInto(grouping);
-//    }
-
     @Test
     void equalsShouldFailOnDiffSize() {
         Grouping test = new Grouping(1);
@@ -93,12 +87,5 @@ public class GroupingTest {
         Grouping test = new Grouping(1, 2, 3, 4);
         boolean result = test.canFitInto(grouping);
         assertThat(result).isFalse();
-    }
-
-    @Test
-    void groupingShouldOnlyAllowNonEmptyContruction() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Grouping());
     }
 }

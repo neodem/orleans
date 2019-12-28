@@ -12,6 +12,7 @@ import java.util.List;
 public interface ActionService {
     /**
      * return true if the given action accepts all the types in the followerTypes list
+     *
      * @param actionType
      * @param followers
      * @return
@@ -24,7 +25,7 @@ public interface ActionService {
      *
      * @param actionType
      * @param followers
-     * @param techToken if there is a tech token override
+     * @param techToken  if there is a tech token override
      * @return
      */
     boolean fullAction(ActionType actionType, List<Follower> followers, Follower techToken);

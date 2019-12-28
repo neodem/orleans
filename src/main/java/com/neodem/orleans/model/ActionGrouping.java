@@ -10,11 +10,9 @@ import java.util.List;
  * Created on 12/28/19
  */
 public class ActionGrouping {
-    private final Grouping<Follower> template;
+    private Grouping<Follower> template;
     private final ActionType action;
-
-    //TODO
-    private Follower override;
+    private Follower techOverride = null;
     private final List<Follower> accumulator = new ArrayList<>();
 
     public ActionGrouping(ActionType action, Grouping<Follower> template) {
@@ -23,8 +21,23 @@ public class ActionGrouping {
     }
 
     public boolean addTechOverride(Follower follower) {
-        this.override = follower;
+        List<Follower> elements = template.getTemplate();
+        elements.remove(follower);
+        template = new Grouping<>(elements);
+        techOverride = follower;
         return isComplete();
+    }
+
+    public Follower getTechOverride() {
+        return techOverride;
+    }
+
+    public Grouping<Follower> getTemplate() {
+        return template;
+    }
+
+    public List<Follower> getAccumulator() {
+        return accumulator;
     }
 
     public boolean addFollower(Follower follower) {
@@ -33,7 +46,7 @@ public class ActionGrouping {
     }
 
     public boolean isComplete() {
-        if(accumulator.size() != template.size()) return false;
+        if (accumulator.size() != template.size()) return false;
         Grouping<Follower> test = new Grouping<>(accumulator);
         return template.equals(test);
     }

@@ -55,7 +55,7 @@ public class OriginalGameState extends GameState {
 
         initForPlayerCount(playerCount);
 
-        gameLog("Original game is set up. Welcome!");
+        writeLine("Original game is set up. Welcome!");
     }
 
     @Override

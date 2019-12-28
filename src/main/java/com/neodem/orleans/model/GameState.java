@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public abstract class GameState {
+public abstract class GameState implements Loggable {
     private final int playerCount;
     protected String gameId;
 
@@ -58,7 +58,8 @@ public abstract class GameState {
 
     protected abstract void initFor2Players();
 
-    public void gameLog(String line) {
+    @Override
+    public void writeLine(String line) {
         gameLog.add(line);
     }
 
@@ -75,12 +76,12 @@ public abstract class GameState {
     public void advancePlayer() {
         startPlayer++;
         if (startPlayer == players.size()) startPlayer = 0;
-        gameLog("Start Player set to: " + getStartPlayer());
+        writeLine("Start Player set to: " + getStartPlayer());
     }
 
     public void setCurrentHourGlass(HourGlassTile currentHourGlass) {
         this.currentHourGlass = currentHourGlass;
-        gameLog("HourGlass changed to: " + currentHourGlass);
+        writeLine("HourGlass changed to: " + currentHourGlass);
     }
 
     public int getPlayerCount() {
@@ -159,7 +160,7 @@ public abstract class GameState {
 
     public void setRound(int round) {
         this.round = round;
-        gameLog("Round " + round + " started");
+        writeLine("Round " + round + " started");
     }
 
     public GamePhase getGamePhase() {
@@ -168,7 +169,7 @@ public abstract class GameState {
 
     public void setGamePhase(GamePhase gamePhase) {
         this.gamePhase = gamePhase;
-        gameLog("Phase: " + gamePhase);
+        writeLine("Phase: " + gamePhase);
     }
 
     public List<PlayerState> getPlayers() {
@@ -176,6 +177,7 @@ public abstract class GameState {
     }
 
     public void addPlayer(PlayerState player) {
+        player.addLog(this);
         this.players.add(player);
     }
 

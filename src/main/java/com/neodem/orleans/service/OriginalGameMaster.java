@@ -77,7 +77,7 @@ public class OriginalGameMaster implements GameMaster {
             switch (gamePhase) {
                 case Setup:
                 case StartPlayer:
-                    if(doStartPlayerPhase(gameState)) {
+                    if (doStartPlayerPhase(gameState)) {
                         gameState.setGamePhase(GamePhase.HourGlass);
                     } else {
                         // at game end
@@ -96,7 +96,7 @@ public class OriginalGameMaster implements GameMaster {
                     gameState.setGamePhase(GamePhase.Planning);
                     break;
                 case Planning:
-                    if(doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
+                    if (doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
                     break;
 
             }
@@ -112,11 +112,11 @@ public class OriginalGameMaster implements GameMaster {
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
-            if(player != null) {
+            if (player != null) {
                 // 1) validate followers can fit on the action type
-                if(actionService.validAction(actionType, followers)) {
+                if (actionService.validAction(actionType, followers)) {
                     // 2) does the player have the followers avail in the market?
-                    if(player.availableInMarket(followers)) {
+                    if (player.availableInMarket(followers)) {
                         // remove from market and add to the plan
                         player.removeFromMarket(followers);
                         player.addToPlan(actionType, followers);
@@ -140,7 +140,7 @@ public class OriginalGameMaster implements GameMaster {
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
-            if(player != null) {
+            if (player != null) {
                 player.lockPlan();
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
@@ -154,9 +154,9 @@ public class OriginalGameMaster implements GameMaster {
     private boolean doPlanningPhase(GameState gameState) {
         List<PlayerState> players = gameState.getPlayers();
         boolean planningNeeded = false;
-        for(PlayerState playerState : players) {
-            if(!playerState.isPlanSet()) {
-                gameState.gameLog("" + playerState.getPlayerId() + " has not completed their planning!");
+        for (PlayerState playerState : players) {
+            if (!playerState.isPlanSet()) {
+                gameState.writeLine("" + playerState.getPlayerId() + " has not completed their planning!");
                 planningNeeded = true;
             }
         }
@@ -166,38 +166,45 @@ public class OriginalGameMaster implements GameMaster {
 
     private void doFollowersPhase(GameState gameState) {
         List<PlayerState> players = gameState.getPlayers();
-        for(PlayerState playerState : players) {
+        for (PlayerState playerState : players) {
             int knightTrackLocation = playerState.getTracks().get(Track.Knights);
-            int drawCount = determineDrawFromKnight(knightTrackLocation);
-            playerState.drawFollowers(drawCount);
+            int desiredDrawCount = determineDrawFromKnight(knightTrackLocation);
+            int marketCurrentSize = playerState.getMarket().size();
+            int availableMarketSlots = 8 - marketCurrentSize;
+
+            if (availableMarketSlots == 0) {
+                gameState.writeLine("" + playerState.getPlayerId() + " can't draw any followers since they have no slots available in their market");
+            } else {
+                if (desiredDrawCount > availableMarketSlots) desiredDrawCount = availableMarketSlots;
+                playerState.drawFollowers(desiredDrawCount);
+            }
         }
     }
 
 
     private void doCensusPhase(GameState gameState) {
         String most = gameState.mostFarmers();
-        if(most != null) {
+        if (most != null) {
             gameState.getPlayer(most).addCoin();
-            gameState.gameLog("" + most + " gets a coin for being the farthest on the Census/Farmer track");
+            gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
         } else {
-            gameState.gameLog("No one gets a coin for the Census.");
+            gameState.writeLine("No one gets a coin for the Census.");
         }
 
         String least = gameState.leastFarmers();
-        if(least != null) {
+        if (least != null) {
             gameState.getPlayer(least).removeCoin();
-            gameState.gameLog("" + least + " pays a coin for being the least far on the Census/Farmer track");
+            gameState.writeLine("" + least + " pays a coin for being the least far on the Census/Farmer track");
 
             int coinCount = gameState.getPlayer(least).getCoinCount();
-            if(coinCount < 0) {
-                gameState.gameLog("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
+            if (coinCount < 0) {
+                gameState.writeLine("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
                 //TODO torture
             }
         }
     }
 
     /**
-     *
      * @param gameState
      * @return false if we should not proceed
      */
@@ -206,7 +213,7 @@ public class OriginalGameMaster implements GameMaster {
 
         int round = gameState.getRound();
         if (round == 18) { // we are done
-            gameState.gameLog("We are at the end of the game!");
+            gameState.writeLine("We are at the end of the game!");
             return false;
         } else {
             gameState.setRound(++round);

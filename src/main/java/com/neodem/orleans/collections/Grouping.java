@@ -1,7 +1,5 @@
 package com.neodem.orleans.collections;
 
-import org.springframework.util.Assert;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,20 +16,24 @@ public class Grouping<T> {
     private final List<T> template;
 
     public Grouping(T... elements) {
-        Assert.notEmpty(elements, "Grouping needs at least one element");
         template = new ArrayList<>(elements.length);
         Collections.addAll(template, elements);
     }
 
 
     public Grouping(Collection<T> elements) {
-        Assert.notEmpty(elements, "Grouping needs at least one element");
         template = new ArrayList<>(elements.size());
         template.addAll(elements);
     }
 
     public int size() {
         return template.size();
+    }
+
+    public List<T> getTemplate() {
+        List<T> copy = new ArrayList<>(template.size());
+        Collections.copy(copy, template);
+        return copy;
     }
 
     @Override
@@ -60,8 +62,10 @@ public class Grouping<T> {
 
     @Override
     public int hashCode() {
+        if (template.isEmpty()) return template.hashCode();
+
         int hashCode = 0;
-        for(T element : template) {
+        for (T element : template) {
             hashCode += element.hashCode();
         }
         return hashCode;
@@ -74,6 +78,7 @@ public class Grouping<T> {
      * @return true if all elements in this grouping can fit into the given grouping
      */
     public boolean canFitInto(Grouping<T> testGrouping) {
+        if (template.isEmpty()) return false;
         if (template.size() > testGrouping.template.size()) return false;
 
         List<T> templateCopy = new ArrayList<>(template);

@@ -1,6 +1,7 @@
 package com.neodem.orleans.service;
 
 import com.google.common.collect.Lists;
+import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.model.ActionType;
 import com.neodem.orleans.model.Follower;
 
@@ -17,18 +18,18 @@ import static com.neodem.orleans.model.Follower.*;
  */
 public class OriginalActionService extends BaseActionService implements ActionService {
 
-    private static final Map<ActionType, List<Follower>> actionMappings = new HashMap<>();
+    private static final Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
     static {
-        actionMappings.put(FarmHouse, Lists.newArrayList(Boatman, Craftsman));
-        actionMappings.put(Village, Lists.newArrayList(Boatman, Craftsman, Farmer));
-        actionMappings.put(University, Lists.newArrayList(Farmer, Craftsman, Trader));
-        actionMappings.put(Castle, Lists.newArrayList(Farmer, Boatman, Trader));
-        actionMappings.put(Scriptorium, Lists.newArrayList(Knight, Scholar));
-        actionMappings.put(TownHall, Lists.newArrayList(Farmer, Scholar, Knight, Trader, Craftsman, Boatman));
-        actionMappings.put(Monastery, Lists.newArrayList(Scholar, Trader));
-        actionMappings.put(Ship, Lists.newArrayList(Farmer, Boatman, Knight));
-        actionMappings.put(Wagon, Lists.newArrayList(Farmer, Trader, Knight));
-        actionMappings.put(GuildHall, Lists.newArrayList(Farmer, Craftsman, Knight));
+        actionMappings.put(FarmHouse, new Grouping<>(Boatman, Craftsman));
+        actionMappings.put(Village, new Grouping<>(Boatman, Craftsman, Farmer));
+        actionMappings.put(University, new Grouping<>(Farmer, Craftsman, Trader));
+        actionMappings.put(Castle, new Grouping<>(Farmer, Boatman, Trader));
+        actionMappings.put(Scriptorium, new Grouping<>(Knight, Scholar));
+        actionMappings.put(TownHall, new Grouping<>(Farmer, Scholar, Knight, Trader, Craftsman, Boatman));
+        actionMappings.put(Monastery, new Grouping<>(Scholar, Trader));
+        actionMappings.put(Ship, new Grouping<>(Farmer, Boatman, Knight));
+        actionMappings.put(Wagon, new Grouping<>(Farmer, Trader, Knight));
+        actionMappings.put(GuildHall, new Grouping<>(Farmer, Craftsman, Knight));
     }
 
     public OriginalActionService() {

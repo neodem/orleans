@@ -2,6 +2,7 @@ package com.neodem.orleans.model;
 
 import com.google.common.base.Objects;
 import com.neodem.orleans.collections.Bag;
+import com.neodem.orleans.collections.Grouping;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -19,9 +20,9 @@ public abstract class PlayerState {
     protected final String playerId;
     protected final PlayerColor playerColor;
     protected final Map<Track, Integer> tracks = new HashMap<>();
-    protected final Map<GoodType, Integer> goodCounts= new HashMap<>();
+    protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
     private final Bag<Follower> bag = new Bag<>();
-    private final List<Follower> market = new ArrayList<>();
+    private Grouping<Follower> market = new Grouping<>();
 
     private final Map<ActionType, List<Follower>> plans = new HashMap<>();
 
@@ -31,6 +32,7 @@ public abstract class PlayerState {
     private int coinCount = 5;
     private int tradingStationCount = 10;
     private boolean planLocked = false;
+    private Loggable log;
 
     public PlayerState(String playerId, PlayerColor playerColor) {
         Assert.notNull(playerId, "playerId may not be null");
@@ -63,7 +65,7 @@ public abstract class PlayerState {
         return playerId;
     }
 
-    public List<Follower> getMarket() {
+    public Grouping<Follower> getMarket() {
         return market;
     }
 
@@ -121,7 +123,7 @@ public abstract class PlayerState {
     }
 
     public void placeTradingStation(TokenLocation tradingStationLocation) {
-        if(tradingStationCount > 0) {
+        if (tradingStationCount > 0) {
             this.tradingStationLocations.add(tradingStationLocation);
             tradingStationCount--;
         } else {
@@ -140,7 +142,7 @@ public abstract class PlayerState {
 
     public void removeGood(GoodType goodType) {
         Integer count = this.goodCounts.get(goodType);
-        if(count > 0) {
+        if (count > 0) {
             this.goodCounts.put(goodType, --count);
         } else {
             throw new IllegalStateException("No good to remove of type: " + goodType);
@@ -165,10 +167,11 @@ public abstract class PlayerState {
      * @param drawCount
      */
     public void drawFollowers(int drawCount) {
-        for(int i=0;i<drawCount;i++) {
+        for (int i = 0; i < drawCount; i++) {
             Follower follower = bag.take();
-            if(follower != null) {
-                market.add(follower);
+            if (follower != null) {
+                log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market");
+                market = newMarketWith(follower);
             }
         }
     }
@@ -179,18 +182,18 @@ public abstract class PlayerState {
 
     public void addToPlan(ActionType actionType, List<Follower> followers) {
         List<Follower> allocatedFollowers = plans.get(actionType);
-        if(allocatedFollowers == null) allocatedFollowers = new ArrayList<>();
-        for(Follower follower : followers) {
+        if (allocatedFollowers == null) allocatedFollowers = new ArrayList<>();
+        for (Follower follower : followers) {
             allocatedFollowers.add(follower);
-            // TODO game log
+            log.writeLine("" + playerId + " adds " + follower + " to plan for " + actionType);
         }
         plans.put(actionType, allocatedFollowers);
     }
 
     public void removeFromMarket(List<Follower> followers) {
-        for(Follower follower : followers) {
-            market.remove(follower);
-            // TODO game log
+        for (Follower follower : followers) {
+            market = newMarketWithout(follower);
+            log.writeLine("" + playerId + " removes " + follower + " from her market");
         }
     }
 
@@ -209,5 +212,21 @@ public abstract class PlayerState {
     public void resetPlan() {
         planLocked = false;
         plans.clear();
+    }
+
+    public void addLog(Loggable log) {
+        this.log = log;
+    }
+
+    private Grouping<Follower> newMarketWithout(Follower follower) {
+        List<Follower> currentFollowers = market.getTemplate();
+        currentFollowers.remove(follower);
+        return new Grouping<>(currentFollowers);
+    }
+
+    private Grouping<Follower> newMarketWith(Follower follower) {
+        List<Follower> currentFollowers = market.getTemplate();
+        currentFollowers.add(follower);
+        return new Grouping<>(currentFollowers);
     }
 }
