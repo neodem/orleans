@@ -1,8 +1,11 @@
 package com.neodem.orleans.service;
 
+import com.neodem.orleans.actions.ActionProcessor;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.model.ActionType;
 import com.neodem.orleans.model.Follower;
+import com.neodem.orleans.model.GameState;
+import com.neodem.orleans.model.PlayerState;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -13,12 +16,22 @@ import java.util.Map;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/28/19
  */
-public abstract class BaseActionService implements ActionService {
+public abstract class BaseActionHelper implements ActionHelper {
 
     protected final Map<ActionType, Grouping<Follower>> actionMappings;
+    protected final Map<ActionType, ActionProcessor> actionProcessors;
 
-    public BaseActionService(Map<ActionType, Grouping<Follower>> actionMappings) {
+    public BaseActionHelper(Map<ActionType, Grouping<Follower>> actionMappings, Map<ActionType, ActionProcessor> actionProcessors) {
         this.actionMappings = actionMappings;
+        this.actionProcessors = actionProcessors;
+    }
+
+    @Override
+    public void processAction(ActionType actionType, GameState gameState, PlayerState player) {
+        ActionProcessor actionProcessor = actionProcessors.get(actionType);
+        if(actionProcessor != null) {
+            actionProcessor.process(gameState, player);
+        }
     }
 
     @Override
@@ -54,11 +67,19 @@ public abstract class BaseActionService implements ActionService {
 
     @Override
     public boolean fullAction(ActionType actionType, List<Follower> followers, Follower techToken) {
-//TODO
-        return false;
+        //TODO techToken
+
+        List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
+
+        List<Follower> template = actionMappings.get(actionType).getTemplate();
+        for(Follower placed : sanitizedFollowers) {
+            template.remove(placed);
+        }
+
+        return template.isEmpty();
     }
 
-    private List<Follower> sanitizeFollowers(List<Follower> followers) {
+    protected List<Follower> sanitizeFollowers(List<Follower> followers) {
         List<Follower> sanitizedFollowers = new ArrayList<>();
         for(Follower follower : followers) {
             if(follower == Follower.StarterBoatman) sanitizedFollowers.add(Follower.Boatman);

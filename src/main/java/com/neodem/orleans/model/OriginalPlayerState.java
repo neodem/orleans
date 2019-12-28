@@ -12,7 +12,7 @@ public class OriginalPlayerState extends PlayerState {
 
     @Override
     protected void initState() {
-        tokenLocation = TokenLocation.Orleans;
+        merchantLocation = TokenLocation.Orleans;
         tracks.put(Track.Farmers, 0);
         tracks.put(Track.Craftsmen, 0);
         tracks.put(Track.Traders, 0);

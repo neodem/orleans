@@ -53,8 +53,8 @@ public class GameController {
         }
 
         List<Follower> followerTypes = new ArrayList<>(followers.size());
-        for(String follower : followers) {
-            Follower followerType = null;
+        for (String follower : followers) {
+            Follower followerType;
             try {
                 followerType = Follower.valueOf(follower);
                 followerTypes.add(followerType);
@@ -70,6 +70,25 @@ public class GameController {
     @RequestMapping("/game/{gameId}/{playerId}/planSet")
     public GameState submitPlan(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
         GameState gameState = gameMaster.planSet(gameId, playerId);
+        return gameState;
+    }
+
+    @RequestMapping("/game/{gameId}/{playerId}/action")
+    public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action) {
+        ActionType actionType = null;
+        try {
+            actionType = ActionType.valueOf(action);
+        } catch (IllegalArgumentException e) {
+            // TODO
+        }
+
+        GameState gameState = gameMaster.doAction(gameId, playerId, actionType);
+        return gameState;
+    }
+
+    @RequestMapping("/game/{gameId}/{playerId}/pass")
+    public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
+        GameState gameState = gameMaster.pass(gameId, playerId);
         return gameState;
     }
 

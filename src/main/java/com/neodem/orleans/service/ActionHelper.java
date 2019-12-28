@@ -2,6 +2,8 @@ package com.neodem.orleans.service;
 
 import com.neodem.orleans.model.ActionType;
 import com.neodem.orleans.model.Follower;
+import com.neodem.orleans.model.GameState;
+import com.neodem.orleans.model.PlayerState;
 
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/27/19
  */
-public interface ActionService {
+public interface ActionHelper {
     /**
      * return true if the given action accepts all the types in the followerTypes list
      *
@@ -39,4 +41,12 @@ public interface ActionService {
      * @return
      */
     boolean canPlace(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready);
+
+    /**
+     *
+     * @param actionType
+     * @param gameState
+     * @param player
+     */
+    void processAction(ActionType actionType, GameState gameState, PlayerState player);
 }

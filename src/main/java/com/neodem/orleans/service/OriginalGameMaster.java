@@ -27,10 +27,10 @@ public class OriginalGameMaster implements GameMaster {
 
     private Map<String, GameState> storedGames = new HashMap<>();
 
-    private final ActionService actionService;
+    private final ActionHelper actionHelper;
 
-    public OriginalGameMaster(ActionService actionService) {
-        this.actionService = actionService;
+    public OriginalGameMaster(ActionHelper actionHelper) {
+        this.actionHelper = actionHelper;
     }
 
     @Override
@@ -80,6 +80,7 @@ public class OriginalGameMaster implements GameMaster {
                     if (doStartPlayerPhase(gameState)) {
                         gameState.setGamePhase(GamePhase.HourGlass);
                     } else {
+                        //TODO
                         // at game end
                     }
                     break;
@@ -98,10 +99,81 @@ public class OriginalGameMaster implements GameMaster {
                 case Planning:
                     if (doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
                     break;
+                case Actions:
+                    doActionPhase(gameState);
+                    gameState.setGamePhase(GamePhase.StartPlayer);
+                    break;
 
             }
         } else {
             throw new IllegalArgumentException("No game exists for gameId=" + gameId);
+        }
+        return gameState;
+    }
+
+    private void doActionPhase(GameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        boolean allPassed = false;
+        do {
+            for (PlayerState player : players) {
+                gameState.writeLine("Waiting for " + player.getPlayerId() + " to execute an action");
+            }
+        } while (allPassed == false);
+    }
+
+    @Override
+    public GameState doAction(String gameId, String playerId, ActionType actionType) {
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            PlayerState player = gameState.getPlayer(playerId);
+            if (player != null) {
+                if (gameState.getGamePhase() == GamePhase.Actions) {
+                    if (gameState.getStartPlayer().equals(player.getPlayerId())) {
+                        List<Follower> plannedFollowers = player.getPlans().get(actionType);
+                        if(actionHelper.fullAction(actionType, plannedFollowers, null)) {
+                            processAction(gameState, player, actionType);
+                        } else {
+                            throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
+                        }
+                    } else {
+                        throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do an action but it's not their turn");
+                    }
+                } else {
+                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do an action but the current Phase is: " + gameState.getGamePhase());
+                }
+            } else {
+                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
+        }
+        return gameState;
+    }
+
+    private void processAction(GameState gameState, PlayerState player, ActionType actionType) {
+        // send back to bag and remove plan
+        player.unPlan(actionType);
+
+        // do action
+        actionHelper.processAction(actionType, gameState, player);
+    }
+
+    @Override
+    public GameState pass(String gameId, String playerId) {
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            PlayerState player = gameState.getPlayer(playerId);
+            if (player != null) {
+                if (gameState.getGamePhase() == GamePhase.Actions) {
+                    player.passActionPhase();
+                } else {
+                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
+                }
+            } else {
+                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
         return gameState;
     }
@@ -117,7 +189,7 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     // 1) validate followers can fit on the action type
-                    if (actionService.validAction(actionType, followers)) {
+                    if (actionHelper.validAction(actionType, followers)) {
                         // 2) does the player have the followers avail in the market?
                         if (player.availableInMarket(followers)) {
                             // 3) are there available open slots in the plan?
@@ -144,20 +216,6 @@ public class OriginalGameMaster implements GameMaster {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
         return gameState;
-    }
-
-    /**
-     * are there open slots in the plan?
-     *
-     * @param player
-     * @param actionType
-     * @param followersToPlace
-     * @return
-     */
-    public boolean canPlan(PlayerState player, ActionType actionType, List<Follower> followersToPlace) {
-        List<Follower> placedInActionAlready = player.getPlans().get(actionType);
-        if (placedInActionAlready == null || placedInActionAlready.isEmpty()) return true;
-        return actionService.canPlace(actionType, followersToPlace, placedInActionAlready);
     }
 
     @Override
@@ -269,5 +327,19 @@ public class OriginalGameMaster implements GameMaster {
                 return 8;
         }
         return 0;
+    }
+
+    /**
+     * are there open slots in the plan?
+     *
+     * @param player
+     * @param actionType
+     * @param followersToPlace
+     * @return
+     */
+    public boolean canPlan(PlayerState player, ActionType actionType, List<Follower> followersToPlace) {
+        List<Follower> placedInActionAlready = player.getPlans().get(actionType);
+        if (placedInActionAlready == null || placedInActionAlready.isEmpty()) return true;
+        return actionHelper.canPlace(actionType, followersToPlace, placedInActionAlready);
     }
 }

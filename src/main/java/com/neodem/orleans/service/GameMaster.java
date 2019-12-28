@@ -48,4 +48,21 @@ public interface GameMaster {
      * @return
      */
     GameState addToPlan(String gameId, String playerId, ActionType actionType, List<Follower> followers);
+
+    /**
+     * player does an action
+     * @param gameId
+     * @param playerId
+     * @param actionType
+     * @return
+     */
+    GameState doAction(String gameId, String playerId, ActionType actionType);
+
+    /**
+     * player does an action
+     * @param gameId
+     * @param playerId
+     * @return
+     */
+    GameState pass(String gameId, String playerId);
 }

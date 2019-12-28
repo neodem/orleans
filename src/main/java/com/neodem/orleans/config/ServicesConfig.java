@@ -1,7 +1,7 @@
 package com.neodem.orleans.config;
 
-import com.neodem.orleans.service.ActionService;
-import com.neodem.orleans.service.OriginalActionService;
+import com.neodem.orleans.service.ActionHelper;
+import com.neodem.orleans.service.OriginalActionHelper;
 import com.neodem.orleans.service.OriginalGameMaster;
 import com.neodem.orleans.service.GameMaster;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Configuration;
 public class ServicesConfig {
 
     @Bean
-    public ActionService actionService() {
-        return new OriginalActionService();
+    public ActionHelper actionService() {
+        return new OriginalActionHelper();
     }
 
     @Bean
-    public GameMaster gameMaster(ActionService actionService) {
-        return new OriginalGameMaster(actionService);
+    public GameMaster gameMaster(ActionHelper actionHelper) {
+        return new OriginalGameMaster(actionHelper);
     }
 }

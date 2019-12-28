@@ -32,7 +32,7 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getPlayerId()).isEqualTo("someone");
         assertThat(playerState.getPlayerColor()).isEqualTo(PlayerColor.Blue);
         assertThat(playerState.getCoinCount()).isEqualTo(5);
-        assertThat(playerState.getTokenLocation()).isEqualTo(TokenLocation.Orleans);
+        assertThat(playerState.getMerchantLocation()).isEqualTo(TokenLocation.Orleans);
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();

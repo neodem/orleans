@@ -28,10 +28,11 @@ public abstract class PlayerState {
 
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
-    protected TokenLocation tokenLocation;
+    protected TokenLocation merchantLocation;
     private int coinCount = 5;
     private int tradingStationCount = 10;
     private boolean planLocked = false;
+    private boolean passed = false;
     private Loggable log;
 
     public PlayerState(String playerId, PlayerColor playerColor) {
@@ -102,12 +103,12 @@ public abstract class PlayerState {
         this.bag.add(follower);
     }
 
-    public TokenLocation getTokenLocation() {
-        return tokenLocation;
+    public TokenLocation getMerchantLocation() {
+        return merchantLocation;
     }
 
-    public void setTokenLocation(TokenLocation tokenLocation) {
-        this.tokenLocation = tokenLocation;
+    public void setMerchantLocation(TokenLocation merchantLocation) {
+        this.merchantLocation = merchantLocation;
     }
 
     public Collection<PlaceTile> getPlaceTiles() {
@@ -227,4 +228,23 @@ public abstract class PlayerState {
         return new Grouping<>(currentFollowers);
     }
 
+    public boolean isPassed() {
+        return passed;
+    }
+
+    public void passActionPhase() {
+        passed = true;
+    }
+
+    public void resetPass() {
+        passed = false;
+    }
+
+    public void unPlan(ActionType actionType) {
+        List<Follower> followers = plans.get(actionType);
+        for(Follower follower : followers) {
+            addToBag(follower);
+        }
+        plans.remove(actionType);
+    }
 }
