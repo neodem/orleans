@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,6 +24,14 @@ public class GroupingTest {
     @AfterEach
     void tearDown() {
         grouping = null;
+    }
+
+    @Test
+    void getTemplateWillReturnACopy() {
+        List template = grouping.getTemplate();
+        template.remove(1);
+        Grouping test = new Grouping(1,2,3);
+        assertThat(test).isEqualTo(grouping);
     }
 
     @Test

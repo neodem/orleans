@@ -198,11 +198,8 @@ public abstract class PlayerState {
     }
 
     public boolean availableInMarket(List<Follower> followers) {
-        boolean result = false;
-
-        // TODO
-
-        return result;
+        Grouping<Follower> toPullFromMaket = new Grouping<Follower>(followers);
+        return toPullFromMaket.canFitInto(market);
     }
 
     public void lockPlan() {
@@ -229,4 +226,5 @@ public abstract class PlayerState {
         currentFollowers.add(follower);
         return new Grouping<>(currentFollowers);
     }
+
 }

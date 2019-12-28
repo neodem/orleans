@@ -1,5 +1,7 @@
 package com.neodem.orleans.collections;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +33,10 @@ public class Grouping<T> {
     }
 
     public List<T> getTemplate() {
+        if(template.isEmpty()) return new ArrayList<>();
+
         List<T> copy = new ArrayList<>(template.size());
-        Collections.copy(copy, template);
+        copy.addAll(template);
         return copy;
     }
 
@@ -72,19 +76,19 @@ public class Grouping<T> {
     }
 
     /**
-     * test to see if this grouping 'can fit' into a given grouping
+     * test to see if this grouping 'can fit' into a given target grouping
      *
-     * @param testGrouping
+     * @param target
      * @return true if all elements in this grouping can fit into the given grouping
      */
-    public boolean canFitInto(Grouping<T> testGrouping) {
-        if (template.isEmpty()) return false;
-        if (template.size() > testGrouping.template.size()) return false;
+    public boolean canFitInto(Grouping<T> target) {
+        if (target.template.isEmpty()) return false;
+        if (template.size() > target.template.size()) return false;
 
-        List<T> templateCopy = new ArrayList<>(template);
+        List<T> templateCopy = new ArrayList<>(target.template);
         boolean result = true;
 
-        for (T element : testGrouping.template) {
+        for (T element : template) {
             if (templateCopy.isEmpty()) return true;
             if (templateCopy.contains(element)) {
                 templateCopy.remove(element);

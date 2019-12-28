@@ -29,4 +29,14 @@ public interface ActionService {
      * @return
      */
     boolean fullAction(ActionType actionType, List<Follower> followers, Follower techToken);
+
+    /**
+     * determine if we can place all followers into an action with some placed already
+     *
+     * @param actionType
+     * @param followersToPlace
+     * @param placedInActionAlready
+     * @return
+     */
+    boolean canPlace(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready);
 }

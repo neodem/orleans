@@ -113,18 +113,29 @@ public class OriginalGameMaster implements GameMaster {
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
-                // 1) validate followers can fit on the action type
-                if (actionService.validAction(actionType, followers)) {
-                    // 2) does the player have the followers avail in the market?
-                    if (player.availableInMarket(followers)) {
-                        // remove from market and add to the plan
-                        player.removeFromMarket(followers);
-                        player.addToPlan(actionType, followers);
+
+                if (gameState.getGamePhase() == GamePhase.Planning) {
+
+                    // 1) validate followers can fit on the action type
+                    if (actionService.validAction(actionType, followers)) {
+                        // 2) does the player have the followers avail in the market?
+                        if (player.availableInMarket(followers)) {
+                            // 3) are there available open slots in the plan?
+                            if (canPlan(player, actionType, followers)) {
+                                // remove from market and add to the plan
+                                player.removeFromMarket(followers);
+                                player.addToPlan(actionType, followers);
+                            } else {
+                                throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more open slots in their plan for action=" + actionType);
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more of these followers in their market");
+                        }
                     } else {
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more of these followers in their market");
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' has applied the incorrect followers to this action");
                     }
                 } else {
-                    throw new IllegalArgumentException("Player playerId='" + playerId + "' has applied the incorrect followers to this action");
+                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to plan but the current Phase is: " + gameState.getGamePhase());
                 }
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
@@ -133,6 +144,20 @@ public class OriginalGameMaster implements GameMaster {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
         return gameState;
+    }
+
+    /**
+     * are there open slots in the plan?
+     *
+     * @param player
+     * @param actionType
+     * @param followersToPlace
+     * @return
+     */
+    public boolean canPlan(PlayerState player, ActionType actionType, List<Follower> followersToPlace) {
+        List<Follower> placedInActionAlready = player.getPlans().get(actionType);
+        if (placedInActionAlready == null || placedInActionAlready.isEmpty()) return true;
+        return actionService.canPlace(actionType, followersToPlace, placedInActionAlready);
     }
 
     @Override
