@@ -20,3 +20,4 @@ a REST engine to play the game orleans
 `GET /game/{gameId}/{playerId}/action?action=Village&follower=Craftsman%techAction=University&techFollower=Farmer`
 `GET /game/{gameId}/{playerId}/action?action=Village&follower=Trader%placeTile=Pharmacy`
 `GET /game/{gameId}/{playerId}/action?action=Pharmacy&times=3`
+`GET /game/{gameId}/{playerId}/action?action=TownHall&follower1=Farmer&benefit1=DefeatPlague&follower2=Monk&benefit2=PapalConclave`

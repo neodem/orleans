@@ -9,7 +9,7 @@ import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.HourGlassTile;
-import com.neodem.orleans.engine.core.model.PlaceTile;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
@@ -103,10 +103,11 @@ public class OriginalGameMaster implements GameMaster {
                     if (doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
                     break;
                 case Actions:
-                    doActionPhase(gameState);
-                    gameState.setGamePhase(GamePhase.StartPlayer);
+                    if (doActionPhase(gameState)) gameState.setGamePhase(GamePhase.Event);
                     break;
-
+                case Event:
+                    doEventPhase(gameState);
+                    gameState.setGamePhase(GamePhase.StartPlayer);
             }
         } else {
             throw new IllegalArgumentException("No game exists for gameId=" + gameId);
@@ -114,14 +115,21 @@ public class OriginalGameMaster implements GameMaster {
         return gameState;
     }
 
-    private void doActionPhase(GameState gameState) {
+    private void doEventPhase(GameState gameState) {
+
+    }
+
+    private boolean doActionPhase(GameState gameState) {
         List<PlayerState> players = gameState.getPlayers();
-        boolean allPassed = false;
-        do {
-            for (PlayerState player : players) {
+        boolean actionNeeded = false;
+        for (PlayerState player : players) {
+            if (!player.isPassed()) {
                 gameState.writeLine("Waiting for " + player.getPlayerId() + " to execute an action");
+                actionNeeded = true;
             }
-        } while (allPassed == false);
+        }
+
+        return !actionNeeded;
     }
 
     @Override
@@ -199,9 +207,9 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     //1) is this action available to the player (on their base board or as an additional place?)
-                    if(actionHelper.isPlaceTileAction(actionType)) {
+                    if (actionHelper.isPlaceTileAction(actionType)) {
                         PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
-                        if(!player.getPlaceTiles().contains(placeTile)) {
+                        if (!player.getPlaceTiles().contains(placeTile)) {
                             throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
                         }
                     }

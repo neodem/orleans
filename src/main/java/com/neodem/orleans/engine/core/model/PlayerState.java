@@ -5,6 +5,7 @@ import com.neodem.orleans.collections.Bag;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;

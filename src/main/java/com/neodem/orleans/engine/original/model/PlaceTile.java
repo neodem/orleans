@@ -1,4 +1,4 @@
-package com.neodem.orleans.engine.core.model;
+package com.neodem.orleans.engine.original.model;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)

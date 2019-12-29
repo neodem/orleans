@@ -14,7 +14,7 @@ import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PathType;
-import com.neodem.orleans.engine.core.model.PlaceTile;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.actions.*;
 import org.springframework.util.Assert;
@@ -119,10 +119,10 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
         actionProcessors.put(Library, new DevelopmentBumpProcessor(2));
         actionProcessors.put(Office, new OfficeProcessor());
         actionProcessors.put(Cellar, new CoinBumpProcessor(4));
-        actionProcessors.put(Laboratory, new LaboratoryProcessor());
+        actionProcessors.put(Laboratory, new LaboratoryProcessor(this));
         actionProcessors.put(HorseWagon, new MovementProcessor(PathType.Land));
         actionProcessors.put(Winery, new GoodsBumpProcessor(GoodType.Wine));
-        actionProcessors.put(GunpowderTower, new GunpowderTowerProcessor());
+        actionProcessors.put(GunpowderTower, new TownHallProcessor());
         actionProcessors.put(Pharmacy, new PharmacyProcessor());
     }
 

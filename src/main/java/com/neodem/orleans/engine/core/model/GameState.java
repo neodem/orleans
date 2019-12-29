@@ -1,7 +1,9 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -17,6 +19,9 @@ import java.util.Map;
  */
 public abstract class GameState implements Loggable {
     protected final List<PlayerState> players = new ArrayList<>();
+    protected  BoardState boardState;
+    protected  BenefitTracker benefitTracker;
+
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
     protected final Map<Follower, Integer> followerInventory = new HashMap<>();
     protected int techTilesAvailable = 0;
@@ -32,7 +37,7 @@ public abstract class GameState implements Loggable {
     protected int round;
     protected GamePhase gamePhase;
     protected int startPlayer = -1;
-    protected BoardState boardState;
+
     protected HourGlassTile currentHourGlass;
     int currentActionPlayerIndex = 0;
 

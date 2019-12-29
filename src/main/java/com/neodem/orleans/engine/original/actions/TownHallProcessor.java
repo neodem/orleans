@@ -1,10 +1,13 @@
 package com.neodem.orleans.engine.original.actions;
 
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
+import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +16,12 @@ import java.util.Map;
  */
 public class TownHallProcessor extends ActionProcessorBase {
 
+    private final ActionType actionType;
+
+    public TownHallProcessor(ActionType actionType) {
+        this.actionType = actionType;
+    }
+
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         return false;
@@ -20,6 +29,8 @@ public class TownHallProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+        Map<ActionType, List<Follower>> plans = player.getPlans();
+        List<Follower> followers = plans.get(actionType);
 
     }
 }

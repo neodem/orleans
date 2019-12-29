@@ -6,7 +6,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.PlaceTile;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TokenLocation;
 

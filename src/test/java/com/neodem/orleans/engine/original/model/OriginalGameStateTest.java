@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.neodem.orleans.engine.core.model.PlaceTile.*;
+import static com.neodem.orleans.engine.original.model.PlaceTile.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

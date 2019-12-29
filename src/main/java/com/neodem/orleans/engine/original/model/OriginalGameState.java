@@ -5,11 +5,12 @@ import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.original.OriginalBenefitTracker;
 
 import java.util.Collections;
 
 import static com.neodem.orleans.engine.core.model.HourGlassTile.*;
-import static com.neodem.orleans.engine.core.model.PlaceTile.*;
+import static com.neodem.orleans.engine.original.model.PlaceTile.*;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -60,6 +61,8 @@ public class OriginalGameState extends GameState {
         initForPlayerCount(playerCount);
 
         techTilesAvailable = 16;
+
+        benefitTracker = new OriginalBenefitTracker();
 
         writeLine("Original game is set up. Welcome!");
     }
