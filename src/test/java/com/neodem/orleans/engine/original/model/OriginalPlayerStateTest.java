@@ -1,7 +1,7 @@
 package com.neodem.orleans.engine.original.model;
 
 import com.neodem.orleans.collections.Bag;
-import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.TokenLocation;
@@ -41,9 +41,9 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();
-        Bag<Follower> bag = playerState.getBag();
+        Bag<FollowerType> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
-        assertThat(bag).contains(Follower.StarterBoatman, Follower.StarterCraftsman, Follower.StarterFarmer, Follower.StarterTrader);
+        assertThat(bag).contains(FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader);
 
         Map<GoodType, Integer> goodCounts = playerState.getGoodCounts();
         assertThat(goodCounts.get(GoodType.Grain)).isEqualTo(0);

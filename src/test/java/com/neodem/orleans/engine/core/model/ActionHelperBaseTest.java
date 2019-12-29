@@ -1,7 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
 import com.google.common.collect.Lists;
-import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.ActionHelperBase;
 import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 import static com.neodem.orleans.engine.core.model.ActionType.FarmHouse;
 import static com.neodem.orleans.engine.core.model.ActionType.Village;
-import static com.neodem.orleans.engine.core.model.Follower.*;
+import static com.neodem.orleans.engine.core.model.FollowerType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -26,14 +25,14 @@ public class ActionHelperBaseTest {
     private ActionHelperBase actionService;
 
     private class TestableActionHelperBase extends ActionHelperBase {
-        private Map<ActionType, Grouping<Follower>> actionMappings;
+        private Map<ActionType, Grouping<FollowerType>> actionMappings;
 
-        public void setActionMappings(Map<ActionType, Grouping<Follower>> actionMappings) {
+        public void setActionMappings(Map<ActionType, Grouping<FollowerType>> actionMappings) {
             this.actionMappings = actionMappings;
         }
 
         @Override
-        protected Map<ActionType, Grouping<Follower>> actionMappings() {
+        protected Map<ActionType, Grouping<FollowerType>> actionMappings() {
             return actionMappings;
         }
 
@@ -51,7 +50,7 @@ public class ActionHelperBaseTest {
 
     @BeforeEach
     void setUp() {
-        Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
+        Map<ActionType, Grouping<FollowerType>> actionMappings = new HashMap<>();
         actionMappings.put(Village, new Grouping<>(Boatman, Craftsman, Farmer));
         actionMappings.put(FarmHouse, new Grouping<>(Boatman, Craftsman));
         actionService = new TestableActionHelperBase();
@@ -65,22 +64,22 @@ public class ActionHelperBaseTest {
 
     @Test
     void canPlaceShouldFailIfFilledSpot() {
-        List<Follower> followersToPlace = Lists.newArrayList(Boatman);
-        List<Follower> placedAlready = Lists.newArrayList(Farmer, Boatman);
+        List<FollowerType> followersToPlace = Lists.newArrayList(Boatman);
+        List<FollowerType> placedAlready = Lists.newArrayList(Farmer, Boatman);
         assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isFalse();
     }
 
     @Test
     void canPlaceShouldPassIfAllCorrect() {
-        List<Follower> followersToPlace = Lists.newArrayList(Boatman);
-        List<Follower> placedAlready = Lists.newArrayList(Farmer, Craftsman);
+        List<FollowerType> followersToPlace = Lists.newArrayList(Boatman);
+        List<FollowerType> placedAlready = Lists.newArrayList(Farmer, Craftsman);
         assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isTrue();
     }
 
     @Test
     void canPlaceShouldNotMindStarters() {
-        List<Follower> followersToPlace = Lists.newArrayList(StarterBoatman);
-        List<Follower> placedAlready = Lists.newArrayList(Farmer, Craftsman);
+        List<FollowerType> followersToPlace = Lists.newArrayList(StarterBoatman);
+        List<FollowerType> placedAlready = Lists.newArrayList(Farmer, Craftsman);
         assertThat(actionService.canPlaceIntoAction(Village, followersToPlace, placedAlready)).isTrue();
     }
 

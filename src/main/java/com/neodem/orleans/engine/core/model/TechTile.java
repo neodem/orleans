@@ -6,18 +6,18 @@ package com.neodem.orleans.engine.core.model;
  */
 public class TechTile {
     private final ActionType actionType;
-    private final Follower follower;
+    private final FollowerType followerType;
 
-    public TechTile(ActionType actionType, Follower follower) {
+    public TechTile(ActionType actionType, FollowerType followerType) {
         this.actionType = actionType;
-        this.follower = follower;
+        this.followerType = followerType;
     }
 
     public ActionType getActionType() {
         return actionType;
     }
 
-    public Follower getFollower() {
-        return follower;
+    public FollowerType getFollowerType() {
+        return followerType;
     }
 }

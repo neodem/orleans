@@ -1,7 +1,7 @@
 package com.neodem.orleans.engine.original.model;
 
 import com.google.common.collect.Sets;
-import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
@@ -74,13 +74,13 @@ public class OriginalGameState extends GameState {
 
         boardState = new OriginalBoardState(goodsInventory, 2);
 
-        followerInventory.put(Follower.Farmer, 12);
-        followerInventory.put(Follower.Boatman, 6);
-        followerInventory.put(Follower.Craftsman, 6);
-        followerInventory.put(Follower.Trader, 6);
-        followerInventory.put(Follower.Knight, 8);
-        followerInventory.put(Follower.Scholar, 8);
-        followerInventory.put(Follower.Monk, 8);
+        followerInventory.put(FollowerType.Farmer, 12);
+        followerInventory.put(FollowerType.Boatman, 6);
+        followerInventory.put(FollowerType.Craftsman, 6);
+        followerInventory.put(FollowerType.Trader, 6);
+        followerInventory.put(FollowerType.Knight, 8);
+        followerInventory.put(FollowerType.Scholar, 8);
+        followerInventory.put(FollowerType.Monk, 8);
     }
 
     @Override
@@ -90,13 +90,13 @@ public class OriginalGameState extends GameState {
 
         boardState = new OriginalBoardState(goodsInventory, 3);
 
-        followerInventory.put(Follower.Farmer, 14);
-        followerInventory.put(Follower.Boatman, 8);
-        followerInventory.put(Follower.Craftsman, 8);
-        followerInventory.put(Follower.Trader, 8);
-        followerInventory.put(Follower.Knight, 11);
-        followerInventory.put(Follower.Scholar, 11);
-        followerInventory.put(Follower.Monk, 11);
+        followerInventory.put(FollowerType.Farmer, 14);
+        followerInventory.put(FollowerType.Boatman, 8);
+        followerInventory.put(FollowerType.Craftsman, 8);
+        followerInventory.put(FollowerType.Trader, 8);
+        followerInventory.put(FollowerType.Knight, 11);
+        followerInventory.put(FollowerType.Scholar, 11);
+        followerInventory.put(FollowerType.Monk, 11);
     }
 
     @Override
@@ -104,13 +104,13 @@ public class OriginalGameState extends GameState {
 
         boardState = new OriginalBoardState(goodsInventory, 4);
 
-        followerInventory.put(Follower.Farmer, 16);
-        followerInventory.put(Follower.Boatman, 10);
-        followerInventory.put(Follower.Craftsman, 10);
-        followerInventory.put(Follower.Trader, 10);
-        followerInventory.put(Follower.Knight, 14);
-        followerInventory.put(Follower.Scholar, 14);
-        followerInventory.put(Follower.Monk, 14);
+        followerInventory.put(FollowerType.Farmer, 16);
+        followerInventory.put(FollowerType.Boatman, 10);
+        followerInventory.put(FollowerType.Craftsman, 10);
+        followerInventory.put(FollowerType.Trader, 10);
+        followerInventory.put(FollowerType.Knight, 14);
+        followerInventory.put(FollowerType.Scholar, 14);
+        followerInventory.put(FollowerType.Monk, 14);
     }
 
     protected void removeRandomGoods(int goodsToRemove) {

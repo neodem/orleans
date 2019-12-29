@@ -10,7 +10,6 @@ import com.neodem.orleans.engine.original.model.BenefitName;
 public interface BenefitTracker {
 
     /**
-     *
      * @param benefitName
      * @param follower
      * @return true if there is space for and the type is allowed
@@ -18,7 +17,6 @@ public interface BenefitTracker {
     boolean canAddToBenefit(BenefitName benefitName, Follower follower);
 
     /**
-     *
      * @param benefitName
      * @param follower
      * @return true if this fills the benefit!

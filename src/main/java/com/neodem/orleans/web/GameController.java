@@ -3,7 +3,7 @@ package com.neodem.orleans.web;
 import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,33 +49,35 @@ public class GameController {
             @PathVariable(value = "gameId") String gameId,
             @PathVariable(value = "playerId") String playerId,
             @RequestParam(value = "action") String action,
-            @RequestParam(value = "followers") List<String> followers
+            @RequestParam(value = "marketSlot") int marketSlot,
+            @RequestParam(value = "actionSlot") int actionSlot
     ) {
 
-        ActionType actionType = null;
+        ActionType actionType;
         try {
             actionType = ActionType.valueOf(action);
         } catch (IllegalArgumentException e) {
             // TODO
+            throw e;
         }
 
-        List<Follower> followerTypes = new ArrayList<>(followers.size());
-        for (String follower : followers) {
-            Follower followerType;
-            try {
-                followerType = Follower.valueOf(follower);
-                followerTypes.add(followerType);
-            } catch (IllegalArgumentException e) {
-                // TODO
-            }
-        }
-
-        GameState gameState = gameMaster.addToPlan(gameId, playerId, actionType, followerTypes);
+        GameState gameState = gameMaster.addToPlan(gameId, playerId, actionType, marketSlot, actionSlot);
         return gameState;
     }
 
+    private FollowerType getFollowerType(String valueString) {
+        FollowerType followerType;
+        try {
+            followerType = FollowerType.valueOf(valueString);
+        } catch (IllegalArgumentException e) {
+            // TODO
+            throw e;
+        }
+        return followerType;
+    }
+
     @RequestMapping("/game/{gameId}/{playerId}/planSet")
-    public GameState submitPlan(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
+    public GameState planSet(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
         GameState gameState = gameMaster.planSet(gameId, playerId);
         return gameState;
     }

@@ -3,7 +3,6 @@ package com.neodem.orleans.engine.core.model;
 import com.google.common.base.Objects;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.collections.Bag;
-import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -21,17 +20,19 @@ import java.util.Map;
  * Created on 12/27/19
  */
 public abstract class PlayerState {
+
+
     protected final String playerId;
     protected final PlayerColor playerColor;
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
 
-    private final Map<ActionType, TechTile> techTileMap = new HashMap<>();
+    private final Map<ActionType, Integer> techTileMap = new HashMap<>();
 
     // followers are either in the bag, market or plans
-    private final Bag<Follower> bag = new Bag<>();
-    private Grouping<Follower> market = new Grouping<>();
-    private final Map<ActionType, List<Follower>> plans = new HashMap<>();
+    protected final Bag<Follower> bag = new Bag<>();
+    protected final List<Follower> market = new ArrayList<>();
+    protected final Map<ActionType, FollowerTrack> plans = new HashMap<>();
 
     private final Collection<CitizenType> claimedCitizens = new HashSet<>();
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
@@ -76,17 +77,17 @@ public abstract class PlayerState {
         return playerId;
     }
 
-    public Grouping<Follower> getMarket() {
+    public List<Follower> getMarket() {
         return market;
     }
 
-    public Map<ActionType, TechTile> getTechTileMap() {
+    public Map<ActionType, Integer> getTechTileMap() {
         return techTileMap;
     }
 
-    public void addTechTile(TechTile techTile) {
-        techTileMap.put(techTile.getActionType(), techTile);
-    }
+//    public void addTechTile(TechTile techTile) {
+//        techTileMap.put(techTile.getActionType(), techTile);
+//    }
 
     public int getCoinCount() {
         return coinCount;
@@ -125,7 +126,7 @@ public abstract class PlayerState {
         return trackIndex;
     }
 
-    public Map<ActionType, List<Follower>> getPlans() {
+    public Map<ActionType, FollowerTrack> getPlans() {
         return plans;
     }
 
@@ -137,8 +138,8 @@ public abstract class PlayerState {
         return tracks.get(track);
     }
 
-    public void addToBag(Follower follower) {
-        this.bag.add(follower);
+    public void addToBag(Follower followerType) {
+        this.bag.add(followerType);
     }
 
     public TokenLocation getMerchantLocation() {
@@ -208,8 +209,8 @@ public abstract class PlayerState {
         for (int i = 0; i < drawCount; i++) {
             Follower follower = bag.take();
             if (follower != null) {
-                log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market");
-                market = newMarketWith(follower);
+                log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + i + ")");
+                market.add(i, follower);
             }
         }
     }
@@ -218,27 +219,19 @@ public abstract class PlayerState {
         return planLocked;
     }
 
-    public void addToPlan(ActionType actionType, List<Follower> followers) {
-        List<Follower> allocatedFollowers = plans.get(actionType);
-        if (allocatedFollowers == null) allocatedFollowers = new ArrayList<>();
-        for (Follower follower : followers) {
-            allocatedFollowers.add(follower);
-            log.writeLine("" + playerId + " adds " + follower + " to plan for " + actionType);
+    public Follower removeFromMarket(int slot) {
+        Follower inSlot = market.get(slot);
+        if (inSlot instanceof EmptyFollowerSlot) {
+            inSlot = null;
+        } else {
+            log.writeLine("" + playerId + " removes " + inSlot + " from her market");
+            market.remove(slot);
+            market.add(new EmptyFollowerSlot());
         }
-        plans.put(actionType, allocatedFollowers);
+
+        return inSlot;
     }
 
-    public void removeFromMarket(List<Follower> followers) {
-        for (Follower follower : followers) {
-            market = newMarketWithout(follower);
-            log.writeLine("" + playerId + " removes " + follower + " from her market");
-        }
-    }
-
-    public boolean availableInMarket(List<Follower> followers) {
-        Grouping<Follower> toPullFromMaket = new Grouping<Follower>(followers);
-        return toPullFromMaket.canFitInto(market);
-    }
 
     public void lockPlan() {
         planLocked = true;
@@ -251,18 +244,6 @@ public abstract class PlayerState {
 
     public void addLog(Loggable log) {
         this.log = log;
-    }
-
-    private Grouping<Follower> newMarketWithout(Follower follower) {
-        List<Follower> currentFollowers = market.getTemplate();
-        currentFollowers.remove(follower);
-        return new Grouping<>(currentFollowers);
-    }
-
-    private Grouping<Follower> newMarketWith(Follower follower) {
-        List<Follower> currentFollowers = market.getTemplate();
-        currentFollowers.add(follower);
-        return new Grouping<>(currentFollowers);
     }
 
     public boolean isPassed() {
@@ -278,8 +259,10 @@ public abstract class PlayerState {
     }
 
     public void unPlan(ActionType actionType) {
-        List<Follower> followers = plans.get(actionType);
-        for (Follower follower : followers) {
+        FollowerTrack followerTrack = plans.get(actionType);
+        Collection<Follower> removedFollowers = followerTrack.removeAllFollowers();
+
+        for (Follower follower : removedFollowers) {
             addToBag(follower);
         }
         plans.remove(actionType);
@@ -297,4 +280,8 @@ public abstract class PlayerState {
         tradingStationLocations.add(merchantLocation);
     }
 
+    // does the market contain a Follower of the type indicated?
+    public boolean typeInMarket(FollowerType followerToPlace) {
+        return false;
+    }
 }

@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
@@ -19,11 +20,11 @@ import java.util.Map;
  */
 public abstract class GameState implements Loggable {
     protected final List<PlayerState> players = new ArrayList<>();
-    protected  BoardState boardState;
-    protected  BenefitTracker benefitTracker;
+    protected BoardState boardState;
+    protected BenefitTracker benefitTracker;
 
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
-    protected final Map<Follower, Integer> followerInventory = new HashMap<>();
+    protected final Map<FollowerType, Integer> followerInventory = new HashMap<>();
 
     protected int techTilesAvailable = 0;
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
@@ -76,11 +77,11 @@ public abstract class GameState implements Loggable {
     public Map<TokenLocation, Collection<String>> getAllTradingStations() {
         Map<TokenLocation, Collection<String>> allTradingStations = new HashMap<>();
 
-        for(PlayerState player : players) {
+        for (PlayerState player : players) {
             Collection<TokenLocation> locsForPlayer = player.getTradingStationLocations();
-            for(TokenLocation location : locsForPlayer) {
+            for (TokenLocation location : locsForPlayer) {
                 Collection<String> names = allTradingStations.get(location);
-                if(names== null) names = new HashSet<>();
+                if (names == null) names = new HashSet<>();
                 names.add(player.getPlayerId());
                 allTradingStations.put(location, names);
             }
@@ -94,9 +95,13 @@ public abstract class GameState implements Loggable {
         gameLog.add(line);
     }
 
-    public void removeFollowerFromInventory(Follower desiredFollower) {
+    public void removeFollowerFromInventory(FollowerType desiredFollower) {
         int followerCount = followerInventory.get(desiredFollower);
         followerInventory.put(desiredFollower, --followerCount);
+    }
+
+    public void removeGoodFromInventory(GoodType goodType) {
+        Util.mapDec(goodsInventory, goodType);
     }
 
     public HourGlassTile getCurrentHourGlass() {
@@ -124,7 +129,7 @@ public abstract class GameState implements Loggable {
         return playerCount;
     }
 
-    public Map<Follower, Integer> getFollowerInventory() {
+    public Map<FollowerType, Integer> getFollowerInventory() {
         return followerInventory;
     }
 
@@ -270,5 +275,10 @@ public abstract class GameState implements Loggable {
 
     public void removeTechTileFromInventory() {
         techTilesAvailable--;
+    }
+
+
+    public boolean isGoodAvailable(GoodType goodType) {
+        return goodsInventory.get(goodType) > 0;
     }
 }

@@ -7,12 +7,13 @@ import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.TechTileHelper;
 import com.neodem.orleans.engine.original.model.CitizenType;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.Collection;
 import java.util.Map;
@@ -36,22 +37,25 @@ public class VillageProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        Follower desiredFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower);
+        FollowerType desiredFollowerType = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower);
 
         boolean trackOk;
-        switch (desiredFollower) {
+        switch (desiredFollowerType) {
             case Boatman:
                 trackOk = player.getTrackValue(Track.Boatmen) < 5;
                 break;
             case Craftsman:
-                validateMap(additionalDataMap, Sets.newHashSet(AdditionalDataType.techAction, AdditionalDataType.techFollower));
+                validateMap(additionalDataMap, Sets.newHashSet(AdditionalDataType.techAction, AdditionalDataType.position));
 
-                if(gameState.getTechTilesAvailable() == 0) {
+                if (gameState.getTechTilesAvailable() == 0) {
                     throw new ActionProcessorException("There are no more tech tiles available");
                 }
 
-                Follower techFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.techFollower);
-                if (techFollower == Follower.Monk)
+                ActionType actionType = getActionTypeFromMap(additionalDataMap, AdditionalDataType.techAction);
+                int position = getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
+                FollowerType followerType = actionHelper.getTypeForAction(actionType, position);
+
+                if (followerType == FollowerType.Monk)
                     throw new ActionProcessorException("You may never replace a Monk with a tech tile");
 
                 trackOk = player.getTrackValue(Track.Craftsmen) < 5;
@@ -61,19 +65,19 @@ public class VillageProcessor extends ActionProcessorBase {
                 trackOk = player.getTrackValue(Track.Traders) < 5;
                 break;
             default:
-                throw new ActionProcessorException("desired follower " + desiredFollower + "is not a Boatman, Craftsman or Trader");
+                throw new ActionProcessorException("desired follower " + desiredFollowerType + "is not a Boatman, Craftsman or Trader");
         }
 
-        return trackOk && gameState.getFollowerInventory().get(desiredFollower) > 0;
+        return trackOk && gameState.getFollowerInventory().get(desiredFollowerType) > 0;
     }
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        Follower desiredFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower);
-        gameState.removeFollowerFromInventory(desiredFollower);
-        player.addToBag(desiredFollower);
+        FollowerType desiredFollowerType = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower);
+        gameState.removeFollowerFromInventory(desiredFollowerType);
+        player.addToBag(new Follower(desiredFollowerType));
 
-        switch (desiredFollower) {
+        switch (desiredFollowerType) {
             case Boatman:
                 handleBoatman(gameState, player);
                 break;
@@ -100,8 +104,8 @@ public class VillageProcessor extends ActionProcessorBase {
     private void handleCraftsman(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         player.bumpTrack(Track.Craftsmen);
         ActionType actionType = getActionTypeFromMap(additionalDataMap, AdditionalDataType.techAction);
-        Follower actionFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.techFollower);
-        TechTileHelper.addTechTileToPlayer(gameState, player, actionFollower, actionType, actionHelper);
+        int position = getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
+        TechTileHelper.addTechTileToPlayer(gameState, player, position, actionType, actionHelper);
     }
 
     private void handleTrader(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {

@@ -4,7 +4,7 @@ import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.ActionProcessorException;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TokenLocation;
@@ -81,7 +81,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return location;
     }
 
-    protected Follower getFollowerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    protected FollowerType getFollowerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getFollowerFromName(value);
     }
@@ -145,11 +145,11 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
-    protected Follower getFollowerFromName(String stringValue) {
-        if(stringValue == null) return null;
-        Follower followerType;
+    protected FollowerType getFollowerFromName(String stringValue) {
+        if (stringValue == null) return null;
+        FollowerType followerType;
         try {
-            followerType = Follower.valueOf(stringValue);
+            followerType = FollowerType.valueOf(stringValue);
         } catch (IllegalArgumentException e) {
             throw new ActionProcessorException("Cannot determine Follower Type from '" + stringValue + "'");
         }

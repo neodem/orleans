@@ -7,7 +7,7 @@ import com.neodem.orleans.engine.original.model.BenefitName;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.neodem.orleans.engine.core.model.Follower.*;
+import static com.neodem.orleans.engine.core.model.FollowerType.*;
 import static com.neodem.orleans.engine.original.model.BenefitName.*;
 
 /**

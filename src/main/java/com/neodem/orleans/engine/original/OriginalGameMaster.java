@@ -2,17 +2,7 @@ package com.neodem.orleans.engine.original;
 
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
-import com.neodem.orleans.engine.core.model.ActionType;
-import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.Follower;
-import com.neodem.orleans.engine.core.model.GamePhase;
-import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.GameVersion;
-import com.neodem.orleans.engine.core.model.HourGlassTile;
-import com.neodem.orleans.engine.core.model.PlayerColor;
-import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.TechTile;
-import com.neodem.orleans.engine.core.model.Track;
+import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -141,13 +131,15 @@ public class OriginalGameMaster implements GameMaster {
             if (player != null) {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
-                        List<Follower> plannedFollowers = player.getPlans().get(actionType);
-                        TechTile techTile = player.getTechTileMap().get(actionType);
-                        Follower techToken = null;
-                        if (techTile != null) {
-                            techToken = techTile.getFollower();
-                        }
-                        if (actionHelper.actionIsFull(actionType, plannedFollowers, techToken)) {
+
+                        // 1) get the plan
+                        FollowerTrack followerTrack = player.getPlans().get(actionType);
+
+                        // 2) get the techToken slot (if any)
+                        Integer techSlot = player.getTechTileMap().get(actionType);
+
+                        // 3) check if the action is ready
+                        if (followerTrack.isReady(techSlot)) {
 
                             if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
                                 // send back to bag and remove plan
@@ -200,7 +192,7 @@ public class OriginalGameMaster implements GameMaster {
     }
 
     @Override
-    public GameState addToPlan(String gameId, String playerId, ActionType actionType, List<Follower> followers) {
+    public GameState addToPlan(String gameId, String playerId, ActionType actionType, int marketSlot, int actionSlot) {
 
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
@@ -209,7 +201,12 @@ public class OriginalGameMaster implements GameMaster {
 
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
-                    //1) is this action available to the player (on their base board or as an additional place?)
+                    //1) does the player have a follower in that market slot?
+                    if (player.getMarket().get(marketSlot) instanceof EmptyFollowerSlot) {
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available in slot " + marketSlot + " of her market");
+                    }
+
+                    //2) is this action available to the player (on their base board or as an additional place?)
                     if (actionHelper.isPlaceTileAction(actionType)) {
                         PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
                         if (!player.getPlaceTiles().contains(placeTile)) {
@@ -217,24 +214,24 @@ public class OriginalGameMaster implements GameMaster {
                         }
                     }
 
-                    // 2) validate followers can fit on the action type
-                    if (actionHelper.actionCanAccept(actionType, followers)) {
-                        // 3) does the player have the followers avail in the market?
-                        if (player.availableInMarket(followers)) {
-                            // 4) are there available open slots in the plan?
-                            if (canPlan(player, actionType, followers)) {
-                                //5) remove from market and add to the plan
-                                player.removeFromMarket(followers);
-                                player.addToPlan(actionType, followers);
-                            } else {
-                                throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more open slots in their plan for action=" + actionType);
-                            }
-                        } else {
-                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have one or more of these followers in their market");
-                        }
-                    } else {
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' has applied the incorrect followers to this action");
+                    //3) get the follower from the market
+                    Follower followerToken = player.removeFromMarket(marketSlot);
+
+                    //4) can the token go into the track?
+                    FollowerTrack followerTrack = player.getPlans().get(actionType);
+                    if (followerTrack == null) {
+                        followerTrack = actionHelper.getFollowerTrack(actionType);
+                        player.getPlans().put(actionType, followerTrack);
                     }
+
+                    if (followerTrack.canAdd(followerToken, actionSlot)) {
+
+                        // 5) add the token
+                        followerTrack.add(followerToken, actionSlot);
+                    } else {
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
+                    }
+
                 } else {
                     throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to plan but the current Phase is: " + gameState.getGamePhase());
                 }
@@ -356,19 +353,5 @@ public class OriginalGameMaster implements GameMaster {
                 return 8;
         }
         return 0;
-    }
-
-    /**
-     * are there open slots in the plan?
-     *
-     * @param player
-     * @param actionType
-     * @param followersToPlace
-     * @return
-     */
-    public boolean canPlan(PlayerState player, ActionType actionType, List<Follower> followersToPlace) {
-        List<Follower> placedInActionAlready = player.getPlans().get(actionType);
-        if (placedInActionAlready == null || placedInActionAlready.isEmpty()) return true;
-        return actionHelper.canPlaceIntoAction(actionType, followersToPlace, placedInActionAlready);
     }
 }

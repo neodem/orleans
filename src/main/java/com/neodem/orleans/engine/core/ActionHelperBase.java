@@ -1,18 +1,14 @@
 package com.neodem.orleans.engine.core;
 
-import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerTrack;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
-import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -20,19 +16,15 @@ import java.util.stream.Collectors;
  */
 public abstract class ActionHelperBase implements ActionHelper {
 
-    protected abstract Map<ActionType, Grouping<Follower>> actionMappings();
+    protected abstract Map<ActionType, FollowerTrack> actionMappings();
 
     protected abstract Map<ActionType, ActionProcessor> actionProcessors();
 
     protected abstract Map<ActionType, PlaceTile> placeTileMap();
 
-    public Grouping getGrouping(ActionType actionType) {
-        return actionMappings().get(actionType);
-    }
-
-    @Override
-    public boolean isCommonAction(ActionType actionType) {
-        return !placeTileMap().containsKey(actionType);
+    public FollowerTrack getFollowerTrack(ActionType actionType) {
+        FollowerTrack template = actionMappings().get(actionType);
+        return new FollowerTrack(template);
     }
 
     @Override
@@ -66,71 +58,43 @@ public abstract class ActionHelperBase implements ActionHelper {
     }
 
     @Override
-    public boolean actionCanAccept(ActionType actionType, List<Follower> followers) {
-        Assert.notNull(actionType, "actionType may not be null");
-        Assert.notNull(followers, "followers may not be null");
-
-        List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
-        List<Follower> monksRemoved = removeMonks(sanitizedFollowers);
-
-        Grouping<Follower> neededFollowers = actionMappings().get(actionType);
-        Grouping<Follower> testFollowers = new Grouping<>(monksRemoved);
-        return testFollowers.canFitInto(neededFollowers);
+    public FollowerType getTypeForAction(ActionType actionType, int position) {
+        return null;
     }
 
+    //    @Override
+//    public boolean actionCanAccept(ActionType actionType, List<Follower> followers) {
+//        Assert.notNull(actionType, "actionType may not be null");
+//        Assert.notNull(followers, "followers may not be null");
+//
+//        List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
+//        List<Follower> monksRemoved = removeMonks(sanitizedFollowerTypes);
+//
+//        Grouping<FollowerType> neededFollowers = actionMappings().get(actionType);
+//        Grouping<FollowerType> testFollowers = new Grouping<>(monksRemoved);
+//        return testFollowers.canFitInto(neededFollowers);
+//    }
 
-    @Override
-    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
-        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace))
-            return true;
 
-        // returns a copy
-        List<Follower> template = actionMappings().get(actionType).getTemplate();
-        for (Follower placed : placedInActionAlready) {
-            template.remove(placed);
-        }
+//    @Override
+//    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
+//        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace))
+//            return true;
+//
+//        // returns a copy
+//        List<FollowerType> template = actionMappings().get(actionType).getTemplate();
+//        for (FollowerType placed : placedInActionAlready) {
+//            template.remove(placed);
+//        }
+//
+//        List<FollowerType> sanitizedFollowerTypes = sanitizeFollowers(followersToPlace);
+//        for (FollowerType toPlace : sanitizedFollowerTypes) {
+//            if (template.contains(toPlace)) template.remove(toPlace);
+//            else return false;
+//        }
+//
+//        return true;
+//    }
 
-        List<Follower> sanitizedFollowers = sanitizeFollowers(followersToPlace);
-        for (Follower toPlace : sanitizedFollowers) {
-            if (template.contains(toPlace)) template.remove(toPlace);
-            else return false;
-        }
 
-        return true;
-    }
-
-    @Override
-    public boolean actionIsFull(ActionType actionType, List<Follower> followers, Follower techToken) {
-        List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
-        sanitizedFollowers.add(techToken);
-
-        int monkCount = 0;
-        List<Follower> template = actionMappings().get(actionType).getTemplate();
-        for (Follower placed : sanitizedFollowers) {
-            if (placed == Follower.Monk) monkCount++;
-            template.remove(placed);
-        }
-
-        int slotsLeftOpen = template.size();
-
-        return slotsLeftOpen == 0 || slotsLeftOpen == monkCount;
-    }
-
-    private List<Follower> removeMonks(List<Follower> followers) {
-        return followers.stream()
-                .filter(f -> f != Follower.Monk)
-                .collect(Collectors.toList());
-    }
-
-    protected List<Follower> sanitizeFollowers(List<Follower> followers) {
-        List<Follower> sanitizedFollowers = new ArrayList<>();
-        for (Follower follower : followers) {
-            if (follower == Follower.StarterBoatman) sanitizedFollowers.add(Follower.Boatman);
-            else if (follower == Follower.StarterCraftsman) sanitizedFollowers.add(Follower.Craftsman);
-            else if (follower == Follower.StarterFarmer) sanitizedFollowers.add(Follower.Farmer);
-            else if (follower == Follower.StarterTrader) sanitizedFollowers.add(Follower.Trader);
-            else sanitizedFollowers.add(follower);
-        }
-        return sanitizedFollowers;
-    }
 }
