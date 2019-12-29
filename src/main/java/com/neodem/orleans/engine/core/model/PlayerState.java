@@ -1,6 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
 import com.google.common.base.Objects;
+import com.neodem.orleans.Util;
 import com.neodem.orleans.collections.Bag;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.Loggable;
@@ -120,9 +121,7 @@ public abstract class PlayerState {
      * @return
      */
     public int bumpTrack(Track track) {
-        int trackIndex = tracks.get(track);
-        trackIndex++;
-        tracks.put(track, trackIndex);
+        int trackIndex = Util.mapInc(tracks, track);
         return trackIndex;
     }
 
@@ -176,14 +175,13 @@ public abstract class PlayerState {
     }
 
     public void addGood(GoodType goodType) {
-        Integer count = this.goodCounts.get(goodType);
-        this.goodCounts.put(goodType, ++count);
+        Util.mapInc(goodCounts, goodType);
     }
 
     public void removeGood(GoodType goodType) {
         Integer count = this.goodCounts.get(goodType);
         if (count > 0) {
-            this.goodCounts.put(goodType, --count);
+            Util.mapDec(goodCounts, goodType);
         } else {
             throw new IllegalStateException("No good to remove of type: " + goodType);
         }
@@ -295,10 +293,8 @@ public abstract class PlayerState {
         claimedCitizens.add(citizenType);
     }
 
-
     public void addTradingHallToCurrentLocation() {
         tradingStationLocations.add(merchantLocation);
     }
-
 
 }

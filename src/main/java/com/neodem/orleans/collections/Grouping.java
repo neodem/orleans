@@ -26,6 +26,18 @@ public class Grouping<T> {
         template.addAll(elements);
     }
 
+    /**
+     * return a new grouping containing all in this gropuing + the given element
+     *
+     * @param element
+     * @return
+     */
+    public <T> Grouping<T> copyAndAdd(T element) {
+        List<T> newTemplate = (List<T>) getTemplate();
+        newTemplate.add(element);
+        return new Grouping<>(newTemplate);
+    }
+
     public int size() {
         return template.size();
     }

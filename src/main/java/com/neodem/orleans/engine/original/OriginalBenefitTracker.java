@@ -1,6 +1,5 @@
 package com.neodem.orleans.engine.original;
 
-import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.BenefitTrackerBase;
 import com.neodem.orleans.engine.core.model.BenefitTrack;
 import com.neodem.orleans.engine.original.model.BenefitName;
@@ -21,14 +20,14 @@ public class OriginalBenefitTracker extends BenefitTrackerBase {
 
     public OriginalBenefitTracker() {
         benefitTracks = new HashMap<>();
-        benefitTracks.put(BuildingCityWall, new BenefitTrack(BuildingCityWall, new Grouping<>(Knight, Knight, Knight, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman, Craftsman), 1));
-        benefitTracks.put(PapalConclave, new BenefitTrack(PapalConclave, new Grouping<>(Knight, Monk, Monk), 3));
-        benefitTracks.put(DefeatingPlague, new BenefitTrack(DefeatingPlague, new Grouping<>(Scholar, Scholar, Boatman, Farmer, Trader), 2));
-        benefitTracks.put(Astronomy, new BenefitTrack(Astronomy, new Grouping<>(Scholar, Scholar, Trader), 1));
-        benefitTracks.put(FoundingBoatmenGuild, new BenefitTrack(FoundingBoatmenGuild, new Grouping<>(Boatman, Boatman, Boatman, Scholar), 1));
-        benefitTracks.put(BuildingCathedral, new BenefitTrack(BuildingCathedral, new Grouping<>(Craftsman, Craftsman, Monk, Monk, Trader, Trader), 2));
-        benefitTracks.put(PeaceTreaty, new BenefitTrack(PeaceTreaty, new Grouping<>(Monk, Scholar, Knight, Knight), 2));
-        benefitTracks.put(Canalisation, new BenefitTrack(Canalisation, new Grouping<>(Boatman, Boatman, Boatman, Trader, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman), 1));
+        benefitTracks.put(BuildingCityWall, new BenefitTrack(1, Knight, Knight, Knight, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman, Craftsman));
+        benefitTracks.put(PapalConclave, new BenefitTrack(3, Knight, Monk, Monk));
+        benefitTracks.put(DefeatingPlague, new BenefitTrack(2, Scholar, Scholar, Boatman, Farmer, Trader));
+        benefitTracks.put(Astronomy, new BenefitTrack(1, Scholar, Scholar, Trader));
+        benefitTracks.put(FoundingBoatmenGuild, new BenefitTrack(1, Boatman, Boatman, Boatman, Scholar));
+        benefitTracks.put(BuildingCathedral, new BenefitTrack(2, Craftsman, Craftsman, Monk, Monk, Trader, Trader));
+        benefitTracks.put(PeaceTreaty, new BenefitTrack(2, Monk, Scholar, Knight, Knight));
+        benefitTracks.put(Canalisation, new BenefitTrack(1, Boatman, Boatman, Boatman, Trader, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman));
     }
 
     @Override

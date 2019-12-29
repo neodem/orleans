@@ -1,11 +1,12 @@
 package com.neodem.orleans.service;
 
 import com.google.common.collect.Lists;
-import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.ActionHelperBase;
+import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,25 @@ public class ActionHelperBaseTest {
     private ActionHelperBase actionService;
 
     private class TestableActionHelperBase extends ActionHelperBase {
-        public TestableActionHelperBase(Map<ActionType, Grouping<Follower>> actionMappings, Map<ActionType, ActionProcessor> actionProcessors) {
-            super(actionMappings, actionProcessors);
+        private final Map<ActionType, Grouping<Follower>> actionMappings;
+
+        public TestableActionHelperBase(Map<ActionType, Grouping<Follower>> actionMappings) {
+            this.actionMappings = actionMappings;
+        }
+
+        @Override
+        protected Map<ActionType, Grouping<Follower>> actionMappings() {
+            return actionMappings;
+        }
+
+        @Override
+        protected Map<ActionType, ActionProcessor> actionProcessors() {
+            return null;
+        }
+
+        @Override
+        protected Map<ActionType, PlaceTile> placeTileMap() {
+            return null;
         }
     }
 
@@ -36,7 +54,7 @@ public class ActionHelperBaseTest {
     void setUp() {
         Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
         actionMappings.put(Village, new Grouping<>(Boatman, Craftsman, Farmer));
-        actionService = new TestableActionHelperBase(actionMappings, null);
+        actionService = new TestableActionHelperBase(actionMappings);
     }
 
     @AfterEach

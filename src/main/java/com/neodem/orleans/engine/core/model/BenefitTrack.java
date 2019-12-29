@@ -1,7 +1,9 @@
 package com.neodem.orleans.engine.core.model;
 
-import com.neodem.orleans.collections.Grouping;
-import com.neodem.orleans.engine.original.model.BenefitName;
+import com.neodem.orleans.Util;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -9,22 +11,29 @@ import com.neodem.orleans.engine.original.model.BenefitName;
  */
 public class BenefitTrack {
 
-    private final Grouping<Follower> blueprint;
-    private final BenefitName benefitName;
+    private final Map<Follower, Integer> blueprint = new HashMap<>();
+    private final Map<Follower, Integer> filledSpots = new HashMap<>();
     private final int coinReward;
+    private final int maxSize;
 
-    public BenefitTrack(BenefitName benefitName, Grouping<Follower> blueprint, int coinReward) {
-        this.blueprint = blueprint;
-        this.benefitName = benefitName;
+    private int filledSpotsCount;
+    private boolean full;
+
+    public BenefitTrack(int coinReward, Follower... followers) {
         this.coinReward = coinReward;
-    }
 
-    public Grouping<Follower> getBlueprint() {
-        return blueprint;
-    }
+        for (Follower f : followers) {
+            Util.mapInc(blueprint, f);
+        }
 
-    public BenefitName getBenefitName() {
-        return benefitName;
+        int max = 0;
+        for (Follower f : blueprint.keySet()) {
+            max += blueprint.get(f);
+        }
+        maxSize = max;
+
+        full = false;
+        filledSpotsCount = 0;
     }
 
     public int getCoinReward() {
@@ -32,10 +41,25 @@ public class BenefitTrack {
     }
 
     public boolean canAdd(Follower follower) {
-        return false;
+        if (full) return false;
+
+        int needed = blueprint.get(follower);
+        int actual = filledSpots.get(follower);
+
+        return needed > actual;
     }
 
     public boolean add(Follower follower) {
-        return false;
+        if (canAdd(follower)) {
+            int current = filledSpots.get(follower);
+            filledSpots.put(follower, ++current);
+            filledSpotsCount++;
+        }
+
+        if (filledSpotsCount == maxSize) {
+            full = true;
+        }
+
+        return full;
     }
 }

@@ -24,6 +24,7 @@ public abstract class GameState implements Loggable {
 
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
     protected final Map<Follower, Integer> followerInventory = new HashMap<>();
+
     protected int techTilesAvailable = 0;
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
