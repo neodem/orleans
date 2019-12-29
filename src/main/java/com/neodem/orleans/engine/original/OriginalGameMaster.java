@@ -28,9 +28,8 @@ import java.util.Set;
  */
 public class OriginalGameMaster implements GameMaster {
 
-    private Map<String, GameState> storedGames = new HashMap<>();
-
     private final ActionHelper actionHelper;
+    private Map<String, GameState> storedGames = new HashMap<>();
 
     public OriginalGameMaster(ActionHelper actionHelper) {
         this.actionHelper = actionHelper;
@@ -133,8 +132,8 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
                         List<Follower> plannedFollowers = player.getPlans().get(actionType);
-                        if(actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
-                            if(actionHelper.isActionAllowed(actionType, gameState, player, additionalDataMap)) {
+                        if (actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
+                            if (actionHelper.isActionAllowed(actionType, gameState, player, additionalDataMap)) {
                                 processAction(gameState, player, actionType, additionalDataMap);
                             } else {
                                 throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");

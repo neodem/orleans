@@ -5,4 +5,5 @@ package com.neodem.orleans.engine.core.model;
  * Created on 12/28/19
  */
 public enum AdditionalDataType {
+    follower, from, to
 }

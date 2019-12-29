@@ -24,6 +24,10 @@ public class Path {
         this.goods = new HashSet<>();
     }
 
+    public static final Collection<Path> getPathsOfType(Collection<Path> allPaths, PathType pathType) {
+        return allPaths.stream().filter(p -> p.getPathType() == pathType).collect(Collectors.toSet());
+    }
+
     @Override
     public String toString() {
         return pathBetween +
@@ -59,9 +63,5 @@ public class Path {
 
     public Collection<GoodType> getGoods() {
         return goods;
-    }
-
-    public static final Collection<Path> getPathsOfType(Collection<Path> allPaths, PathType pathType) {
-        return allPaths.stream().filter(p -> p.getPathType() == pathType).collect(Collectors.toSet());
     }
 }

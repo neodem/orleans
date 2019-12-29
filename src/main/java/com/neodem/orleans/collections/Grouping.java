@@ -31,7 +31,7 @@ public class Grouping<T> {
     }
 
     public List<T> getTemplate() {
-        if(template.isEmpty()) return new ArrayList<>();
+        if (template.isEmpty()) return new ArrayList<>();
 
         List<T> copy = new ArrayList<>(template.size());
         copy.addAll(template);

@@ -1,6 +1,6 @@
 package com.neodem.orleans.engine.original.actions;
 
-import com.neodem.orleans.engine.core.ActionProcessor;
+import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
@@ -13,16 +13,16 @@ import java.util.Map;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/28/19
  */
-public class CastleProcessor implements ActionProcessor {
+public class CastleProcessor extends ActionProcessorBase {
 
     @Override
-    public boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.getTracks().get(Track.Knights);
         return trackIndex != 5;
     }
 
     @Override
-    public void process(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.getTrackValue(Track.Knights);
         trackIndex++;
 

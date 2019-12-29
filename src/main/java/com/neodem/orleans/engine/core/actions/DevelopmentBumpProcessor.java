@@ -1,6 +1,5 @@
 package com.neodem.orleans.engine.core.actions;
 
-import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
@@ -15,7 +14,7 @@ import static com.neodem.orleans.engine.original.DevelopmentHelper.MAXTRACK;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/28/19
  */
-public class DevelopmentBumpProcessor implements ActionProcessor {
+public class DevelopmentBumpProcessor extends ActionProcessorBase {
 
     private final int bumpSize;
 
@@ -24,13 +23,13 @@ public class DevelopmentBumpProcessor implements ActionProcessor {
     }
 
     @Override
-    public boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.getTracks().get(Track.Development);
         return trackIndex != MAXTRACK;
     }
 
     @Override
-    public void process(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.getTrackValue(Track.Development);
 
         trackIndex += bumpSize;

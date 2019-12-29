@@ -42,7 +42,6 @@ public interface GameMaster {
     GameState planSet(String gameId, String playerId);
 
     /**
-     *
      * @param gameId
      * @param playerId
      * @param actionType
@@ -53,6 +52,7 @@ public interface GameMaster {
 
     /**
      * player does an action
+     *
      * @param gameId
      * @param playerId
      * @param actionType
@@ -63,6 +63,7 @@ public interface GameMaster {
 
     /**
      * player does an action
+     *
      * @param gameId
      * @param playerId
      * @return

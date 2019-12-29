@@ -36,7 +36,7 @@ public class OriginalBoardState extends BoardState {
 
         if (playerCount == 3) {
             addPath(LeMans, Tours, Land, goodsInventory, 2);
-            addPath(Orleans, Briare, Sea, goodsInventory,2);
+            addPath(Orleans, Briare, Sea, goodsInventory, 2);
             addPath(Briare, Sancerre, Sea, goodsInventory, 2);
             addPath(Orleans, Vierzon, Land, goodsInventory, 2);
             addPath(Chinon, LeBlanc, Sea, goodsInventory, 2);
@@ -88,7 +88,6 @@ public class OriginalBoardState extends BoardState {
         addPath(Chateauroux, ArgentonSurCreuse, Land, goodsInventory);
         addPath(Chateauroux, LaChatre, Land, goodsInventory);
     }
-
 
 
 }

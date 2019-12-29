@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Orleans {
 
+    public static void main(String[] args) {
+        SpringApplication.run(Orleans.class, args);
+    }
+
     @RequestMapping("/")
     public String home() {
         return "Welcome to Orleans";
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(Orleans.class, args);
     }
 }

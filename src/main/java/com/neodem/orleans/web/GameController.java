@@ -91,14 +91,14 @@ public class GameController {
         }
 
         Map<AdditionalDataType, String> additionalDataMap = new HashMap<>();
-        if(allParams != null) {
-            for(String key : allParams.keySet()) {
+        if (allParams != null) {
+            for (String key : allParams.keySet()) {
                 AdditionalDataType type = null;
                 try {
                     type = AdditionalDataType.valueOf(key);
                 } catch (IllegalArgumentException e) {
                 }
-                if(type != null) {
+                if (type != null) {
                     additionalDataMap.put(type, allParams.get(key));
                 }
             }

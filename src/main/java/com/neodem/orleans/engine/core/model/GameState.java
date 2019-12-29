@@ -16,32 +16,24 @@ import java.util.Map;
  * Created on 12/26/19
  */
 public abstract class GameState implements Loggable {
-    private final int playerCount;
-    protected String gameId;
-
-    protected int round;
-    protected GamePhase gamePhase;
-
     protected final List<PlayerState> players = new ArrayList<>();
-    protected int startPlayer = -1;
-
-    protected BoardState boardState;
-
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
     protected final Map<Follower, Integer> followerInventory = new HashMap<>();
-
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
-
-    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
-
-    protected HourGlassTile currentHourGlass;
-
     // TODO hide this from JSON
     protected final List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
     protected final List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
-
     protected final List<String> gameLog = new ArrayList<>();
+    private final int playerCount;
+    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
+    protected String gameId;
+    protected int round;
+    protected GamePhase gamePhase;
+    protected int startPlayer = -1;
+    protected BoardState boardState;
+    protected HourGlassTile currentHourGlass;
+    int currentActionPlayerIndex = 0;
 
     public GameState(String gameId, int playerCount) {
         Assert.isTrue(playerCount > 1 && playerCount < 5, "playerCount should be 2-4");
@@ -67,8 +59,18 @@ public abstract class GameState implements Loggable {
         gameLog.add(line);
     }
 
+    public void removeFollowerFromInventory(Follower desiredFollower) {
+        int followerCount = followerInventory.get(desiredFollower);
+        followerInventory.put(desiredFollower, --followerCount);
+    }
+
     public HourGlassTile getCurrentHourGlass() {
         return currentHourGlass;
+    }
+
+    public void setCurrentHourGlass(HourGlassTile currentHourGlass) {
+        this.currentHourGlass = currentHourGlass;
+        writeLine("HourGlass changed to: " + currentHourGlass);
     }
 
     public abstract void initGame(int playerCount);
@@ -81,11 +83,6 @@ public abstract class GameState implements Loggable {
         startPlayer++;
         if (startPlayer == players.size()) startPlayer = 0;
         writeLine("Start Player set to: " + getStartPlayer());
-    }
-
-    public void setCurrentHourGlass(HourGlassTile currentHourGlass) {
-        this.currentHourGlass = currentHourGlass;
-        writeLine("HourGlass changed to: " + currentHourGlass);
     }
 
     public int getPlayerCount() {
@@ -224,8 +221,6 @@ public abstract class GameState implements Loggable {
         claimedCitizens.add(citizenType);
     }
 
-    int currentActionPlayerIndex = 0;
-
     public String getCurrentActionPlayer() {
         return players.get(currentActionPlayerIndex).getPlayerId();
     }
@@ -235,6 +230,6 @@ public abstract class GameState implements Loggable {
         do {
             currentActionPlayerIndex++;
             count++;
-        } while(players.get(currentActionPlayerIndex).isPassed() && count == playerCount);
+        } while (players.get(currentActionPlayerIndex).isPassed() && count == playerCount);
     }
 }

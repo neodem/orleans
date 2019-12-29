@@ -10,10 +10,10 @@ import java.util.List;
  * Created on 12/28/19
  */
 public class ActionGrouping {
-    private Grouping<Follower> template;
     private final ActionType action;
-    private Follower techOverride = null;
     private final List<Follower> accumulator = new ArrayList<>();
+    private Grouping<Follower> template;
+    private Follower techOverride = null;
 
     public ActionGrouping(ActionType action, Grouping<Follower> template) {
         this.template = template;

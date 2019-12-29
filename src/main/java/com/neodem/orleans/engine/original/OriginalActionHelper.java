@@ -3,15 +3,17 @@ package com.neodem.orleans.engine.original;
 import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.ActionProcessor;
-import com.neodem.orleans.engine.core.BaseActionHelper;
+import com.neodem.orleans.engine.core.ActionHelperBase;
 import com.neodem.orleans.engine.core.actions.CoinBumpProcessor;
 import com.neodem.orleans.engine.core.actions.DevelopmentBumpProcessor;
 import com.neodem.orleans.engine.core.actions.GoodsBumpProcessor;
+import com.neodem.orleans.engine.core.actions.MovementProcessor;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.core.model.PathType;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.actions.*;
 import org.springframework.util.Assert;
@@ -27,9 +29,10 @@ import static com.neodem.orleans.engine.core.model.Follower.*;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/28/19
  */
-public class OriginalActionHelper extends BaseActionHelper implements ActionHelper {
+public class OriginalActionHelper extends ActionHelperBase implements ActionHelper {
 
     private static final Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
+    private static final Map<ActionType, ActionProcessor> actionProcessors = new HashMap<>();
 
     static {
         actionMappings.put(FarmHouse, new Grouping<>(Boatman, Craftsman));
@@ -61,8 +64,6 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionMappings.put(Winery, new Grouping<>(Farmer, Trader));
     }
 
-    private static final Map<ActionType, ActionProcessor> actionProcessors = new HashMap<>();
-
     static {
         actionProcessors.put(FarmHouse, new FarmHouseProcessor());
         actionProcessors.put(Village, new VillageProcessor());
@@ -71,8 +72,8 @@ public class OriginalActionHelper extends BaseActionHelper implements ActionHelp
         actionProcessors.put(Scriptorium, new DevelopmentBumpProcessor(1));
         actionProcessors.put(TownHall, new TownHallProcessor());
         actionProcessors.put(Monastery, new MonasteryProcessor());
-        actionProcessors.put(Ship, new ShipProcessor());
-        actionProcessors.put(Wagon, new WagonProcessor());
+        actionProcessors.put(Ship, new MovementProcessor(PathType.Sea));
+        actionProcessors.put(Wagon,new MovementProcessor(PathType.Land));
         actionProcessors.put(GuildHall, new GuildHallProcessor());
 
         //places

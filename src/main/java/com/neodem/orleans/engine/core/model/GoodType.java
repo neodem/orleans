@@ -21,7 +21,7 @@ public enum GoodType {
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();
 
-    public static GoodType randomGood()  {
+    public static GoodType randomGood() {
         return VALUES.get(RANDOM.nextInt(SIZE));
     }
 }

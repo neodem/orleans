@@ -3,7 +3,7 @@ package com.neodem.orleans.service;
 import com.google.common.collect.Lists;
 import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.collections.Grouping;
-import com.neodem.orleans.engine.core.BaseActionHelper;
+import com.neodem.orleans.engine.core.ActionHelperBase;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.Follower;
 import org.junit.jupiter.api.AfterEach;
@@ -22,11 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/28/19
  */
-public class BaseActionHelperTest {
-    private BaseActionHelper actionService;
+public class ActionHelperBaseTest {
+    private ActionHelperBase actionService;
 
-    private class TestableBaseActionHelper extends BaseActionHelper {
-        public TestableBaseActionHelper(Map<ActionType, Grouping<Follower>> actionMappings, Map<ActionType, ActionProcessor> actionProcessors) {
+    private class TestableActionHelperBase extends ActionHelperBase {
+        public TestableActionHelperBase(Map<ActionType, Grouping<Follower>> actionMappings, Map<ActionType, ActionProcessor> actionProcessors) {
             super(actionMappings, actionProcessors);
         }
     }
@@ -36,7 +36,7 @@ public class BaseActionHelperTest {
     void setUp() {
         Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
         actionMappings.put(Village, new Grouping<>(Boatman, Craftsman, Farmer));
-        actionService = new TestableBaseActionHelper(actionMappings, null);
+        actionService = new TestableActionHelperBase(actionMappings, null);
     }
 
     @AfterEach

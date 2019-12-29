@@ -23,12 +23,13 @@ public abstract class PlayerState {
     protected final PlayerColor playerColor;
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
+
+    // followers are either in the bag, market or plans
     private final Bag<Follower> bag = new Bag<>();
     private Grouping<Follower> market = new Grouping<>();
-    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
-
     private final Map<ActionType, List<Follower>> plans = new HashMap<>();
 
+    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
     protected TokenLocation merchantLocation;
@@ -246,7 +247,7 @@ public abstract class PlayerState {
 
     public void unPlan(ActionType actionType) {
         List<Follower> followers = plans.get(actionType);
-        for(Follower follower : followers) {
+        for (Follower follower : followers) {
             addToBag(follower);
         }
         plans.remove(actionType);
