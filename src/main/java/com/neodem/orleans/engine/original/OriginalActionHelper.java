@@ -14,9 +14,9 @@ import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PathType;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.actions.*;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
         actionProcessors.put(University, new UniversityProcessor());
         actionProcessors.put(Castle, new CastleProcessor());
         actionProcessors.put(Scriptorium, new DevelopmentBumpProcessor(1));
-        actionProcessors.put(TownHall, new TownHallProcessor());
+        actionProcessors.put(TownHall, new TownHallProcessor(TownHall));
         actionProcessors.put(Monastery, new MonasteryProcessor());
         actionProcessors.put(Ship, new MovementProcessor(PathType.Sea));
         actionProcessors.put(Wagon, new MovementProcessor(PathType.Land));
@@ -122,7 +122,7 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
         actionProcessors.put(Laboratory, new LaboratoryProcessor(this));
         actionProcessors.put(HorseWagon, new MovementProcessor(PathType.Land));
         actionProcessors.put(Winery, new GoodsBumpProcessor(GoodType.Wine));
-        actionProcessors.put(GunpowderTower, new TownHallProcessor());
+        actionProcessors.put(GunpowderTower, new TownHallProcessor(GunpowderTower));
         actionProcessors.put(Pharmacy, new PharmacyProcessor());
     }
 
@@ -143,6 +143,14 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
 
         if (actionType == Pharmacy || actionType == GunpowderTower) {
             return followers != null && !followers.isEmpty();
+        }
+
+        if (actionType == TownHall || actionType == GunpowderTower) {
+            for (Follower follower : followers) {
+                if (follower == StarterBoatman || follower == StarterCraftsman || follower == StarterFarmer || follower == StarterTrader)
+                    return false;
+            }
+            return true;
         }
 
         return super.actionCanAccept(actionType, followers);

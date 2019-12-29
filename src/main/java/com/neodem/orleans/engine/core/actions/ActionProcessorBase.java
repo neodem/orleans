@@ -6,6 +6,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.original.model.BenefitName;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TokenLocation;
@@ -95,24 +96,9 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return getActionTypeFromName(value);
     }
 
-    protected PlaceTile getPlaceTileFromName(String stringValue) {
-        PlaceTile type;
-        try {
-            type = PlaceTile.valueOf(stringValue);
-        } catch (IllegalArgumentException e) {
-            throw new ActionProcessorException("Cannot determine PlaceTile from '" + stringValue + "'");
-        }
-        return type;
-    }
-
-    protected ActionType getActionTypeFromName(String stringValue) {
-        ActionType type;
-        try {
-            type = ActionType.valueOf(stringValue);
-        } catch (IllegalArgumentException e) {
-            throw new ActionProcessorException("Cannot determine ActionType from '" + stringValue + "'");
-        }
-        return type;
+    protected BenefitName getBenefitNameFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+        String value = additionalDataMap.get(key);
+        return getBenefitNameFromValue(value);
     }
 
     protected int getIntegerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
@@ -126,7 +112,41 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return integer;
     }
 
+    protected BenefitName getBenefitNameFromValue(String stringValue) {
+        if(stringValue == null) return null;
+        BenefitName type;
+        try {
+            type = BenefitName.valueOf(stringValue);
+        } catch (IllegalArgumentException e) {
+            throw new ActionProcessorException("Cannot determine BenefitName from '" + stringValue + "'");
+        }
+        return type;
+    }
+
+    protected PlaceTile getPlaceTileFromName(String stringValue) {
+        if(stringValue == null) return null;
+        PlaceTile type;
+        try {
+            type = PlaceTile.valueOf(stringValue);
+        } catch (IllegalArgumentException e) {
+            throw new ActionProcessorException("Cannot determine PlaceTile from '" + stringValue + "'");
+        }
+        return type;
+    }
+
+    protected ActionType getActionTypeFromName(String stringValue) {
+        if(stringValue == null) return null;
+        ActionType type;
+        try {
+            type = ActionType.valueOf(stringValue);
+        } catch (IllegalArgumentException e) {
+            throw new ActionProcessorException("Cannot determine ActionType from '" + stringValue + "'");
+        }
+        return type;
+    }
+
     protected Follower getFollowerFromName(String stringValue) {
+        if(stringValue == null) return null;
         Follower followerType;
         try {
             followerType = Follower.valueOf(stringValue);

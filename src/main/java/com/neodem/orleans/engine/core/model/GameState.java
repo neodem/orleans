@@ -60,6 +60,10 @@ public abstract class GameState implements Loggable {
 
     protected abstract void initFor2Players();
 
+    public BenefitTracker getBenefitTracker() {
+        return benefitTracker;
+    }
+
     public int getTechTilesAvailable() {
         return techTilesAvailable;
     }
