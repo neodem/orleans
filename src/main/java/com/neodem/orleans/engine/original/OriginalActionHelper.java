@@ -127,8 +127,8 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
     }
 
     @Override
-    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        return super.isActionAllowed(actionType, gameState, player, additionalDataMap);
+    public boolean isActionValid(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+        return super.isActionValid(actionType, gameState, player, additionalDataMap);
     }
 
     @Override

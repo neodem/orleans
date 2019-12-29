@@ -5,8 +5,8 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +46,7 @@ public interface ActionHelper {
      */
     boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready);
 
-    boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap);
+    boolean isActionValid(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap);
 
     /**
      * @param actionType

@@ -5,13 +5,14 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -19,9 +20,11 @@ import java.util.Map;
  */
 public abstract class ActionHelperBase implements ActionHelper {
 
-    protected  abstract Map<ActionType, Grouping<Follower>> actionMappings();
-    protected  abstract Map<ActionType, ActionProcessor> actionProcessors();
-    protected  abstract Map<ActionType, PlaceTile> placeTileMap();
+    protected abstract Map<ActionType, Grouping<Follower>> actionMappings();
+
+    protected abstract Map<ActionType, ActionProcessor> actionProcessors();
+
+    protected abstract Map<ActionType, PlaceTile> placeTileMap();
 
     public Grouping getGrouping(ActionType actionType) {
         return actionMappings().get(actionType);
@@ -43,10 +46,10 @@ public abstract class ActionHelperBase implements ActionHelper {
     }
 
     @Override
-    public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    public boolean isActionValid(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         ActionProcessor actionProcessor = actionProcessors().get(actionType);
         if (actionProcessor != null) {
-            return actionProcessor.isAllowed(gameState, player, additionalDataMap);
+            return actionProcessor.isValid(gameState, player, additionalDataMap);
         }
         return false;
     }
@@ -68,11 +71,13 @@ public abstract class ActionHelperBase implements ActionHelper {
         Assert.notNull(followers, "followers may not be null");
 
         List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
+        List<Follower> monksRemoved = removeMonks(sanitizedFollowers);
 
         Grouping<Follower> neededFollowers = actionMappings().get(actionType);
-        Grouping<Follower> testFollowers = new Grouping<>(sanitizedFollowers);
+        Grouping<Follower> testFollowers = new Grouping<>(monksRemoved);
         return testFollowers.canFitInto(neededFollowers);
     }
+
 
     @Override
     public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
@@ -96,16 +101,25 @@ public abstract class ActionHelperBase implements ActionHelper {
 
     @Override
     public boolean actionIsFull(ActionType actionType, List<Follower> followers, Follower techToken) {
-        //TODO techToken
-
         List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
+        sanitizedFollowers.add(techToken);
 
+        int monkCount = 0;
         List<Follower> template = actionMappings().get(actionType).getTemplate();
         for (Follower placed : sanitizedFollowers) {
+            if (placed == Follower.Monk) monkCount++;
             template.remove(placed);
         }
 
-        return template.isEmpty();
+        int slotsLeftOpen = template.size();
+
+        return slotsLeftOpen == 0 || slotsLeftOpen == monkCount;
+    }
+
+    private List<Follower> removeMonks(List<Follower> followers) {
+        return followers.stream()
+                .filter(f -> f != Follower.Monk)
+                .collect(Collectors.toList());
     }
 
     protected List<Follower> sanitizeFollowers(List<Follower> followers) {

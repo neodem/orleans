@@ -9,12 +9,13 @@ import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.HourGlassTile;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.TechTile;
 import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,9 +142,22 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
                         List<Follower> plannedFollowers = player.getPlans().get(actionType);
-                        if (actionHelper.actionIsFull(actionType, plannedFollowers, null)) {
-                            if (actionHelper.isActionAllowed(actionType, gameState, player, additionalDataMap)) {
-                                processAction(gameState, player, actionType, additionalDataMap);
+                        TechTile techTile = player.getTechTileMap().get(actionType);
+                        Follower techToken = null;
+                        if (techTile != null) {
+                            techToken = techTile.getFollower();
+                        }
+                        if (actionHelper.actionIsFull(actionType, plannedFollowers, techToken)) {
+
+                            if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
+                                // send back to bag and remove plan
+                                player.unPlan(actionType);
+
+                                // do action
+                                actionHelper.processAction(actionType, gameState, player, additionalDataMap);
+
+                                // move to the next unpassed player
+                                gameState.advanceActionPlayer();
                             } else {
                                 throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
                             }
@@ -163,17 +177,6 @@ public class OriginalGameMaster implements GameMaster {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
         return gameState;
-    }
-
-    private void processAction(GameState gameState, PlayerState player, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
-        // send back to bag and remove plan
-        player.unPlan(actionType);
-
-        // do action
-        actionHelper.processAction(actionType, gameState, player, additionalDataMap);
-
-        // move to the next unpassed player
-        gameState.advanceActionPlayer();
     }
 
     @Override

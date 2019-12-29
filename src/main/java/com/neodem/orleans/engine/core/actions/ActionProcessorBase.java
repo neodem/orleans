@@ -6,10 +6,10 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.original.model.BenefitName;
-import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TokenLocation;
+import com.neodem.orleans.engine.original.model.BenefitName;
+import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ import java.util.Map;
 public abstract class ActionProcessorBase implements ActionProcessor {
 
     @Override
-    public final boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) throws ActionProcessorException {
+    public final boolean isValid(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) throws ActionProcessorException {
         validateInputs(gameState, player, additionalDataMap);
         return doIsAllowed(gameState, player, additionalDataMap);
     }
