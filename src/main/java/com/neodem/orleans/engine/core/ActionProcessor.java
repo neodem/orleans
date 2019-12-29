@@ -11,6 +11,14 @@ import java.util.Map;
  * Created on 12/28/19
  */
 public interface ActionProcessor {
+    /**
+     *
+     * @param gameState
+     * @param player
+     * @param additionalDataMap
+     * @return
+     * @throws ActionProcessorException
+     */
     boolean isAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) throws ActionProcessorException;
 
     void process(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) throws ActionProcessorException;

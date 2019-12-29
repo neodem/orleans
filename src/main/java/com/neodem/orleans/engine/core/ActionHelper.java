@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core;
 
+import com.neodem.orleans.collections.Grouping;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
@@ -52,4 +53,11 @@ public interface ActionHelper {
      * @param player
      */
     void processAction(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap);
+
+    /**
+     *
+     * @param actionType
+     * @return
+     */
+    Grouping getGrouping(ActionType actionType);
 }

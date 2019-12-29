@@ -24,6 +24,8 @@ public abstract class PlayerState {
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
 
+    private final Map<ActionType, TechTile> techTileMap = new HashMap<>();
+
     // followers are either in the bag, market or plans
     private final Bag<Follower> bag = new Bag<>();
     private Grouping<Follower> market = new Grouping<>();
@@ -31,8 +33,10 @@ public abstract class PlayerState {
 
     private final Collection<CitizenType> claimedCitizens = new HashSet<>();
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
+
     private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
     protected TokenLocation merchantLocation;
+
     private int coinCount = 5;
     private int tradingStationCount = 10;
     private boolean planLocked = false;
@@ -74,17 +78,51 @@ public abstract class PlayerState {
         return market;
     }
 
+    public Map<ActionType, TechTile> getTechTileMap() {
+        return techTileMap;
+    }
+
+    public void addTechTile(TechTile techTile) {
+        techTileMap.put(techTile.getActionType(), techTile);
+    }
+
     public int getCoinCount() {
         return coinCount;
     }
 
     public int removeCoin() {
+        log.writeLine("" + playerId + " loses 1 coin");
         return --coinCount;
+    }
+
+    public int removeCoin(int coins) {
+        log.writeLine("" + playerId + " loses " + coins + " coins");
+        coinCount -= coins;
+        return coinCount;
     }
 
     public int addCoin() {
         log.writeLine("" + playerId + " gains 1 coin");
         return ++coinCount;
+    }
+
+    public int addCoin(int coins) {
+        log.writeLine("" + playerId + " gains " + coins + " coins");
+        coinCount += coins;
+        return coinCount;
+    }
+
+    /**
+     * bump a track and return the new trackIndex
+     *
+     * @param track
+     * @return
+     */
+    public int bumpTrack(Track track) {
+        int trackIndex = tracks.get(track);
+        trackIndex++;
+        tracks.put(track, trackIndex);
+        return trackIndex;
     }
 
     public Map<ActionType, List<Follower>> getPlans() {
@@ -97,11 +135,6 @@ public abstract class PlayerState {
 
     public int getTrackValue(Track track) {
         return tracks.get(track);
-    }
-
-    public void bumpTrack(Track track) {
-        Integer value = tracks.get(track);
-        tracks.put(track, ++value);
     }
 
     public void addToBag(Follower follower) {
@@ -261,9 +294,10 @@ public abstract class PlayerState {
         claimedCitizens.add(citizenType);
     }
 
-    public int addCoin(int coins) {
-        log.writeLine("" + playerId + " gains " + coins + " coins");
-        coinCount += coins;
-        return coinCount;
+
+    public void addTradingHallToCurrentLocation() {
+        tradingStationLocations.add(merchantLocation);
     }
+
+
 }

@@ -54,6 +54,22 @@ public abstract class GameState implements Loggable {
 
     protected abstract void initFor2Players();
 
+    public Map<TokenLocation, Collection<String>> getAllTradingStations() {
+        Map<TokenLocation, Collection<String>> allTradingStations = new HashMap<>();
+
+        for(PlayerState player : players) {
+            Collection<TokenLocation> locsForPlayer = player.getTradingStationLocations();
+            for(TokenLocation location : locsForPlayer) {
+                Collection<String> names = allTradingStations.get(location);
+                if(names== null) names = new HashSet<>();
+                names.add(player.getPlayerId());
+                allTradingStations.put(location, names);
+            }
+        }
+
+        return allTradingStations;
+    }
+
     @Override
     public void writeLine(String line) {
         gameLog.add(line);

@@ -4,7 +4,9 @@ import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.TokenLocation;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -15,11 +17,21 @@ public class GuildHallProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        return false;
+        TokenLocation merchantLocation = player.getMerchantLocation();
+
+        if(merchantLocation != TokenLocation.Orleans) {
+
+            Map<TokenLocation, Collection<String>> allTradingStations = gameState.getAllTradingStations();
+            Collection<String> names = allTradingStations.get(merchantLocation);
+
+            return names.isEmpty();
+
+        }
+        return true;
     }
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-
+        player.addTradingHallToCurrentLocation();
     }
 }

@@ -23,15 +23,11 @@ public class CastleProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int trackIndex = player.getTrackValue(Track.Knights);
-        trackIndex++;
+        int trackIndex = player.bumpTrack(Track.Knights);
 
         if (trackIndex == 4 && !gameState.isCitizenClaimed(CitizenType.KnightTrack)) {
             gameState.citizenClaimed(CitizenType.KnightTrack);
             player.addCitizen(CitizenType.KnightTrack);
         }
-
-        player.getTracks().put(Track.Knights, trackIndex);
-
     }
 }

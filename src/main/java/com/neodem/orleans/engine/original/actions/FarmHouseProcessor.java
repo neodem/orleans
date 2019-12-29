@@ -22,8 +22,6 @@ public class FarmHouseProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int farmerIndex = player.getTrackValue(Track.Farmers);
-        farmerIndex++;
-        player.getTracks().put(Track.Farmers, farmerIndex);
+        player.bumpTrack(Track.Farmers);
     }
 }

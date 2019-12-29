@@ -18,17 +18,16 @@ import java.util.Map;
  */
 public abstract class ActionHelperBase implements ActionHelper {
 
-    protected final Map<ActionType, Grouping<Follower>> actionMappings;
-    protected final Map<ActionType, ActionProcessor> actionProcessors;
+    protected  abstract Map<ActionType, Grouping<Follower>> actionMappings();
+    protected  abstract Map<ActionType, ActionProcessor> actionProcessors();
 
-    public ActionHelperBase(Map<ActionType, Grouping<Follower>> actionMappings, Map<ActionType, ActionProcessor> actionProcessors) {
-        this.actionMappings = actionMappings;
-        this.actionProcessors = actionProcessors;
+    public Grouping getGrouping(ActionType actionType) {
+        return actionMappings().get(actionType);
     }
 
     @Override
     public boolean isActionAllowed(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        ActionProcessor actionProcessor = actionProcessors.get(actionType);
+        ActionProcessor actionProcessor = actionProcessors().get(actionType);
         if (actionProcessor != null) {
             return actionProcessor.isAllowed(gameState, player, additionalDataMap);
         }
@@ -40,7 +39,7 @@ public abstract class ActionHelperBase implements ActionHelper {
 
         gameState.writeLine("" + player.getPlayerId() + " doing action: " + actionType);
 
-        ActionProcessor actionProcessor = actionProcessors.get(actionType);
+        ActionProcessor actionProcessor = actionProcessors().get(actionType);
         if (actionProcessor != null) {
             actionProcessor.process(gameState, player, additionalDataMap);
         }
@@ -53,7 +52,7 @@ public abstract class ActionHelperBase implements ActionHelper {
 
         List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
 
-        Grouping<Follower> neededFollowers = actionMappings.get(actionType);
+        Grouping<Follower> neededFollowers = actionMappings().get(actionType);
         Grouping<Follower> testFollowers = new Grouping<>(sanitizedFollowers);
         return testFollowers.canFitInto(neededFollowers);
     }
@@ -64,7 +63,7 @@ public abstract class ActionHelperBase implements ActionHelper {
             return true;
 
         // returns a copy
-        List<Follower> template = actionMappings.get(actionType).getTemplate();
+        List<Follower> template = actionMappings().get(actionType).getTemplate();
         for (Follower placed : placedInActionAlready) {
             template.remove(placed);
         }
@@ -84,7 +83,7 @@ public abstract class ActionHelperBase implements ActionHelper {
 
         List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
 
-        List<Follower> template = actionMappings.get(actionType).getTemplate();
+        List<Follower> template = actionMappings().get(actionType).getTemplate();
         for (Follower placed : sanitizedFollowers) {
             template.remove(placed);
         }
