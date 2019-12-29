@@ -85,10 +85,6 @@ public abstract class PlayerState {
         return techTileMap;
     }
 
-//    public void addTechTile(TechTile techTile) {
-//        techTileMap.put(techTile.getActionType(), techTile);
-//    }
-
     public int getCoinCount() {
         return coinCount;
     }
@@ -162,15 +158,6 @@ public abstract class PlayerState {
         return tradingStationLocations;
     }
 
-    public void placeTradingStation(TokenLocation tradingStationLocation) {
-        if (tradingStationCount > 0) {
-            this.tradingStationLocations.add(tradingStationLocation);
-            tradingStationCount--;
-        } else {
-            throw new IllegalStateException("Out of trading stations");
-        }
-    }
-
     public Map<GoodType, Integer> getGoodCounts() {
         return goodCounts;
     }
@@ -237,11 +224,6 @@ public abstract class PlayerState {
         planLocked = true;
     }
 
-    public void resetPlan() {
-        planLocked = false;
-        plans.clear();
-    }
-
     public void addLog(Loggable log) {
         this.log = log;
     }
@@ -277,11 +259,15 @@ public abstract class PlayerState {
     }
 
     public void addTradingHallToCurrentLocation() {
-        tradingStationLocations.add(merchantLocation);
+        if (tradingStationCount > 0) {
+            tradingStationLocations.add(merchantLocation);
+            tradingStationCount--;
+        } else {
+            throw new IllegalStateException("Out of trading stations");
+        }
     }
 
-    // does the market contain a Follower of the type indicated?
-    public boolean typeInMarket(FollowerType followerToPlace) {
-        return false;
+    public void addTechTile(ActionType actionType, int techPosition) {
+        techTileMap.put(actionType, techPosition);
     }
 }

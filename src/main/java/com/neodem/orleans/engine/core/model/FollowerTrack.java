@@ -31,6 +31,10 @@ public class FollowerTrack {
     private int filledSpotsCount;
     private boolean full;
 
+    public int size() {
+        return filledSpotsCount;
+    }
+
     public FollowerTrack(FollowerType... followerTypes) {
         maxSize = followerTypes.length;
         for (FollowerType ft : followerTypes) {
@@ -49,7 +53,7 @@ public class FollowerTrack {
     public FollowerTrack(FollowerTrack template) {
         maxSize = template.maxSize;
         full = false;
-        filledSpotsCount = 0;
+        filledSpotsCount = template.filledSpotsCount;
         for (Slot s : template.getTrack()) {
             track.add(new Slot(s));
         }
@@ -87,6 +91,7 @@ public class FollowerTrack {
             if (!(s.f instanceof EmptyFollowerSlot)) {
                 followers.add(s.f);
                 s.f = new EmptyFollowerSlot();
+                filledSpotsCount--;
             }
         }
 
