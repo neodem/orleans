@@ -59,6 +59,8 @@ public class OriginalGameState extends GameState {
 
         initForPlayerCount(playerCount);
 
+        techTilesAvailable = 16;
+
         writeLine("Original game is set up. Welcome!");
     }
 

@@ -19,6 +19,7 @@ public abstract class GameState implements Loggable {
     protected final List<PlayerState> players = new ArrayList<>();
     protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
     protected final Map<Follower, Integer> followerInventory = new HashMap<>();
+    protected int techTilesAvailable = 0;
     protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
     // TODO hide this from JSON
@@ -53,6 +54,14 @@ public abstract class GameState implements Loggable {
     protected abstract void initFor3Players();
 
     protected abstract void initFor2Players();
+
+    public int getTechTilesAvailable() {
+        return techTilesAvailable;
+    }
+
+    public void setTechTilesAvailable(int techTilesAvailable) {
+        this.techTilesAvailable = techTilesAvailable;
+    }
 
     public Map<TokenLocation, Collection<String>> getAllTradingStations() {
         Map<TokenLocation, Collection<String>> allTradingStations = new HashMap<>();
@@ -247,5 +256,9 @@ public abstract class GameState implements Loggable {
             currentActionPlayerIndex++;
             count++;
         } while (players.get(currentActionPlayerIndex).isPassed() && count == playerCount);
+    }
+
+    public void removeTechTileFromInventory() {
+        techTilesAvailable--;
     }
 }

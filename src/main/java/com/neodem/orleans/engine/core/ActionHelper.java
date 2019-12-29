@@ -5,6 +5,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 
 import java.util.List;
@@ -53,6 +54,10 @@ public interface ActionHelper {
      * @param player
      */
     void processAction(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap);
+
+    boolean isCommonAction(ActionType actionType);
+    boolean isPlaceTileAction(ActionType actionType);
+    PlaceTile getPlaceTile(ActionType actionType);
 
     /**
      *

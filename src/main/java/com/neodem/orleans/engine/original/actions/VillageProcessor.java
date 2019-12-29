@@ -10,8 +10,8 @@ import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.TechTile;
 import com.neodem.orleans.engine.core.model.Track;
+import com.neodem.orleans.engine.original.TechTileHelper;
 import com.neodem.orleans.engine.original.model.CitizenType;
 
 import java.util.Collection;
@@ -45,6 +45,10 @@ public class VillageProcessor extends ActionProcessorBase {
                 break;
             case Craftsman:
                 validateMap(additionalDataMap, Sets.newHashSet(AdditionalDataType.techAction, AdditionalDataType.techFollower));
+
+                if(gameState.getTechTilesAvailable() == 0) {
+                    throw new ActionProcessorException("There are no more tech tiles available");
+                }
 
                 Follower techFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.techFollower);
                 if (techFollower == Follower.Monk)
@@ -94,27 +98,10 @@ public class VillageProcessor extends ActionProcessorBase {
     }
 
     private void handleCraftsman(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int trackIndex = player.bumpTrack(Track.Craftsmen);
-        Follower techFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.techFollower);
-
-        if (trackIndex == 1 && techFollower != Follower.Farmer) {
-            throw new ActionProcessorException("for the first tech track location you can only choose to place a Farmer");
-        }
-
+        player.bumpTrack(Track.Craftsmen);
         ActionType actionType = getActionTypeFromMap(additionalDataMap, AdditionalDataType.techAction);
-
-        TechTile techTile = new TechTile(actionType, techFollower);
-
-        Map<ActionType, TechTile> techTileMap = player.getTechTileMap();
-        if (techTileMap.containsKey(actionType)) {
-            throw new ActionProcessorException("You already have a tech tile on the action: " + actionType);
-        }
-
-        if (actionHelper.getGrouping(actionType).size() == 1) {
-            throw new ActionProcessorException("Tech tiles may not be placed on Actions with only one slot.");
-        }
-
-        player.addTechTile(techTile);
+        Follower actionFollower = getFollowerFromMap(additionalDataMap, AdditionalDataType.techFollower);
+        TechTileHelper.addTechTileToPlayer(gameState, player, actionFollower, actionType, actionHelper);
     }
 
     private void handleTrader(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
@@ -130,7 +117,7 @@ public class VillageProcessor extends ActionProcessorBase {
         }
 
         //
-        if(gameState.getPlaceTiles1().contains(desiredPlaceTile)) {
+        if (gameState.getPlaceTiles1().contains(desiredPlaceTile)) {
             gameState.getPlaceTiles1().remove(desiredPlaceTile);
         } else {
             gameState.getPlaceTiles2().remove(desiredPlaceTile);

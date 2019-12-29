@@ -5,6 +5,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import org.springframework.util.Assert;
 
@@ -20,9 +21,25 @@ public abstract class ActionHelperBase implements ActionHelper {
 
     protected  abstract Map<ActionType, Grouping<Follower>> actionMappings();
     protected  abstract Map<ActionType, ActionProcessor> actionProcessors();
+    protected  abstract Map<ActionType, PlaceTile> placeTileMap();
 
     public Grouping getGrouping(ActionType actionType) {
         return actionMappings().get(actionType);
+    }
+
+    @Override
+    public boolean isCommonAction(ActionType actionType) {
+        return !placeTileMap().containsKey(actionType);
+    }
+
+    @Override
+    public boolean isPlaceTileAction(ActionType actionType) {
+        return placeTileMap().containsKey(actionType);
+    }
+
+    @Override
+    public PlaceTile getPlaceTile(ActionType actionType) {
+        return placeTileMap().get(actionType);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.HourGlassTile;
+import com.neodem.orleans.engine.core.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
@@ -197,13 +198,21 @@ public class OriginalGameMaster implements GameMaster {
 
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
-                    // 1) validate followers can fit on the action type
+                    //1) is this action available to the player (on their base board or as an additional place?)
+                    if(actionHelper.isPlaceTileAction(actionType)) {
+                        PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
+                        if(!player.getPlaceTiles().contains(placeTile)) {
+                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
+                        }
+                    }
+
+                    // 2) validate followers can fit on the action type
                     if (actionHelper.actionCanAccept(actionType, followers)) {
-                        // 2) does the player have the followers avail in the market?
+                        // 3) does the player have the followers avail in the market?
                         if (player.availableInMarket(followers)) {
-                            // 3) are there available open slots in the plan?
+                            // 4) are there available open slots in the plan?
                             if (canPlan(player, actionType, followers)) {
-                                // remove from market and add to the plan
+                                //5) remove from market and add to the plan
                                 player.removeFromMarket(followers);
                                 player.addToPlan(actionType, followers);
                             } else {

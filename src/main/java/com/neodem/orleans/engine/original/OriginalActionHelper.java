@@ -14,6 +14,7 @@ import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PathType;
+import com.neodem.orleans.engine.core.model.PlaceTile;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.actions.*;
 import org.springframework.util.Assert;
@@ -33,6 +34,7 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
 
     private final Map<ActionType, Grouping<Follower>> actionMappings = new HashMap<>();
     private final Map<ActionType, ActionProcessor> actionProcessors = new HashMap<>();
+    private final Map<ActionType, PlaceTile> placeTileMap = new HashMap<>();
 
     @Override
     protected Map<ActionType, Grouping<Follower>> actionMappings() {
@@ -42,6 +44,11 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
     @Override
     protected Map<ActionType, ActionProcessor> actionProcessors() {
         return actionProcessors;
+    }
+
+    @Override
+    protected Map<ActionType, PlaceTile> placeTileMap() {
+        return placeTileMap;
     }
 
     public OriginalActionHelper() {
@@ -72,6 +79,22 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
         actionMappings.put(Laboratory, new Grouping<>(Craftsman, Scholar));
         actionMappings.put(HorseWagon, new Grouping<>(Knight, Trader));
         actionMappings.put(Winery, new Grouping<>(Farmer, Trader));
+
+        placeTileMap.put(ShippingLine, PlaceTile.ShippingLine);
+        placeTileMap.put(Brewery, PlaceTile.Brewery);
+        placeTileMap.put(Hayrick, PlaceTile.Hayrick);
+        placeTileMap.put(Sacristy, PlaceTile.Sacristy);
+        placeTileMap.put(WoolManufacturer, PlaceTile.WoolManufacturer);
+        placeTileMap.put(CheeseFactory, PlaceTile.CheeseFactory);
+        placeTileMap.put(Hospital, PlaceTile.Hospital);
+        placeTileMap.put(TailorShop, PlaceTile.TailorShop);
+        placeTileMap.put(Windmill, PlaceTile.Windmill);
+        placeTileMap.put(Library, PlaceTile.Library);
+        placeTileMap.put(Office, PlaceTile.Office);
+        placeTileMap.put(Cellar, PlaceTile.Cellar);
+        placeTileMap.put(Laboratory, PlaceTile.Laboratory);
+        placeTileMap.put(HorseWagon, PlaceTile.HorseWagon);
+        placeTileMap.put(Winery, PlaceTile.Winery);
 
         actionProcessors.put(FarmHouse, new FarmHouseProcessor());
         actionProcessors.put(Village, new VillageProcessor(this));
