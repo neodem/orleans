@@ -2,17 +2,7 @@ package com.neodem.orleans.engine.original;
 
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
-import com.neodem.orleans.engine.core.model.ActionType;
-import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.Follower;
-import com.neodem.orleans.engine.core.model.FollowerTrack;
-import com.neodem.orleans.engine.core.model.GamePhase;
-import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.GameVersion;
-import com.neodem.orleans.engine.core.model.HourGlassTile;
-import com.neodem.orleans.engine.core.model.PlayerColor;
-import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.Track;
+import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -23,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -123,31 +114,25 @@ public class OriginalGameMaster implements GameMaster {
                 handlePlagueEvent(gameState);
                 break;
             case Taxes:
-                handleTaxesEvent(gameState);
+                handleEvent(gameState, handleTaxesEvent);
                 break;
             case TradingDay:
-                handleTradingDayEvent(gameState);
+                handleEvent(gameState, handleTradingDayEvent);
                 break;
             case Income:
-                handleIncomeEvent(gameState);
+                handleEvent(gameState, handleIncomeEvent);
                 break;
             case Harvest:
-                handleHarvestEvent(gameState);
+                handleEvent(gameState, handleHarvestEvent);
                 break;
         }
     }
 
-    private void handleHarvestEvent(GameState gameState) {
-
-    }
-
-    private void handleIncomeEvent(GameState gameState) {
+    private void handleEvent(GameState gameState, BiFunction<GameState, PlayerState, Object> eventHandler) {
         List<PlayerState> players = gameState.getPlayers();
         for (PlayerState player : players) {
             if (!isPlayingSacristy(player)) {
-                int devTrackValue = player.getTrackValue(Track.Development);
-                int devLevel = DevelopmentHelper.getLevel(devTrackValue);
-                player.addCoin(devLevel);
+                eventHandler.apply(gameState, player);
             } else {
                 gameState.writeLine("player " + player.getPlayerId() + " has activated Sacristy so this event skips them");
                 player.unPlan(ActionType.Sacristy);
@@ -160,17 +145,38 @@ public class OriginalGameMaster implements GameMaster {
         return followerTrack != null && followerTrack.isReady(null);
     }
 
-    private void handleTradingDayEvent(GameState gameState) {
+    private BiFunction<GameState, PlayerState, Object> handleIncomeEvent = (gameState, playerState) -> {
+        int devTrackValue = playerState.getTradingStationCount();
+        playerState.addCoin(devTrackValue);
+        return null;
+    };
 
-    }
+    private BiFunction<GameState, PlayerState, Object> handleTradingDayEvent = (gameState, playerState) -> {
+        int devTrackValue = playerState.getTrackValue(Track.Development);
+        int devLevel = DevelopmentHelper.getLevel(devTrackValue);
+        playerState.addCoin(devLevel);
+        return null;
+    };
 
-    private void handlePlagueEvent(GameState gameState) {
+    private BiFunction<GameState, PlayerState, Object> handleTaxesEvent = (gameState, playerState) -> {
+        int devTrackValue = playerState.getFullGoodCount();
+        int tax = devTrackValue / 3;
+        playerState.removeCoin(tax);
+        //TODO check for torture
+        return null;
+    };
 
-    }
+    private BiFunction<GameState, PlayerState, Object> handleHarvestEvent = (gameState, playerState) -> {
+        if (playerState.isFoodAvailable()) {
+            GoodType goodType = playerState.removeOneFood();
+            gameState.addGoodToInventory(goodType);
+        } else {
+            playerState.removeCoin(5);
+            //TODO check for torture
+        }
+        return null;
+    };
 
-    private void handleTaxesEvent(GameState gameState) {
-
-    }
 
     private boolean doActionPhase(GameState gameState) {
         List<PlayerState> players = gameState.getPlayers();

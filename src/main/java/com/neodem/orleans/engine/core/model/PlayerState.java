@@ -271,4 +271,21 @@ public abstract class PlayerState {
     public void addTechTile(ActionType actionType, int techPosition) {
         techTileMap.put(actionType, techPosition);
     }
+
+    public int getFullGoodCount() {
+        int goodsCount = 0;
+
+        for (GoodType g : goodCounts.keySet()) {
+            goodsCount += goodCounts.get(g);
+        }
+
+        return goodsCount;
+    }
+
+    public boolean isFoodAvailable() {
+        if (goodCounts.get(GoodType.Grain) > 0) return true;
+        if (goodCounts.get(GoodType.Cheese) > 0) return true;
+        if (goodCounts.get(GoodType.Wine) > 0) return true;
+        return false;
+    }
 }
