@@ -117,6 +117,58 @@ public class OriginalGameMaster implements GameMaster {
     }
 
     private void doEventPhase(GameState gameState) {
+        HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
+        switch (currentHourGlass) {
+            case Plague:
+                handlePlagueEvent(gameState);
+                break;
+            case Taxes:
+                handleTaxesEvent(gameState);
+                break;
+            case TradingDay:
+                handleTradingDayEvent(gameState);
+                break;
+            case Income:
+                handleIncomeEvent(gameState);
+                break;
+            case Harvest:
+                handleHarvestEvent(gameState);
+                break;
+        }
+    }
+
+    private void handleHarvestEvent(GameState gameState) {
+
+    }
+
+    private void handleIncomeEvent(GameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        for (PlayerState player : players) {
+            if (!isPlayingSacristy(player)) {
+                int devTrackValue = player.getTrackValue(Track.Development);
+                int devLevel = DevelopmentHelper.getLevel(devTrackValue);
+                player.addCoin(devLevel);
+            } else {
+                gameState.writeLine("player " + player.getPlayerId() + " has activated Sacristy so this event skips them");
+                player.unPlan(ActionType.Sacristy);
+            }
+        }
+    }
+
+    private boolean isPlayingSacristy(PlayerState player) {
+        FollowerTrack followerTrack = player.getPlans().get(ActionType.Sacristy);
+        return followerTrack != null && followerTrack.isReady(null);
+    }
+
+    private void handleTradingDayEvent(GameState gameState) {
+
+    }
+
+    private void handlePlagueEvent(GameState gameState) {
+
+    }
+
+    private void handleTaxesEvent(GameState gameState) {
 
     }
 
