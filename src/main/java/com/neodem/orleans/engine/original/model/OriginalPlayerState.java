@@ -1,6 +1,5 @@
 package com.neodem.orleans.engine.original.model;
 
-import com.neodem.orleans.engine.core.model.EmptyFollowerSlot;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GoodType;
@@ -32,7 +31,7 @@ public class OriginalPlayerState extends PlayerState {
         tracks.put(Track.Scholars, 0);
         tracks.put(Track.Development, 0);
 
-        for (int i = 0; i < MARKET_SIZE; i++) market.add(i, new EmptyFollowerSlot());
+        market.init(MARKET_SIZE);
 
         addToBag(Follower.makeStarter(FollowerType.StarterBoatman, FollowerType.Boatman));
         addToBag(Follower.makeStarter(FollowerType.StarterCraftsman, FollowerType.Craftsman));

@@ -15,9 +15,15 @@ a REST engine to play the game orleans
 4a) Simple actions: `GET /game/{gameId}/{playerId}/action?action=FarmHouse`
 4b) Actions with params:
 
+
 `GET /game/{gameId}/{playerId}/action?action=Ship&from=Orleans%to=Vierzon`
 `GET /game/{gameId}/{playerId}/action?action=Village&followerType=Boatman`
-`GET /game/{gameId}/{playerId}/action?action=Village&followerType=Craftsman%techAction=University&position=1`
+`GET /game/{gameId}/{playerId}/action?action=Village&followerType=Craftsman%techAction=University&position=0`
 `GET /game/{gameId}/{playerId}/action?action=Village&followerType=Trader%placeTile=Pharmacy`
 `GET /game/{gameId}/{playerId}/action?action=Pharmacy&times=3`
-`GET /game/{gameId}/{playerId}/action?action=TownHall&followerType1=Farmer&benefit1=DefeatPlague&followerType2=Monk&benefit2=PapalConclave`
+`GET /game/{gameId}/{playerId}/action?action=TownHall&benefit1=DefeatPlague&benefit2=PapalConclave`
+
+
+Notes
+=====
+User facing indexes are 0 based

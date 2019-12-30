@@ -1,6 +1,8 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.google.common.collect.Sets;
 import com.neodem.orleans.collections.Bag;
+import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerColor;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,9 +44,13 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();
-        Bag<FollowerType> bag = playerState.getBag();
+        Bag<Follower> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
-        assertThat(bag).contains(FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader);
+        Collection<Follower> test = Sets.newHashSet(new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterTrader));
+        for (Follower follower : bag) {
+            assertThat(test).contains(follower);
+            test.remove(follower);
+        }
 
         Map<GoodType, Integer> goodCounts = playerState.getGoodCounts();
         assertThat(goodCounts.get(GoodType.Grain)).isEqualTo(0);

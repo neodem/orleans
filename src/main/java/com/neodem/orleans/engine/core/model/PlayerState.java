@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ public abstract class PlayerState {
 
     // followers are either in the bag, market or plans
     protected final Bag<Follower> bag = new Bag<>();
-    protected final List<Follower> market = new ArrayList<>();
+    protected final Market market = new Market();
     protected final Map<ActionType, FollowerTrack> plans = new HashMap<>();
 
     private final Collection<CitizenType> claimedCitizens = new HashSet<>();
@@ -77,7 +76,7 @@ public abstract class PlayerState {
         return playerId;
     }
 
-    public List<Follower> getMarket() {
+    public Market getMarket() {
         return market;
     }
 
@@ -194,10 +193,15 @@ public abstract class PlayerState {
      */
     public void drawFollowers(int drawCount) {
         for (int i = 0; i < drawCount; i++) {
-            Follower follower = bag.take();
-            if (follower != null) {
-                log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + i + ")");
-                market.add(i, follower);
+            if (market.hasSpace()) {
+                Follower follower = bag.take();
+                if (follower != null) {
+                    log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + i + ")");
+                    market.addToMarket(follower);
+                }
+            } else {
+                log.writeLine("" + playerId + " cannot draw more followers since her market is full!");
+                break;
             }
         }
     }
@@ -207,16 +211,13 @@ public abstract class PlayerState {
     }
 
     public Follower removeFromMarket(int slot) {
-        Follower inSlot = market.get(slot);
-        if (inSlot instanceof EmptyFollowerSlot) {
-            inSlot = null;
+        Follower follower = market.remove(slot);
+        if (follower != null) {
+            log.writeLine("" + playerId + " removes " + follower + " from her market");
         } else {
-            log.writeLine("" + playerId + " removes " + inSlot + " from her market");
-            market.remove(slot);
-            market.add(new EmptyFollowerSlot());
+            log.writeLine("" + playerId + " tried to remove a follower from an empty slot in her market. slot= " + slot);
         }
-
-        return inSlot;
+        return follower;
     }
 
 

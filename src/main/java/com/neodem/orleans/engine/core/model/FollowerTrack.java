@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class FollowerTrack {
 
-    private static final class Slot {
+    protected static final class Slot {
         FollowerType ft;
         Follower f;
 
@@ -59,6 +59,33 @@ public class FollowerTrack {
         }
     }
 
+    /**
+     * will return a reference to the follower in the given position
+     *
+     * @param position
+     * @return null if there are no Followers in that position
+     */
+    public Follower getFollowerAtPosition(int position) {
+        Slot slot = track.get(position);
+        return slot.f;
+    }
+
+    /**
+     * will return a reference to the follower in the given position AND remove it from the track
+     *
+     * @param position
+     * @return
+     */
+    public Follower removeFollowerAtPosition(int position) {
+        Slot slot = track.get(position);
+        Follower follower = slot.f;
+        if (follower != null) {
+            filledSpotsCount--;
+            slot.f = null;
+        }
+        return follower;
+    }
+
     public List<Slot> getTrack() {
         return track;
     }
@@ -75,7 +102,7 @@ public class FollowerTrack {
         for (int i = 0; i < track.size(); i++) {
             if (techSlot != null && techSlot == i) continue;
             Slot s = track.get(i);
-            if (s.f instanceof EmptyFollowerSlot) return false;
+            if (s.f == null) return false;
             if (!(s.f.getType() == s.ft || s.f.canSubFor(s.ft))) {
                 ready = false;
                 break;
@@ -88,9 +115,9 @@ public class FollowerTrack {
         Collection<Follower> followers = new HashSet<>();
 
         for (Slot s : track) {
-            if (!(s.f instanceof EmptyFollowerSlot)) {
+            if (s.f != null) {
                 followers.add(s.f);
-                s.f = new EmptyFollowerSlot();
+                s.f = null;
                 filledSpotsCount--;
             }
         }
@@ -117,10 +144,12 @@ public class FollowerTrack {
             track.add(position, slot);
 
             filledSpotsCount++;
-        }
 
-        if (filledSpotsCount == maxSize) {
-            full = true;
+            if (filledSpotsCount == maxSize) {
+                full = true;
+            }
+        } else {
+            throw new IllegalArgumentException("slot at " + position + " is filled already!");
         }
 
         return full;

@@ -2,7 +2,17 @@ package com.neodem.orleans.engine.original;
 
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
-import com.neodem.orleans.engine.core.model.*;
+import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerTrack;
+import com.neodem.orleans.engine.core.model.GamePhase;
+import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GameVersion;
+import com.neodem.orleans.engine.core.model.HourGlassTile;
+import com.neodem.orleans.engine.core.model.PlayerColor;
+import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -202,7 +212,7 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     //1) does the player have a follower in that market slot?
-                    if (player.getMarket().get(marketSlot) instanceof EmptyFollowerSlot) {
+                    if (player.getMarket().isSlotFilled(marketSlot)) {
                         throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available in slot " + marketSlot + " of her market");
                     }
 
@@ -278,8 +288,7 @@ public class OriginalGameMaster implements GameMaster {
         for (PlayerState playerState : players) {
             int knightTrackLocation = playerState.getTracks().get(Track.Knights);
             int desiredDrawCount = determineDrawFromKnight(knightTrackLocation);
-            int marketCurrentSize = playerState.getMarket().size();
-            int availableMarketSlots = 8 - marketCurrentSize;
+            int availableMarketSlots = playerState.getMarket().getAvailableSlots();
 
             if (availableMarketSlots == 0) {
                 gameState.writeLine("" + playerState.getPlayerId() + " can't draw any followers since they have no slots available in their market");

@@ -1,13 +1,12 @@
 package com.neodem.orleans.engine.original.actions;
 
-import com.google.common.collect.Sets;
 import com.neodem.orleans.engine.core.ActionProcessorException;
 import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerTrack;
-import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
@@ -15,10 +14,9 @@ import com.neodem.orleans.engine.original.DevelopmentHelper;
 import com.neodem.orleans.engine.original.model.BenefitName;
 import com.neodem.orleans.engine.original.model.CitizenType;
 
-import java.util.Collection;
 import java.util.Map;
 
-import static com.neodem.orleans.engine.core.model.AdditionalDataType.takeDevPoint;
+import static com.neodem.orleans.engine.core.model.AdditionalDataType.*;
 import static com.neodem.orleans.engine.original.DevelopmentHelper.MAXTRACK;
 
 /**
@@ -34,64 +32,54 @@ public class TownHallProcessor extends ActionProcessorBase {
     }
 
     @Override
-    protected Collection<AdditionalDataType> requiredTypes() {
-        return Sets.newHashSet(AdditionalDataType.follower1, AdditionalDataType.benefit1);
-    }
-
-    @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         BenefitTracker benefitTracker = gameState.getBenefitTracker();
 
         Map<ActionType, FollowerTrack> plans = player.getPlans();
-        FollowerTrack followerTypes = plans.get(actionType); // followers planned
-
-        FollowerType followerType1 = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower1);
-        if (!followerTypes.contains(followerType1)) {
-            throw new ActionProcessorException("the desired follower type: " + followerType1 + " is not part of your plan for this action");
+        FollowerTrack followerTrack = plans.get(actionType); // followers planned
+        Follower plannedFollower1 = followerTrack.getFollowerAtPosition(0);
+        Follower plannedFollower2 = followerTrack.getFollowerAtPosition(1);
+        if (plannedFollower1 == null && plannedFollower2 == null) {
+            throw new ActionProcessorException("There are no followers planned in this action: " + actionType);
         }
-
-        BenefitName benefitName1 = getBenefitNameFromMap(additionalDataMap, AdditionalDataType.benefit1);
-        if (!benefitTracker.canAddToBenefit(benefitName1, followerType1)) {
-            throw new ActionProcessorException("the desired follower type: " + followerType1 + " can't go on " + benefitName1);
+        if (plannedFollower1 != null) {
+            isAllowedForFollower(benefitTracker, additionalDataMap, plannedFollower1, AdditionalDataType.benefit1);
         }
-
-        if (followerTypes.size() > 1) {
-            FollowerType followerType2 = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower2);
-            BenefitName benefitName2 = getBenefitNameFromMap(additionalDataMap, AdditionalDataType.benefit2);
-            if (followerType2 != null && benefitName2 != null) {
-                if (!followerTypes.contains(followerType2)) {
-                    throw new ActionProcessorException("the desired follower type: " + followerType2 + " is not part of your plan for this action");
-                }
-
-                if (!benefitTracker.canAddToBenefit(benefitName2, followerType2)) {
-                    throw new ActionProcessorException("the desired follower type: " + followerType2 + " can't go on " + benefitName2);
-                }
-            }
+        if (plannedFollower2 != null) {
+            isAllowedForFollower(benefitTracker, additionalDataMap, plannedFollower2, benefit2);
         }
 
         return true;
     }
 
+    private void isAllowedForFollower(BenefitTracker benefitTracker, Map<AdditionalDataType, String> additionalDataMap, Follower f, AdditionalDataType additionalDataType) {
+        BenefitName benefitName = getBenefitNameFromMap(additionalDataMap, additionalDataType);
+        if (!benefitTracker.canAddToBenefit(benefitName, f)) {
+            throw new ActionProcessorException("the desired follower: " + f + " can't go on " + benefitName);
+        }
+    }
+
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         BenefitTracker benefitTracker = gameState.getBenefitTracker();
+        Map<ActionType, FollowerTrack> plans = player.getPlans();
+        FollowerTrack followerTrack = plans.get(actionType); // followers planned
 
-        FollowerType followerType1 = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower1);
-        BenefitName benefitName1 = getBenefitNameFromMap(additionalDataMap, AdditionalDataType.benefit1);
-        processBenefitPlacement(gameState, player, additionalDataMap, benefitTracker, followerType1, benefitName1);
-
-        FollowerType followerType2 = getFollowerFromMap(additionalDataMap, AdditionalDataType.follower2);
-        BenefitName benefitName2 = getBenefitNameFromMap(additionalDataMap, AdditionalDataType.benefit2);
-        processBenefitPlacement(gameState, player, additionalDataMap, benefitTracker, followerType2, benefitName2);
+        processBenefitPlacement(0, benefit1, gameState, player, additionalDataMap, benefitTracker);
+        processBenefitPlacement(1, benefit2, gameState, player, additionalDataMap, benefitTracker);
     }
 
-    private void processBenefitPlacement(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap, BenefitTracker benefitTracker, FollowerType followerType, BenefitName benefitName) {
-        if (followerType != null && benefitName != null) {
-            boolean citizenAcquired = benefitTracker.addToBenefit(benefitName, followerType);
+    private void processBenefitPlacement(int index, AdditionalDataType additionalDataType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap, BenefitTracker benefitTracker) {
+        Map<ActionType, FollowerTrack> plans = player.getPlans();
+        FollowerTrack followerTrack = plans.get(actionType);
+        Follower plannedFollower = followerTrack.removeFollowerAtPosition(index);
+
+        if (plannedFollower != null) {
+            BenefitName benefitName = getBenefitNameFromMap(additionalDataMap, additionalDataType);
+            boolean citizenAcquired = benefitTracker.addToBenefit(benefitName, plannedFollower);
             if (citizenAcquired) {
                 player.addCitizen(CitizenType.BenefitTrack);
             }
-
             if (benefitName == BenefitName.Canalisation) {
                 if (additionalDataMap.containsKey(takeDevPoint)) {
                     int trackIndex = player.getTrackValue(Track.Development);
