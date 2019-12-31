@@ -283,9 +283,13 @@ public abstract class PlayerState {
     }
 
     public boolean isFoodAvailable() {
-        if (goodCounts.get(GoodType.Grain) > 0) return true;
-        if (goodCounts.get(GoodType.Cheese) > 0) return true;
-        if (goodCounts.get(GoodType.Wine) > 0) return true;
-        return false;
+        return leastValuableFoodavailable() != null;
+    }
+
+    public GoodType leastValuableFoodavailable() {
+        if (goodCounts.get(GoodType.Grain) > 0) return GoodType.Grain;
+        if (goodCounts.get(GoodType.Cheese) > 0) return GoodType.Cheese;
+        if (goodCounts.get(GoodType.Wine) > 0) return GoodType.Wine;
+        return null;
     }
 }

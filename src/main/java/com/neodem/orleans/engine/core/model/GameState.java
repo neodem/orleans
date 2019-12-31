@@ -281,4 +281,8 @@ public abstract class GameState implements Loggable {
     public boolean isGoodAvailable(GoodType goodType) {
         return goodsInventory.get(goodType) > 0;
     }
+
+    public void addGoodToInventory(GoodType goodType) {
+        Util.mapInc(goodsInventory, goodType);
+    }
 }

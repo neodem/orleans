@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original;
 
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.core.model.*;
@@ -111,7 +112,7 @@ public class OriginalGameMaster implements GameMaster {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         switch (currentHourGlass) {
             case Plague:
-                handlePlagueEvent(gameState);
+                handleEvent(gameState, handlePlagueEvent);
                 break;
             case Taxes:
                 handleEvent(gameState, handleTaxesEvent);
@@ -145,29 +146,42 @@ public class OriginalGameMaster implements GameMaster {
         return followerTrack != null && followerTrack.isReady(null);
     }
 
+    private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
+        // TODO deal with an empty bag
+        Follower take = playerState.getBag().take();
+        Util.mapInc(gameState.getFollowerInventory(), take.getType());
+        gameState.writeLine("player " + playerState.getPlayerId() + " lost " + take + " due to the Plague  ");
+    };
+
     private BiConsumer<GameState, PlayerState> handleIncomeEvent = (gameState, playerState) -> {
         int devTrackValue = playerState.getTradingStationCount();
+        gameState.writeLine("player " + playerState.getPlayerId() + " gains " + devTrackValue + " due to the Income Event");
         playerState.addCoin(devTrackValue);
     };
 
     private BiConsumer<GameState, PlayerState> handleTradingDayEvent = (gameState, playerState) -> {
         int devTrackValue = playerState.getTrackValue(Track.Development);
         int devLevel = DevelopmentHelper.getLevel(devTrackValue);
+        gameState.writeLine("player " + playerState.getPlayerId() + " gains " + devLevel + " due to the Trading Day Event");
         playerState.addCoin(devLevel);
     };
 
     private BiConsumer<GameState, PlayerState> handleTaxesEvent = (gameState, playerState) -> {
-        int devTrackValue = playerState.getFullGoodCount();
-        int tax = devTrackValue / 3;
+        int goodCount = playerState.getFullGoodCount();
+        int tax = goodCount / 3;
+        gameState.writeLine("player " + playerState.getPlayerId() + " looses " + tax + " due to the Taxes Event");
         playerState.removeCoin(tax);
         //TODO check for torture
     };
 
     private BiConsumer<GameState, PlayerState> handleHarvestEvent = (gameState, playerState) -> {
         if (playerState.isFoodAvailable()) {
-            GoodType goodType = playerState.removeOneFood();
+            GoodType goodType = playerState.leastValuableFoodavailable();
+            gameState.writeLine("player " + playerState.getPlayerId() + " looses " + goodType + " due to the Harvest Event");
+            Util.mapDec(playerState.getGoodCounts(), goodType);
             gameState.addGoodToInventory(goodType);
         } else {
+            gameState.writeLine("player " + playerState.getPlayerId() + " looses 5 coins due to the Harvest Event");
             playerState.removeCoin(5);
             //TODO check for torture
         }
