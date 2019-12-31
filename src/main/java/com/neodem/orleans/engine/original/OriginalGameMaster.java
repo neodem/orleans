@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.BiConsumer;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -128,11 +128,11 @@ public class OriginalGameMaster implements GameMaster {
         }
     }
 
-    private void handleEvent(GameState gameState, BiFunction<GameState, PlayerState, Object> eventHandler) {
+    private void handleEvent(GameState gameState, BiConsumer<GameState, PlayerState> eventHandler) {
         List<PlayerState> players = gameState.getPlayers();
         for (PlayerState player : players) {
             if (!isPlayingSacristy(player)) {
-                eventHandler.apply(gameState, player);
+                eventHandler.accept(gameState, player);
             } else {
                 gameState.writeLine("player " + player.getPlayerId() + " has activated Sacristy so this event skips them");
                 player.unPlan(ActionType.Sacristy);
@@ -145,28 +145,25 @@ public class OriginalGameMaster implements GameMaster {
         return followerTrack != null && followerTrack.isReady(null);
     }
 
-    private BiFunction<GameState, PlayerState, Object> handleIncomeEvent = (gameState, playerState) -> {
+    private BiConsumer<GameState, PlayerState> handleIncomeEvent = (gameState, playerState) -> {
         int devTrackValue = playerState.getTradingStationCount();
         playerState.addCoin(devTrackValue);
-        return null;
     };
 
-    private BiFunction<GameState, PlayerState, Object> handleTradingDayEvent = (gameState, playerState) -> {
+    private BiConsumer<GameState, PlayerState> handleTradingDayEvent = (gameState, playerState) -> {
         int devTrackValue = playerState.getTrackValue(Track.Development);
         int devLevel = DevelopmentHelper.getLevel(devTrackValue);
         playerState.addCoin(devLevel);
-        return null;
     };
 
-    private BiFunction<GameState, PlayerState, Object> handleTaxesEvent = (gameState, playerState) -> {
+    private BiConsumer<GameState, PlayerState> handleTaxesEvent = (gameState, playerState) -> {
         int devTrackValue = playerState.getFullGoodCount();
         int tax = devTrackValue / 3;
         playerState.removeCoin(tax);
         //TODO check for torture
-        return null;
     };
 
-    private BiFunction<GameState, PlayerState, Object> handleHarvestEvent = (gameState, playerState) -> {
+    private BiConsumer<GameState, PlayerState> handleHarvestEvent = (gameState, playerState) -> {
         if (playerState.isFoodAvailable()) {
             GoodType goodType = playerState.removeOneFood();
             gameState.addGoodToInventory(goodType);
@@ -174,7 +171,6 @@ public class OriginalGameMaster implements GameMaster {
             playerState.removeCoin(5);
             //TODO check for torture
         }
-        return null;
     };
 
 
