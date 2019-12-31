@@ -2,14 +2,7 @@ package com.neodem.orleans.engine.core.actions;
 
 import com.google.common.collect.Sets;
 import com.neodem.orleans.engine.core.ActionProcessorException;
-import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.BoardState;
-import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.Path;
-import com.neodem.orleans.engine.core.model.PathBetween;
-import com.neodem.orleans.engine.core.model.PathType;
-import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.TokenLocation;
+import com.neodem.orleans.engine.core.model.*;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +21,7 @@ public class MovementProcessor extends ActionProcessorBase {
 
     @Override
     protected Collection<AdditionalDataType> requiredTypes() {
-        return Sets.newHashSet(AdditionalDataType.from, AdditionalDataType.to);
+        return Sets.newHashSet(AdditionalDataType.from, AdditionalDataType.to, AdditionalDataType.good);
     }
 
     @Override
@@ -48,6 +41,11 @@ public class MovementProcessor extends ActionProcessorBase {
                 throw new ActionProcessorException("" + pathType + " path does not exist between " + from + " and " + to);
             }
 
+            GoodType desiredGood = getGoodFromMap(additionalDataMap, AdditionalDataType.good);
+            if (!path.goodAvailable(desiredGood)) {
+                throw new ActionProcessorException("The good: " + desiredGood + " is not on the path from " + from + " to " + to + ".");
+
+            }
         } else {
             throw new ActionProcessorException("Players token is on " + merchantLocation + " and action is saying to move from " + from);
         }
@@ -57,7 +55,18 @@ public class MovementProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+        TokenLocation from = getLocationFromMap(additionalDataMap, AdditionalDataType.from);
         TokenLocation to = getLocationFromMap(additionalDataMap, AdditionalDataType.to);
+        PathBetween pathBetween = new PathBetween(from, to);
+        BoardState board = gameState.getBoardState();
+        Path path = board.getPathBetween(pathBetween, pathType);
+
+        GoodType desiredGood = getGoodFromMap(additionalDataMap, AdditionalDataType.good);
+        if (path.goodAvailable(desiredGood)) {
+            path.removeGoodFromPath(desiredGood);
+            player.addGood(desiredGood);
+        }
+
         player.setMerchantLocation(to);
     }
 }

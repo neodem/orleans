@@ -2,12 +2,7 @@ package com.neodem.orleans.engine.core.actions;
 
 import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.ActionProcessorException;
-import com.neodem.orleans.engine.core.model.ActionType;
-import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.FollowerType;
-import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.TokenLocation;
+import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.BenefitName;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 
@@ -81,6 +76,11 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return location;
     }
 
+    protected GoodType getGoodFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+        String value = additionalDataMap.get(key);
+        return getGoodFromName(value);
+    }
+
     protected FollowerType getFollowerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getFollowerFromName(value);
@@ -113,7 +113,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
     }
 
     protected BenefitName getBenefitNameFromValue(String stringValue) {
-        if(stringValue == null) return null;
+        if (stringValue == null) return null;
         BenefitName type;
         try {
             type = BenefitName.valueOf(stringValue);
@@ -123,8 +123,19 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
+    private GoodType getGoodFromName(String stringValue) {
+        if (stringValue == null) return null;
+        GoodType type;
+        try {
+            type = GoodType.valueOf(stringValue);
+        } catch (IllegalArgumentException e) {
+            throw new ActionProcessorException("Cannot determine GoodType from '" + stringValue + "'");
+        }
+        return type;
+    }
+
     protected PlaceTile getPlaceTileFromName(String stringValue) {
-        if(stringValue == null) return null;
+        if (stringValue == null) return null;
         PlaceTile type;
         try {
             type = PlaceTile.valueOf(stringValue);

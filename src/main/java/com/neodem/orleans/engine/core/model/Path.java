@@ -64,4 +64,15 @@ public class Path {
     public Collection<GoodType> getGoods() {
         return goods;
     }
+
+    public boolean goodAvailable(GoodType desiredGood) {
+        if (goods != null) return goods.contains(desiredGood);
+        return false;
+    }
+
+    public void removeGoodFromPath(GoodType desiredGood) {
+        if (goodAvailable(desiredGood)) {
+            goods.remove(desiredGood);
+        }
+    }
 }
