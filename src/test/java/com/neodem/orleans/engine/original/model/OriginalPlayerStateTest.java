@@ -1,7 +1,7 @@
 package com.neodem.orleans.engine.original.model;
 
 import com.google.common.collect.Sets;
-import com.neodem.orleans.collections.Bag;
+import com.neodem.orleans.collections.RandomBag;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GoodType;
@@ -44,7 +44,7 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getTradingStationCount()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         assertThat(playerState.getPlaceTiles()).isEmpty();
-        Bag<Follower> bag = playerState.getBag();
+        RandomBag<Follower> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
         Collection<Follower> test = Sets.newHashSet(new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterTrader));
         for (Follower follower : bag) {

@@ -62,39 +62,4 @@ public abstract class ActionHelperBase implements ActionHelper {
         return null;
     }
 
-    //    @Override
-//    public boolean actionCanAccept(ActionType actionType, List<Follower> followers) {
-//        Assert.notNull(actionType, "actionType may not be null");
-//        Assert.notNull(followers, "followers may not be null");
-//
-//        List<Follower> sanitizedFollowers = sanitizeFollowers(followers);
-//        List<Follower> monksRemoved = removeMonks(sanitizedFollowerTypes);
-//
-//        Grouping<FollowerType> neededFollowers = actionMappings().get(actionType);
-//        Grouping<FollowerType> testFollowers = new Grouping<>(monksRemoved);
-//        return testFollowers.canFitInto(neededFollowers);
-//    }
-
-
-//    @Override
-//    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
-//        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace))
-//            return true;
-//
-//        // returns a copy
-//        List<FollowerType> template = actionMappings().get(actionType).getTemplate();
-//        for (FollowerType placed : placedInActionAlready) {
-//            template.remove(placed);
-//        }
-//
-//        List<FollowerType> sanitizedFollowerTypes = sanitizeFollowers(followersToPlace);
-//        for (FollowerType toPlace : sanitizedFollowerTypes) {
-//            if (template.contains(toPlace)) template.remove(toPlace);
-//            else return false;
-//        }
-//
-//        return true;
-//    }
-
-
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
+import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import static com.neodem.orleans.engine.core.model.AdditionalDataType.follower;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -342,6 +345,16 @@ public class OriginalGameMaster implements GameMaster {
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
+
+                if (actionType == ActionType.Bathhouse && player.getPlaceTiles().contains(PlaceTile.Bathhouse)) {
+                    if (gameState.getGamePhase() == GamePhase.Followers) {
+                        FollowerType followerType = ActionProcessorBase.getFollowerFromMap(additionalDataMap, follower);
+                        if (followerType != null) {
+                            player.setBathhouseChoices(Sets.newHashSet(followerType));
+                        }
+                    }
+                }
+
                 if (gameState.getGamePhase() == GamePhase.Actions) {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
 

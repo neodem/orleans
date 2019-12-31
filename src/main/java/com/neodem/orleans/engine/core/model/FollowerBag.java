@@ -1,12 +1,12 @@
 package com.neodem.orleans.engine.core.model;
 
-import com.neodem.orleans.collections.Bag;
+import com.neodem.orleans.collections.RandomBag;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/31/19
  */
-public class FollowerBag extends Bag<Follower> {
+public class FollowerBag extends RandomBag<Follower> {
     /**
      * take a specific folllower of the given type from the bag
      *

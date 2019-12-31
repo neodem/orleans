@@ -2,7 +2,13 @@ package com.neodem.orleans.engine.core.actions;
 
 import com.neodem.orleans.engine.core.ActionProcessor;
 import com.neodem.orleans.engine.core.ActionProcessorException;
-import com.neodem.orleans.engine.core.model.*;
+import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.FollowerType;
+import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.TokenLocation;
 import com.neodem.orleans.engine.original.model.BenefitName;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 
@@ -60,13 +66,12 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         }
     }
 
-    protected TokenLocation getLocationFromMap
-            (Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static TokenLocation getLocationFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getLocationFromName(value);
     }
 
-    protected TokenLocation getLocationFromName(String stringValue) {
+    public static TokenLocation getLocationFromName(String stringValue) {
         TokenLocation location;
         try {
             location = TokenLocation.valueOf(stringValue);
@@ -76,32 +81,32 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return location;
     }
 
-    protected GoodType getGoodFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static GoodType getGoodFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getGoodFromName(value);
     }
 
-    protected FollowerType getFollowerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static FollowerType getFollowerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getFollowerFromName(value);
     }
 
-    protected PlaceTile getPlaceTileFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static PlaceTile getPlaceTileFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getPlaceTileFromName(value);
     }
 
-    protected ActionType getActionTypeFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static ActionType getActionTypeFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getActionTypeFromName(value);
     }
 
-    protected BenefitName getBenefitNameFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static BenefitName getBenefitNameFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         return getBenefitNameFromValue(value);
     }
 
-    protected int getIntegerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
+    public static int getIntegerFromMap(Map<AdditionalDataType, String> additionalDataMap, AdditionalDataType key) {
         String value = additionalDataMap.get(key);
         int integer;
         try {
@@ -112,7 +117,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return integer;
     }
 
-    protected BenefitName getBenefitNameFromValue(String stringValue) {
+    public static BenefitName getBenefitNameFromValue(String stringValue) {
         if (stringValue == null) return null;
         BenefitName type;
         try {
@@ -123,7 +128,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
-    private GoodType getGoodFromName(String stringValue) {
+    public static GoodType getGoodFromName(String stringValue) {
         if (stringValue == null) return null;
         GoodType type;
         try {
@@ -134,7 +139,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
-    protected PlaceTile getPlaceTileFromName(String stringValue) {
+    public static PlaceTile getPlaceTileFromName(String stringValue) {
         if (stringValue == null) return null;
         PlaceTile type;
         try {
@@ -145,8 +150,8 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
-    protected ActionType getActionTypeFromName(String stringValue) {
-        if(stringValue == null) return null;
+    public static ActionType getActionTypeFromName(String stringValue) {
+        if (stringValue == null) return null;
         ActionType type;
         try {
             type = ActionType.valueOf(stringValue);
@@ -156,7 +161,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
         return type;
     }
 
-    protected FollowerType getFollowerFromName(String stringValue) {
+    public static FollowerType getFollowerFromName(String stringValue) {
         if (stringValue == null) return null;
         FollowerType followerType;
         try {

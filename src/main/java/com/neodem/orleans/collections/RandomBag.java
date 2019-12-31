@@ -13,11 +13,11 @@ import java.util.function.Consumer;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
  */
-public class Bag<T> implements Iterable<T> {
+public class RandomBag<T> implements Iterable<T> {
 
     protected List<T> data = new ArrayList<>();
 
-    public Bag() {
+    public RandomBag() {
     }
 
     /**
