@@ -76,8 +76,7 @@ public class OriginalGameMaster implements GameMaster {
                     if (doStartPlayerPhase(gameState)) {
                         gameState.setGamePhase(GamePhase.HourGlass);
                     } else {
-                        //TODO
-                        // at game end
+                        gameState.setGamePhase(GamePhase.Scoring);
                     }
                     break;
                 case HourGlass:
@@ -101,6 +100,8 @@ public class OriginalGameMaster implements GameMaster {
                 case Event:
                     doEventPhase(gameState);
                     gameState.setGamePhase(GamePhase.StartPlayer);
+                case Scoring:
+                    //TODO
             }
         } else {
             throw new IllegalArgumentException("No game exists for gameId=" + gameId);

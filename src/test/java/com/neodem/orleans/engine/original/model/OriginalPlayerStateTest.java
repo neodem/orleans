@@ -27,7 +27,7 @@ public class OriginalPlayerStateTest {
 
     @BeforeEach
     void setUp() {
-        playerState = new OriginalPlayerState("someone", PlayerColor.Blue);
+        playerState = new OriginalPlayerState("someone", PlayerColor.Blue, null);
     }
 
     @AfterEach

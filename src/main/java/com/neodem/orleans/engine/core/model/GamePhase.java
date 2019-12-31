@@ -13,5 +13,5 @@ public enum GamePhase {
     Event,
     StartPlayer,
     Setup,
-    Complete
+    Scoring, Complete
 }

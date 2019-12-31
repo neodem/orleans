@@ -1,9 +1,5 @@
 package com.neodem.orleans.engine.core.model;
 
-import com.neodem.orleans.engine.core.model.GameState;
-import com.neodem.orleans.engine.core.model.PlayerColor;
-import com.neodem.orleans.engine.core.model.PlayerState;
-import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,13 +53,13 @@ public class GameStateTest {
     @BeforeEach
     void setUp() {
         gameState = new TestableGameState("abc", 3);
-        p1 = new OriginalPlayerState(PLAYER1, PlayerColor.Blue);
+        p1 = new OriginalPlayerState(PLAYER1, PlayerColor.Blue, null);
         gameState.addPlayer(p1);
-        p2 = new OriginalPlayerState(PLAYER2, PlayerColor.Blue);
+        p2 = new OriginalPlayerState(PLAYER2, PlayerColor.Blue, null);
         gameState.addPlayer(p2);
-        p3 = new OriginalPlayerState(PLAYER3, PlayerColor.Blue);
+        p3 = new OriginalPlayerState(PLAYER3, PlayerColor.Blue, null);
         gameState.addPlayer(p3);
-        p4 = new OriginalPlayerState(PLAYER4, PlayerColor.Blue);
+        p4 = new OriginalPlayerState(PLAYER4, PlayerColor.Blue, null);
         gameState.addPlayer(p4);
     }
 
@@ -100,9 +96,9 @@ public class GameStateTest {
     @Test
     void leastFarmersShouldReturnNullFor2PlayerGame() {
         gameState = new TestableGameState("abc", 3);
-        p1 = new OriginalPlayerState(PLAYER1, PlayerColor.Blue);
+        p1 = new OriginalPlayerState(PLAYER1, PlayerColor.Blue, null);
         gameState.addPlayer(p1);
-        p2 = new OriginalPlayerState(PLAYER2, PlayerColor.Blue);
+        p2 = new OriginalPlayerState(PLAYER2, PlayerColor.Blue, null);
         gameState.addPlayer(p2);
         String result = gameState.leastFarmers();
         assertThat(result).isNull();
