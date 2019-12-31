@@ -48,7 +48,7 @@ public class VillageProcessor extends ActionProcessorBase {
             case Craftsman:
                 validateMap(additionalDataMap, Sets.newHashSet(AdditionalDataType.techAction, AdditionalDataType.position));
 
-                if (gameState.getTechTilesAvailable() == 0) {
+                if (gameState.getNumberTechTilesAvailable() == 0) {
                     throw new ActionProcessorException("There are no more tech tiles available");
                 }
 

@@ -20,10 +20,7 @@ public class GuildHallProcessor extends ActionProcessorBase {
         TokenLocation merchantLocation = player.getMerchantLocation();
 
         if(merchantLocation != TokenLocation.Orleans) {
-
-            Map<TokenLocation, Collection<String>> allTradingStations = gameState.getAllTradingStations();
-            Collection<String> names = allTradingStations.get(merchantLocation);
-
+            Collection<String> names = gameState.getTradingStationOwners(merchantLocation);
             return names.isEmpty();
 
         }

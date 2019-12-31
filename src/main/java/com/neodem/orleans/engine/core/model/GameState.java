@@ -66,12 +66,12 @@ public abstract class GameState implements Loggable {
         return benefitTracker;
     }
 
-    public int getTechTilesAvailable() {
+    public int getNumberTechTilesAvailable() {
         return techTilesAvailable;
     }
 
-    public void setTechTilesAvailable(int techTilesAvailable) {
-        this.techTilesAvailable = techTilesAvailable;
+    public void removeTechTileFromInventory() {
+        techTilesAvailable--;
     }
 
     public Map<TokenLocation, Collection<String>> getAllTradingStations() {
@@ -276,10 +276,6 @@ public abstract class GameState implements Loggable {
         } while (players.get(currentActionPlayerIndex).isPhaseComplete() && count == playerCount);
     }
 
-    public void removeTechTileFromInventory() {
-        techTilesAvailable--;
-    }
-
 
     public boolean isGoodAvailable(GoodType goodType) {
         return goodsInventory.get(goodType) > 0;
@@ -287,5 +283,10 @@ public abstract class GameState implements Loggable {
 
     public void addGoodToInventory(GoodType goodType) {
         Util.mapInc(goodsInventory, goodType);
+    }
+
+    public Collection<String> getTradingStationOwners(TokenLocation location) {
+        Map<TokenLocation, Collection<String>> allTradingStations = getAllTradingStations();
+        return allTradingStations.get(location);
     }
 }

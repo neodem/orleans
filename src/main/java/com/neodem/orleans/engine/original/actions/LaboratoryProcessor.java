@@ -29,7 +29,7 @@ public class LaboratoryProcessor extends ActionProcessorBase {
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         validateMap(additionalDataMap, Sets.newHashSet(AdditionalDataType.techAction, AdditionalDataType.position));
 
-        if (gameState.getTechTilesAvailable() == 0) {
+        if (gameState.getNumberTechTilesAvailable() == 0) {
             throw new ActionProcessorException("There are no more tech tiles available");
         }
 
