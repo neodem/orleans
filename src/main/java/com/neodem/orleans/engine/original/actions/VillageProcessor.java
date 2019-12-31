@@ -13,6 +13,7 @@ import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
 import com.neodem.orleans.engine.original.TechTileHelper;
 import com.neodem.orleans.engine.original.model.CitizenType;
+import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.Collection;
@@ -85,7 +86,7 @@ public class VillageProcessor extends ActionProcessorBase {
                 handleCraftsman(gameState, player, additionalDataMap);
                 break;
             case Trader:
-                handleTrader(gameState, player, additionalDataMap);
+                handleTrader((OriginalGameState) gameState, player, additionalDataMap);
                 break;
         }
     }
@@ -108,7 +109,7 @@ public class VillageProcessor extends ActionProcessorBase {
         TechTileHelper.addTechTileToPlayer(gameState, player, position, actionType, actionHelper);
     }
 
-    private void handleTrader(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
+    private void handleTrader(OriginalGameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.bumpTrack(Track.Traders);
 
         PlaceTile desiredPlaceTile = getPlaceTileFromMap(additionalDataMap, AdditionalDataType.placeTile);
@@ -125,6 +126,10 @@ public class VillageProcessor extends ActionProcessorBase {
             gameState.getPlaceTiles1().remove(desiredPlaceTile);
         } else {
             gameState.getPlaceTiles2().remove(desiredPlaceTile);
+        }
+
+        if (desiredPlaceTile == PlaceTile.Bathhouse) {
+            gameState.setPlayerHasBathhouse(player.getPlayerId());
         }
 
         player.addPlaceTile(desiredPlaceTile);

@@ -2,7 +2,6 @@ package com.neodem.orleans.engine.core.model;
 
 import com.google.common.base.Objects;
 import com.neodem.orleans.Util;
-import com.neodem.orleans.collections.Bag;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
@@ -29,8 +28,10 @@ public abstract class PlayerState {
 
     private final Map<ActionType, Integer> techTileMap = new HashMap<>();
 
+    private boolean phaseComplete;
+
     // followers are either in the bag, market or plans
-    protected final Bag<Follower> bag = new Bag<>();
+    protected final FollowerBag bag = new FollowerBag();
     protected final Market market = new Market();
     protected final Map<ActionType, FollowerTrack> plans = new HashMap<>();
 
@@ -42,8 +43,7 @@ public abstract class PlayerState {
 
     private int coinCount = 5;
     private int tradingStationCount = 10;
-    private boolean planLocked = false;
-    private boolean passed = false;
+
     private Loggable log;
     private final ActionHelper actionHelper;
 
@@ -91,6 +91,14 @@ public abstract class PlayerState {
         return coinCount;
     }
 
+    public boolean isPhaseComplete() {
+        return phaseComplete;
+    }
+
+    public void setPhaseComplete(boolean phaseComplete) {
+        this.phaseComplete = phaseComplete;
+    }
+
     public int removeCoin() {
         log.writeLine("" + playerId + " loses 1 coin");
         return --coinCount;
@@ -126,10 +134,6 @@ public abstract class PlayerState {
 
     public Map<ActionType, FollowerTrack> getPlans() {
         return plans;
-    }
-
-    public boolean isPlanLocked() {
-        return planLocked;
     }
 
     public int getTrackValue(Track track) {
@@ -181,7 +185,7 @@ public abstract class PlayerState {
         return tracks;
     }
 
-    public Bag<Follower> getBag() {
+    public FollowerBag getBag() {
         return bag;
     }
 
@@ -209,9 +213,6 @@ public abstract class PlayerState {
         }
     }
 
-    public boolean isPlanSet() {
-        return planLocked;
-    }
 
     public Follower removeFromMarket(int slot) {
         Follower follower = market.remove(slot);
@@ -223,25 +224,8 @@ public abstract class PlayerState {
         return follower;
     }
 
-
-    public void lockPlan() {
-        planLocked = true;
-    }
-
     public void addLog(Loggable log) {
         this.log = log;
-    }
-
-    public boolean isPassed() {
-        return passed;
-    }
-
-    public void passActionPhase() {
-        passed = true;
-    }
-
-    public void resetPass() {
-        passed = false;
     }
 
     public void unPlan(ActionType actionType) {

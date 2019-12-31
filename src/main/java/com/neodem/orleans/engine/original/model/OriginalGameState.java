@@ -124,4 +124,14 @@ public class OriginalGameState extends GameState {
             goodsInventory.put(goodType, --goodCount);
         }
     }
+
+    private String playerHasBathhouse = null;
+
+    public String getPlayerHasBathhouse() {
+        return playerHasBathhouse;
+    }
+
+    public void setPlayerHasBathhouse(String playerHasBathhouse) {
+        this.playerHasBathhouse = playerHasBathhouse;
+    }
 }

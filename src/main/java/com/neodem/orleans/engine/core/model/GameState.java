@@ -270,7 +270,7 @@ public abstract class GameState implements Loggable {
         do {
             currentActionPlayerIndex++;
             count++;
-        } while (players.get(currentActionPlayerIndex).isPassed() && count == playerCount);
+        } while (players.get(currentActionPlayerIndex).isPhaseComplete() && count == playerCount);
     }
 
     public void removeTechTileFromInventory() {

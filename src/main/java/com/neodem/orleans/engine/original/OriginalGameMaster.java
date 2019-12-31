@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original;
 
+import com.google.common.collect.Sets;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
@@ -23,7 +24,7 @@ import java.util.function.BiConsumer;
 public class OriginalGameMaster implements GameMaster {
 
     private final ActionHelper actionHelper;
-    private Map<String, GameState> storedGames = new HashMap<>();
+    private Map<String, OriginalGameState> storedGames = new HashMap<>();
 
     public OriginalGameMaster(ActionHelper actionHelper) {
         this.actionHelper = actionHelper;
@@ -32,7 +33,7 @@ public class OriginalGameMaster implements GameMaster {
     @Override
     public GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion) {
 
-        GameState gameState;
+        OriginalGameState gameState;
 
         if (storedGames.containsKey(gameId)) {
             throw new IllegalArgumentException("Game with id = " + gameId + " exists already!");
@@ -67,7 +68,7 @@ public class OriginalGameMaster implements GameMaster {
 
     @Override
     public GameState nextPhase(String gameId) {
-        GameState gameState = storedGames.get(gameId);
+        OriginalGameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             GamePhase gamePhase = gameState.getGamePhase();
             switch (gamePhase) {
@@ -88,8 +89,7 @@ public class OriginalGameMaster implements GameMaster {
                     gameState.setGamePhase(GamePhase.Followers);
                     break;
                 case Followers:
-                    doFollowersPhase(gameState);
-                    gameState.setGamePhase(GamePhase.Planning);
+                    if (doFollowersPhase(gameState)) gameState.setGamePhase(GamePhase.Planning);
                     break;
                 case Planning:
                     if (doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
@@ -109,7 +109,154 @@ public class OriginalGameMaster implements GameMaster {
         return gameState;
     }
 
-    private void doEventPhase(GameState gameState) {
+    /**
+     * @param gameState
+     * @return false if we should not proceed
+     */
+    private boolean doStartPlayerPhase(OriginalGameState gameState) {
+        gameState.advancePlayer();
+
+        int round = gameState.getRound();
+        if (round == 18) { // we are done
+            gameState.writeLine("We are at the end of the game!");
+            return false;
+        } else {
+            gameState.setRound(++round);
+        }
+
+        for (PlayerState playerState : gameState.getPlayers()) {
+            playerState.setPhaseComplete(false);
+        }
+
+        return true;
+    }
+
+    private void doHourGlassPhase(OriginalGameState gameState) {
+        HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
+        if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
+        gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
+        gameState.getHourGlassStack().remove(0);
+
+        for (PlayerState playerState : gameState.getPlayers()) {
+            playerState.setPhaseComplete(false);
+        }
+    }
+
+    private void doCensusPhase(OriginalGameState gameState) {
+        String most = gameState.mostFarmers();
+        if (most != null) {
+            gameState.getPlayer(most).addCoin();
+            gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
+        } else {
+            gameState.writeLine("No one gets a coin for the Census.");
+        }
+
+        String least = gameState.leastFarmers();
+        if (least != null) {
+            gameState.getPlayer(least).removeCoin();
+            gameState.writeLine("" + least + " pays a coin for being the least far on the Census/Farmer track");
+
+            int coinCount = gameState.getPlayer(least).getCoinCount();
+            if (coinCount < 0) {
+                gameState.writeLine("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
+                //TODO torture
+            }
+        }
+
+        for (PlayerState playerState : gameState.getPlayers()) {
+            playerState.setPhaseComplete(false);
+        }
+    }
+
+    private boolean doFollowersPhase(OriginalGameState gameState) {
+
+        // if a player has the bathhouse, we do their follower phase differently
+        String playerWithBathHouse = gameState.getPlayerHasBathhouse();
+        boolean bathhouseCompleted = false;
+        List<PlayerState> players = gameState.getPlayers();
+        for (PlayerState playerState : players) {
+            if (!playerState.isPhaseComplete()) {
+                int knightTrackLocation = playerState.getTracks().get(Track.Knights);
+                int desiredDrawCount = determineDrawFromKnight(knightTrackLocation);
+
+                for (int d = 0; d < desiredDrawCount; d++) {
+                    int availableMarketSlots = playerState.getMarket().getAvailableSlots();
+                    if (availableMarketSlots == 0) {
+                        gameState.writeLine("" + playerState.getPlayerId() + " can't draw any more followers since they have no slots available in their market");
+                    } else {
+                        playerState.drawFollowers(1);
+                    }
+                }
+
+                if (playerWithBathHouse != null && playerWithBathHouse.equals(playerState.getPlayerId()) && !bathhouseCompleted) {
+                    int availableMarketSlots = playerState.getMarket().getAvailableSlots();
+                    if (availableMarketSlots > 0) {
+                        FollowerType followerType = playerState.getBathhouseChoice();
+                        if (followerType != null) {
+                            Follower follower = playerState.getBag().takeOfType(followerType);
+                            playerState.getMarket().addToMarket(follower);
+                            playerState.resetBathhouseChoice();
+                            bathhouseCompleted = true;
+                        } else {
+                            gameState.writeLine("" + playerState.getPlayerId() + " has the bathhouse and an available slot.");
+                            Follower choice1 = playerState.getBag().take();
+                            Follower choice2 = playerState.getBag().take();
+                            if (choice1 == null && choice2 == null) {
+                                gameState.writeLine("" + playerState.getPlayerId() + " unfortunately has nothing in her bag.");
+                                bathhouseCompleted = true;
+                            } else {
+                                if (choice1 == null || choice2 == null) {
+                                    gameState.writeLine("" + playerState.getPlayerId() + " has only one follower in her back. It will be added as their Bathhouse choice.");
+                                    if (choice1 != null) playerState.getMarket().addToMarket(choice1);
+                                    else playerState.getMarket().addToMarket(choice2);
+                                    bathhouseCompleted = true;
+                                } else {
+                                    gameState.writeLine("" + playerState.getPlayerId() + " has to choose which follower to assign from:" + choice1 + " and " + choice2);
+                                    playerState.setBathhouseChoices(Sets.newHashSet(choice1, choice2));
+                                }
+                            }
+                        }
+                    } else {
+                        gameState.writeLine("" + playerState.getPlayerId() + " has the bathhouse but no available slot in her market.");
+                        playerState.setPhaseComplete(true);
+                        bathhouseCompleted = true;
+                    }
+                } else {
+                    playerState.setPhaseComplete(true);
+                }
+            }
+        }
+
+        return !bathhouseCompleted;
+    }
+
+    private boolean doPlanningPhase(OriginalGameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        boolean planningNeeded = false;
+        for (PlayerState playerState : players) {
+            if (!playerState.isPhaseComplete()) {
+                gameState.writeLine("" + playerState.getPlayerId() + " has not completed their planning!");
+                planningNeeded = true;
+            }
+        }
+
+        return !planningNeeded;
+    }
+
+    private boolean doActionPhase(OriginalGameState gameState) {
+        List<PlayerState> players = gameState.getPlayers();
+        boolean actionNeeded = false;
+        for (PlayerState player : players) {
+            if (!player.isPhaseComplete()) {
+                gameState.writeLine("Waiting for " + player.getPlayerId() + " to execute an action");
+                actionNeeded = true;
+            }
+        }
+
+        return !actionNeeded;
+    }
+
+    private void doEventPhase(OriginalGameState gameState) {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         switch (currentHourGlass) {
             case Plague:
@@ -189,19 +336,6 @@ public class OriginalGameMaster implements GameMaster {
     };
 
 
-    private boolean doActionPhase(GameState gameState) {
-        List<PlayerState> players = gameState.getPlayers();
-        boolean actionNeeded = false;
-        for (PlayerState player : players) {
-            if (!player.isPassed()) {
-                gameState.writeLine("Waiting for " + player.getPlayerId() + " to execute an action");
-                actionNeeded = true;
-            }
-        }
-
-        return !actionNeeded;
-    }
-
     @Override
     public GameState doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
         GameState gameState = storedGames.get(gameId);
@@ -257,7 +391,7 @@ public class OriginalGameMaster implements GameMaster {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 if (gameState.getGamePhase() == GamePhase.Actions) {
-                    player.passActionPhase();
+                    player.setPhaseComplete(true);
                 } else {
                     throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
                 }
@@ -322,7 +456,7 @@ public class OriginalGameMaster implements GameMaster {
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
-                player.lockPlan();
+                player.setPhaseComplete(true);
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }
@@ -332,82 +466,6 @@ public class OriginalGameMaster implements GameMaster {
         return gameState;
     }
 
-    private boolean doPlanningPhase(GameState gameState) {
-        List<PlayerState> players = gameState.getPlayers();
-        boolean planningNeeded = false;
-        for (PlayerState playerState : players) {
-            if (!playerState.isPlanSet()) {
-                gameState.writeLine("" + playerState.getPlayerId() + " has not completed their planning!");
-                planningNeeded = true;
-            }
-        }
-
-        return !planningNeeded;
-    }
-
-    private void doFollowersPhase(GameState gameState) {
-        List<PlayerState> players = gameState.getPlayers();
-        for (PlayerState playerState : players) {
-            int knightTrackLocation = playerState.getTracks().get(Track.Knights);
-            int desiredDrawCount = determineDrawFromKnight(knightTrackLocation);
-            int availableMarketSlots = playerState.getMarket().getAvailableSlots();
-
-            if (availableMarketSlots == 0) {
-                gameState.writeLine("" + playerState.getPlayerId() + " can't draw any followers since they have no slots available in their market");
-            } else {
-                if (desiredDrawCount > availableMarketSlots) desiredDrawCount = availableMarketSlots;
-                playerState.drawFollowers(desiredDrawCount);
-            }
-        }
-    }
-
-
-    private void doCensusPhase(GameState gameState) {
-        String most = gameState.mostFarmers();
-        if (most != null) {
-            gameState.getPlayer(most).addCoin();
-            gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
-        } else {
-            gameState.writeLine("No one gets a coin for the Census.");
-        }
-
-        String least = gameState.leastFarmers();
-        if (least != null) {
-            gameState.getPlayer(least).removeCoin();
-            gameState.writeLine("" + least + " pays a coin for being the least far on the Census/Farmer track");
-
-            int coinCount = gameState.getPlayer(least).getCoinCount();
-            if (coinCount < 0) {
-                gameState.writeLine("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
-                //TODO torture
-            }
-        }
-    }
-
-    /**
-     * @param gameState
-     * @return false if we should not proceed
-     */
-    private boolean doStartPlayerPhase(GameState gameState) {
-        gameState.advancePlayer();
-
-        int round = gameState.getRound();
-        if (round == 18) { // we are done
-            gameState.writeLine("We are at the end of the game!");
-            return false;
-        } else {
-            gameState.setRound(++round);
-        }
-
-        return true;
-    }
-
-    private void doHourGlassPhase(GameState gameState) {
-        HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
-        if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
-        gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
-        gameState.getHourGlassStack().remove(0);
-    }
 
     private int determineDrawFromKnight(int knightTrackLocation) {
         switch (knightTrackLocation) {

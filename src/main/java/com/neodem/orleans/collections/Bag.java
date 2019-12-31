@@ -1,6 +1,5 @@
 package com.neodem.orleans.collections;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -57,4 +56,6 @@ public class Bag<T> implements Iterable<T> {
     public Spliterator<T> spliterator() {
         return data.spliterator();
     }
+
+
 }
