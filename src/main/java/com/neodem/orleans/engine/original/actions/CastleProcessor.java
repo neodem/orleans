@@ -17,7 +17,7 @@ public class CastleProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int trackIndex = player.getTracks().get(Track.Knights);
+        int trackIndex = player.getTrackValue(Track.Knights);
         return trackIndex != 5;
     }
 

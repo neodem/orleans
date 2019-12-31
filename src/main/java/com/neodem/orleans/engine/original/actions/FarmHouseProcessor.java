@@ -17,7 +17,7 @@ public class FarmHouseProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int farmerIndex = player.getTracks().get(Track.Farmers);
+        int farmerIndex = player.getTrackValue(Track.Farmers);
 
         switch (farmerIndex) {
             case 0:

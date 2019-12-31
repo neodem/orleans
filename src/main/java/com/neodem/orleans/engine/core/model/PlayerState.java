@@ -20,31 +20,44 @@ import java.util.Map;
  */
 public abstract class PlayerState {
 
-
+    /**
+     * the name/id of the player (should be unique in the game)
+     */
     protected final String playerId;
+
+    /**
+     * color of the player
+     */
     protected final PlayerColor playerColor;
-    protected final Map<Track, Integer> tracks = new HashMap<>();
-    protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
 
-    private final Map<ActionType, Integer> techTileMap = new HashMap<>();
+    /**
+     * if the player is complete the current phase
+     */
+    private boolean phaseComplete = false;
 
-    private boolean phaseComplete;
-
-    private Collection<FollowerType> bathhouseChoices = null;
-
-    // followers are either in the bag, market or plans
+    /**
+     * the bag the player has
+     */
     protected final FollowerBag bag = new FollowerBag();
-    protected final Market market = new Market();
+
+    /**
+     * actions the player has Followers in are called 'plans'
+     */
     protected final Map<ActionType, FollowerTrack> plans = new HashMap<>();
 
-    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
-    private final Collection<PlaceTile> placeTiles = new HashSet<>();
-
-    private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
     protected TokenLocation merchantLocation;
 
     private int coinCount = 5;
-    private int tradingStationCount = 10;
+
+    // internal state
+    protected final Market market = new Market();
+    protected final Map<Track, Integer> tracks = new HashMap<>();
+    protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
+    private final Map<ActionType, Integer> techTileMap = new HashMap<>();
+    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
+    private final Collection<PlaceTile> placeTiles = new HashSet<>();
+    private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
+    private final Collection<FollowerType> bathhouseChoices = new HashSet<>();
 
     private Loggable log;
     private final ActionHelper actionHelper;
@@ -81,12 +94,8 @@ public abstract class PlayerState {
         return playerId;
     }
 
-    public Market getMarket() {
-        return market;
-    }
-
-    public Map<ActionType, Integer> getTechTileMap() {
-        return techTileMap;
+    public Integer getTechTileSlot(ActionType actionType) {
+        return getTechTileSlot(actionType);
     }
 
     public int getCoinCount() {
@@ -134,10 +143,6 @@ public abstract class PlayerState {
         return trackIndex;
     }
 
-    public Map<ActionType, FollowerTrack> getPlans() {
-        return plans;
-    }
-
     public int getTrackValue(Track track) {
         return tracks.get(track);
     }
@@ -154,10 +159,6 @@ public abstract class PlayerState {
         this.merchantLocation = merchantLocation;
     }
 
-    public Collection<PlaceTile> getPlaceTiles() {
-        return placeTiles;
-    }
-
     public void addPlaceTile(PlaceTile placeTile) {
         this.placeTiles.add(placeTile);
     }
@@ -166,8 +167,25 @@ public abstract class PlayerState {
         return tradingStationLocations;
     }
 
-    public Map<GoodType, Integer> getGoodCounts() {
-        return goodCounts;
+    public void addTradingHallToCurrentLocation() {
+        if (tradingStationLocations.size() == tradingStationMax()) {
+            tradingStationLocations.add(merchantLocation);
+        } else {
+            throw new IllegalStateException("Out of trading stations");
+        }
+    }
+
+    public int getTradingStationCount() {
+        return tradingStationLocations.size();
+    }
+
+    /**
+     * return the number of trading stations the player has in their personal supply
+     *
+     * @return
+     */
+    public int tradingStationMax() {
+        return 10;
     }
 
     public void addGood(GoodType goodType) {
@@ -183,16 +201,8 @@ public abstract class PlayerState {
         }
     }
 
-    public Map<Track, Integer> getTracks() {
-        return tracks;
-    }
-
     public FollowerBag getBag() {
         return bag;
-    }
-
-    public int getTradingStationCount() {
-        return tradingStationCount;
     }
 
     /**
@@ -200,7 +210,7 @@ public abstract class PlayerState {
      *
      * @param drawCount
      */
-    public void drawFollowers(int drawCount) {
+    public void drawFollowersFromBagToMarket(int drawCount) {
         for (int i = 0; i < drawCount; i++) {
             if (market.hasSpace()) {
                 Follower follower = bag.take();
@@ -214,7 +224,6 @@ public abstract class PlayerState {
             }
         }
     }
-
 
     public Follower removeFromMarket(int slot) {
         Follower follower = market.remove(slot);
@@ -240,22 +249,14 @@ public abstract class PlayerState {
         plans.remove(actionType);
     }
 
-    public Collection<CitizenType> getClaimedCitizens() {
-        return claimedCitizens;
+    public int getClaimedCitizenCount() {
+        return claimedCitizens.size();
     }
 
     public void addCitizen(CitizenType citizenType) {
         claimedCitizens.add(citizenType);
     }
 
-    public void addTradingHallToCurrentLocation() {
-        if (tradingStationCount > 0) {
-            tradingStationLocations.add(merchantLocation);
-            tradingStationCount--;
-        } else {
-            throw new IllegalStateException("Out of trading stations");
-        }
-    }
 
     public void addTechTile(ActionType actionType, int techPosition) {
         techTileMap.put(actionType, techPosition);
@@ -272,10 +273,10 @@ public abstract class PlayerState {
     }
 
     public boolean isFoodAvailable() {
-        return leastValuableFoodavailable() != null;
+        return leastValuableFoodAvailable() != null;
     }
 
-    public GoodType leastValuableFoodavailable() {
+    public GoodType leastValuableFoodAvailable() {
         if (goodCounts.get(GoodType.Grain) > 0) return GoodType.Grain;
         if (goodCounts.get(GoodType.Cheese) > 0) return GoodType.Cheese;
         if (goodCounts.get(GoodType.Wine) > 0) return GoodType.Wine;
@@ -329,9 +330,53 @@ public abstract class PlayerState {
 
     }
 
-
     public void setBathhouseChoices(Collection<FollowerType> choices) {
         this.bathhouseChoices.clear();
         this.bathhouseChoices.addAll(choices);
+    }
+
+    public boolean hasTechForAction(ActionType actionType) {
+        return techTileMap.containsKey(actionType);
+    }
+
+    public boolean isPlayingSacristy() {
+        FollowerTrack followerTrack = plans.get(ActionType.Sacristy);
+        return followerTrack != null && followerTrack.isReady(null);
+    }
+
+    public FollowerTrack getPlan(ActionType actionType) {
+        return plans.get(actionType);
+    }
+
+    public boolean hasPlaceTile(PlaceTile bathhouse) {
+        return placeTiles.contains(bathhouse);
+    }
+
+    public int getTrackLocation(Track track) {
+        return tracks.get(track);
+    }
+
+    public int getAvailableMarketSlots() {
+        return market.getAvailableSlots();
+    }
+
+    public void setTrackIndex(Track track, int trackIndex) {
+        tracks.put(track, trackIndex);
+    }
+
+    public void addToMarket(Follower follower) {
+        market.addToMarket(follower);
+    }
+
+    public boolean isMarketSlotFilled(int marketSlot) {
+        return market.isSlotFilled(marketSlot);
+    }
+
+    protected Map<Track, Integer> getTracks() {
+        return tracks;
+    }
+
+    public int getGoodCount(GoodType goodType) {
+        return goodCounts.get(goodType);
     }
 }

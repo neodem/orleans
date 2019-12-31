@@ -20,7 +20,7 @@ public class OfficeProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int tradingStationsPlaced = player.getTradingStationLocations().size();
+        int tradingStationsPlaced = player.getTradingStationCount();
         player.addCoin(tradingStationsPlaced);
     }
 }

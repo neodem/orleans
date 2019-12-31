@@ -24,7 +24,7 @@ public class DevelopmentBumpProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int trackIndex = player.getTracks().get(Track.Development);
+        int trackIndex = player.getTrackValue(Track.Development);
         return trackIndex != MAXTRACK;
     }
 
@@ -37,6 +37,6 @@ public class DevelopmentBumpProcessor extends ActionProcessorBase {
 
         DevelopmentHelper.processReward(trackIndex - bumpSize, trackIndex, gameState, player);
 
-        player.getTracks().put(Track.Development, trackIndex);
+        player.setTrackIndex(Track.Development, trackIndex);
     }
 }

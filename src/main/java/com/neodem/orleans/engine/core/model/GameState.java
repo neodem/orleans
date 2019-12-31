@@ -148,7 +148,7 @@ public abstract class GameState implements Loggable {
         int tie = -1;
 
         for (PlayerState player : players) {
-            Integer index = player.getTracks().get(Track.Farmers);
+            int index = player.getTrackLocation(Track.Farmers);
             if (index == max) {
                 tie = index;
             }
@@ -176,7 +176,7 @@ public abstract class GameState implements Loggable {
         int tie = -1;
 
         for (PlayerState player : players) {
-            Integer index = player.getTracks().get(Track.Farmers);
+            int index = player.getTrackLocation(Track.Farmers);
             if (index == min) {
                 tie = index;
             }
@@ -218,6 +218,9 @@ public abstract class GameState implements Loggable {
     }
 
     public void addPlayer(PlayerState player) {
+        if (players.contains(player)) {
+            throw new IllegalArgumentException("Player " + player.getPlayerId() + " is in the game already!");
+        }
         player.addLog(this);
         this.players.add(player);
     }

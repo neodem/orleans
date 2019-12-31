@@ -35,8 +35,7 @@ public class TownHallProcessor extends ActionProcessorBase {
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         BenefitTracker benefitTracker = gameState.getBenefitTracker();
 
-        Map<ActionType, FollowerTrack> plans = player.getPlans();
-        FollowerTrack followerTrack = plans.get(actionType); // followers planned
+        FollowerTrack followerTrack = player.getPlan(actionType);
         Follower plannedFollower1 = followerTrack.getFollowerAtPosition(0);
         Follower plannedFollower2 = followerTrack.getFollowerAtPosition(1);
         if (plannedFollower1 == null && plannedFollower2 == null) {
@@ -62,16 +61,12 @@ public class TownHallProcessor extends ActionProcessorBase {
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         BenefitTracker benefitTracker = gameState.getBenefitTracker();
-        Map<ActionType, FollowerTrack> plans = player.getPlans();
-        FollowerTrack followerTrack = plans.get(actionType); // followers planned
-
         processBenefitPlacement(0, benefit1, gameState, player, additionalDataMap, benefitTracker);
         processBenefitPlacement(1, benefit2, gameState, player, additionalDataMap, benefitTracker);
     }
 
     private void processBenefitPlacement(int index, AdditionalDataType additionalDataType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap, BenefitTracker benefitTracker) {
-        Map<ActionType, FollowerTrack> plans = player.getPlans();
-        FollowerTrack followerTrack = plans.get(actionType);
+        FollowerTrack followerTrack = player.getPlan(actionType);
         Follower plannedFollower = followerTrack.removeFollowerAtPosition(index);
 
         if (plannedFollower != null) {
@@ -86,7 +81,7 @@ public class TownHallProcessor extends ActionProcessorBase {
                     trackIndex++;
                     if (trackIndex > MAXTRACK) trackIndex = MAXTRACK;
                     DevelopmentHelper.processReward(trackIndex - 1, trackIndex, gameState, player);
-                    player.getTracks().put(Track.Development, trackIndex);
+                    player.setTrackIndex(Track.Development, trackIndex);
                 } else {
                     player.addCoin();
                 }

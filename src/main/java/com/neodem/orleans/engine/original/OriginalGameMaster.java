@@ -179,25 +179,25 @@ public class OriginalGameMaster implements GameMaster {
         List<PlayerState> players = gameState.getPlayers();
         for (PlayerState playerState : players) {
             if (!playerState.isPhaseComplete()) {
-                int knightTrackLocation = playerState.getTracks().get(Track.Knights);
+                int knightTrackLocation = playerState.getTrackLocation(Track.Knights);
                 int desiredDrawCount = determineDrawFromKnight(knightTrackLocation);
 
                 for (int d = 0; d < desiredDrawCount; d++) {
-                    int availableMarketSlots = playerState.getMarket().getAvailableSlots();
+                    int availableMarketSlots = playerState.getAvailableMarketSlots();
                     if (availableMarketSlots == 0) {
                         gameState.writeLine("" + playerState.getPlayerId() + " can't draw any more followers since they have no slots available in their market");
                     } else {
-                        playerState.drawFollowers(1);
+                        playerState.drawFollowersFromBagToMarket(1);
                     }
                 }
 
                 if (playerWithBathHouse != null && playerWithBathHouse.equals(playerState.getPlayerId()) && !bathhouseCompleted) {
-                    int availableMarketSlots = playerState.getMarket().getAvailableSlots();
+                    int availableMarketSlots = playerState.getAvailableMarketSlots();
                     if (availableMarketSlots > 0) {
                         FollowerType followerType = playerState.getBathhouseChoice();
                         if (followerType != null) {
                             Follower follower = playerState.getBag().takeOfType(followerType);
-                            playerState.getMarket().addToMarket(follower);
+                            playerState.addToMarket(follower);
                             playerState.resetBathhouseChoice();
                             bathhouseCompleted = true;
                         } else {
@@ -210,8 +210,8 @@ public class OriginalGameMaster implements GameMaster {
                             } else {
                                 if (choice1 == null || choice2 == null) {
                                     gameState.writeLine("" + playerState.getPlayerId() + " has only one follower in her back. It will be added as their Bathhouse choice.");
-                                    if (choice1 != null) playerState.getMarket().addToMarket(choice1);
-                                    else playerState.getMarket().addToMarket(choice2);
+                                    if (choice1 != null) playerState.addToMarket(choice1);
+                                    else playerState.addToMarket(choice2);
                                     bathhouseCompleted = true;
                                 } else {
                                     gameState.writeLine("" + playerState.getPlayerId() + " has to choose which follower to assign from:" + choice1 + " and " + choice2);
@@ -283,7 +283,7 @@ public class OriginalGameMaster implements GameMaster {
     private void handleEvent(GameState gameState, BiConsumer<GameState, PlayerState> eventHandler) {
         List<PlayerState> players = gameState.getPlayers();
         for (PlayerState player : players) {
-            if (!isPlayingSacristy(player)) {
+            if (!player.isPlayingSacristy()) {
                 eventHandler.accept(gameState, player);
             } else {
                 gameState.writeLine("player " + player.getPlayerId() + " has activated Sacristy so this event skips them");
@@ -292,10 +292,7 @@ public class OriginalGameMaster implements GameMaster {
         }
     }
 
-    private boolean isPlayingSacristy(PlayerState player) {
-        FollowerTrack followerTrack = player.getPlans().get(ActionType.Sacristy);
-        return followerTrack != null && followerTrack.isReady(null);
-    }
+
 
     private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
         // TODO deal with an empty bag
@@ -327,9 +324,9 @@ public class OriginalGameMaster implements GameMaster {
 
     private BiConsumer<GameState, PlayerState> handleHarvestEvent = (gameState, playerState) -> {
         if (playerState.isFoodAvailable()) {
-            GoodType goodType = playerState.leastValuableFoodavailable();
+            GoodType goodType = playerState.leastValuableFoodAvailable();
             gameState.writeLine("player " + playerState.getPlayerId() + " looses " + goodType + " due to the Harvest Event");
-            Util.mapDec(playerState.getGoodCounts(), goodType);
+            playerState.removeGood(goodType);
             gameState.addGoodToInventory(goodType);
         } else {
             gameState.writeLine("player " + playerState.getPlayerId() + " looses 5 coins due to the Harvest Event");
@@ -346,7 +343,7 @@ public class OriginalGameMaster implements GameMaster {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
 
-                if (actionType == ActionType.Bathhouse && player.getPlaceTiles().contains(PlaceTile.Bathhouse)) {
+                if (actionType == ActionType.Bathhouse && player.hasPlaceTile(PlaceTile.Bathhouse)) {
                     if (gameState.getGamePhase() == GamePhase.Followers) {
                         FollowerType followerType = ActionProcessorBase.getFollowerFromMap(additionalDataMap, follower);
                         if (followerType != null) {
@@ -359,10 +356,10 @@ public class OriginalGameMaster implements GameMaster {
                     if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
 
                         // 1) get the plan
-                        FollowerTrack followerTrack = player.getPlans().get(actionType);
+                        FollowerTrack followerTrack = player.getPlan(actionType);
 
                         // 2) get the techToken slot (if any)
-                        Integer techSlot = player.getTechTileMap().get(actionType);
+                        Integer techSlot = player.getTechTileSlot(actionType);
 
                         // 3) check if the action is ready
                         if (followerTrack.isReady(techSlot)) {
@@ -428,14 +425,14 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     //1) does the player have a follower in that market slot?
-                    if (player.getMarket().isSlotFilled(marketSlot)) {
+                    if (player.isMarketSlotFilled(marketSlot)) {
                         throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available in slot " + marketSlot + " of her market");
                     }
 
                     //2) is this action available to the player (on their base board or as an additional place?)
                     if (actionHelper.isPlaceTileAction(actionType)) {
                         PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
-                        if (!player.getPlaceTiles().contains(placeTile)) {
+                        if (!player.hasPlaceTile(placeTile)) {
                             throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
                         }
                     }

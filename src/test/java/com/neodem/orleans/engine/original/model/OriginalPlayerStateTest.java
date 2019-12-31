@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,9 +40,8 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getPlayerColor()).isEqualTo(PlayerColor.Blue);
         assertThat(playerState.getCoinCount()).isEqualTo(5);
         assertThat(playerState.getMerchantLocation()).isEqualTo(TokenLocation.Orleans);
-        assertThat(playerState.getTradingStationCount()).isEqualTo(10);
+        assertThat(playerState.tradingStationMax()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
-        assertThat(playerState.getPlaceTiles()).isEmpty();
         RandomBag<Follower> bag = playerState.getBag();
         assertThat(bag).hasSize(4);
         Collection<Follower> test = Sets.newHashSet(new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterTrader));
@@ -52,12 +50,11 @@ public class OriginalPlayerStateTest {
             test.remove(follower);
         }
 
-        Map<GoodType, Integer> goodCounts = playerState.getGoodCounts();
-        assertThat(goodCounts.get(GoodType.Grain)).isEqualTo(0);
-        assertThat(goodCounts.get(GoodType.Cheese)).isEqualTo(0);
-        assertThat(goodCounts.get(GoodType.Wool)).isEqualTo(0);
-        assertThat(goodCounts.get(GoodType.Wine)).isEqualTo(0);
-        assertThat(goodCounts.get(GoodType.Brocade)).isEqualTo(0);
+        assertThat(playerState.getGoodCount(GoodType.Grain)).isEqualTo(0);
+        assertThat(playerState.getGoodCount(GoodType.Cheese)).isEqualTo(0);
+        assertThat(playerState.getGoodCount(GoodType.Wool)).isEqualTo(0);
+        assertThat(playerState.getGoodCount(GoodType.Wine)).isEqualTo(0);
+        assertThat(playerState.getGoodCount(GoodType.Brocade)).isEqualTo(0);
 
         assertThat(playerState.getTrackValue(Track.Farmers)).isEqualTo(0);
         assertThat(playerState.getTrackValue(Track.Craftsmen)).isEqualTo(0);

@@ -16,7 +16,7 @@ import java.util.Map;
 public class UniversityProcessor extends ActionProcessorBase {
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int trackIndex = player.getTracks().get(Track.Scholars);
+        int trackIndex = player.getTrackValue(Track.Scholars);
         return trackIndex != 5;
     }
 
@@ -24,12 +24,12 @@ public class UniversityProcessor extends ActionProcessorBase {
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         int trackIndex = player.getTrackValue(Track.Scholars);
         trackIndex++;
-        player.getTracks().put(Track.Scholars, trackIndex);
+        player.setTrackIndex(Track.Scholars, trackIndex);
 
         int reward = trackIndex + 1;
 
         int devTrackIndex = player.getTrackValue(Track.Development);
         DevelopmentHelper.processReward(devTrackIndex, devTrackIndex + reward, gameState, player);
-        player.getTracks().put(Track.Development, trackIndex);
+        player.setTrackIndex(Track.Development, trackIndex);
     }
 }

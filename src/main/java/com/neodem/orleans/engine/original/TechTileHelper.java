@@ -8,8 +8,6 @@ import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.Track;
 
-import java.util.Map;
-
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/29/19
@@ -25,8 +23,7 @@ public class TechTileHelper {
             throw new ActionProcessorException("for the first tech track location you can only choose to place a Farmer");
         }
 
-        Map<ActionType, Integer> techTileMap = player.getTechTileMap();
-        if (techTileMap.containsKey(actionType)) {
+        if (player.hasTechForAction(actionType)) {
             throw new ActionProcessorException("You already have a tech tile on the action: " + actionType);
         }
 
