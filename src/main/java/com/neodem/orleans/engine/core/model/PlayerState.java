@@ -3,6 +3,7 @@ package com.neodem.orleans.engine.core.model;
 import com.google.common.base.Objects;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.collections.Bag;
+import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -44,12 +45,14 @@ public abstract class PlayerState {
     private boolean planLocked = false;
     private boolean passed = false;
     private Loggable log;
+    private final ActionHelper actionHelper;
 
-    public PlayerState(String playerId, PlayerColor playerColor) {
+    public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
         Assert.notNull(playerId, "playerId may not be null");
         Assert.notNull(playerColor, "playerColor may not be null");
         this.playerId = playerId;
         this.playerColor = playerColor;
+        this.actionHelper = actionHelper;
         initState();
     }
 
@@ -292,4 +295,43 @@ public abstract class PlayerState {
         if (goodCounts.get(GoodType.Wine) > 0) return GoodType.Wine;
         return null;
     }
+
+    /**
+     * decide if the player can add a token to the given slot on the action. This is complex since they may have a School or Herb Garden..
+     *
+     * @param actionType
+     * @param actionSlot
+     * @param followerToken
+     * @return
+     */
+    public boolean canAddToAction(ActionType actionType, int actionSlot, Follower followerToken) {
+        FollowerTrack followerTrack = plans.get(actionType);
+        if (followerTrack == null) {
+            // if there is no followerTrack, init one from the template in the actionHelper
+            followerTrack = actionHelper.getFollowerTrack(actionType);
+            plans.put(actionType, followerTrack);
+        }
+
+        if (followerToken.getType() == FollowerType.Scholar && techTileMap.containsKey(ActionType.School)) {
+            followerToken.addAlias(FollowerType.Craftsman);
+            followerToken.addAlias(FollowerType.Trader);
+            followerToken.addAlias(FollowerType.Farmer);
+            followerToken.addAlias(FollowerType.Boatman);
+            followerToken.addAlias(FollowerType.Knight);
+        }
+
+        if (followerToken.getType() == FollowerType.Boatman && techTileMap.containsKey(ActionType.HerbGarden)) {
+            followerToken.addAlias(FollowerType.Craftsman);
+            followerToken.addAlias(FollowerType.Trader);
+            followerToken.addAlias(FollowerType.Farmer);
+        }
+
+        return followerTrack.canAdd(followerToken, actionSlot);
+    }
+
+    public void addTokenToAction(ActionType actionType, int actionSlot, Follower followerToken) {
+        FollowerTrack followerTrack = plans.get(actionType);
+        followerTrack.add(followerToken, actionSlot);
+    }
+
 }

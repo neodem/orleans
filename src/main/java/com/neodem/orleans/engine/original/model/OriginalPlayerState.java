@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GoodType;
@@ -16,8 +17,8 @@ public class OriginalPlayerState extends PlayerState {
 
     private final static int MARKET_SIZE = 8;
 
-    public OriginalPlayerState(String playerId, PlayerColor playerColor) {
-        super(playerId, playerColor);
+    public OriginalPlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
+        super(playerId, playerColor, actionHelper);
     }
 
     @Override

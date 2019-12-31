@@ -53,7 +53,7 @@ public class OriginalGameMaster implements GameMaster {
             Iterator<PlayerColor> pci = playerColors.iterator();
 
             for (String playerName : playerNames) {
-                PlayerState playerState = new OriginalPlayerState(playerName, pci.next());
+                PlayerState playerState = new OriginalPlayerState(playerName, pci.next(), actionHelper);
                 gameState.addPlayer(playerState);
             }
 
@@ -296,16 +296,9 @@ public class OriginalGameMaster implements GameMaster {
                     Follower followerToken = player.removeFromMarket(marketSlot);
 
                     //4) can the token go into the track?
-                    FollowerTrack followerTrack = player.getPlans().get(actionType);
-                    if (followerTrack == null) {
-                        followerTrack = actionHelper.getFollowerTrack(actionType);
-                        player.getPlans().put(actionType, followerTrack);
-                    }
-
-                    if (followerTrack.canAdd(followerToken, actionSlot)) {
-
+                    if (player.canAddToAction(actionType, actionSlot, followerToken)) {
                         // 5) add the token
-                        followerTrack.add(followerToken, actionSlot);
+                        player.addTokenToAction(actionType, actionSlot, followerToken);
                     } else {
                         throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
                     }
