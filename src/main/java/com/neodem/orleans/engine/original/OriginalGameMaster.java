@@ -212,7 +212,7 @@ public class OriginalGameMaster implements GameMaster {
                                     bathhouseCompleted = true;
                                 } else {
                                     gameState.writeLine("" + playerState.getPlayerId() + " has to choose which follower to assign from:" + choice1 + " and " + choice2);
-                                    playerState.setBathhouseChoices(Sets.newHashSet(choice1, choice2));
+                                    playerState.setBathhouseChoices(Sets.newHashSet(choice1.getType(), choice2.getType()));
                                 }
                             }
                         }

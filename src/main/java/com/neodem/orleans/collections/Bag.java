@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  */
 public class Bag<T> implements Iterable<T> {
 
-    private List<T> data = new ArrayList<>();
+    protected List<T> data = new ArrayList<>();
 
     public Bag() {
     }

@@ -30,6 +30,8 @@ public abstract class PlayerState {
 
     private boolean phaseComplete;
 
+    private Collection<FollowerType> bathhouseChoices = null;
+
     // followers are either in the bag, market or plans
     protected final FollowerBag bag = new FollowerBag();
     protected final Market market = new Market();
@@ -318,4 +320,18 @@ public abstract class PlayerState {
         followerTrack.add(followerToken, actionSlot);
     }
 
+    public FollowerType getBathhouseChoice() {
+        return bathhouseChoices.iterator().next();
+    }
+
+    public void resetBathhouseChoice() {
+        this.bathhouseChoices.clear();
+
+    }
+
+
+    public void setBathhouseChoices(Collection<FollowerType> choices) {
+        this.bathhouseChoices.clear();
+        this.bathhouseChoices.addAll(choices);
+    }
 }
