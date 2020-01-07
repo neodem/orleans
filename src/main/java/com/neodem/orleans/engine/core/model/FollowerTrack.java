@@ -23,6 +23,14 @@ public class FollowerTrack {
             this.ft = slot.ft;
             this.f = slot.f;
         }
+
+        public FollowerType getFt() {
+            return ft;
+        }
+
+        public Follower getF() {
+            return f;
+        }
     }
 
     private final List<Slot> track = new ArrayList<>();

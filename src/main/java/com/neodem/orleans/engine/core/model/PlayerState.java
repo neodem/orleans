@@ -102,6 +102,34 @@ public abstract class PlayerState {
         return coinCount;
     }
 
+    public Map<ActionType, FollowerTrack> getPlans() {
+        return plans;
+    }
+
+    public Market getMarket() {
+        return market;
+    }
+
+    public Map<GoodType, Integer> getGoodCounts() {
+        return goodCounts;
+    }
+
+    public Map<ActionType, Integer> getTechTileMap() {
+        return techTileMap;
+    }
+
+    public Collection<CitizenType> getClaimedCitizens() {
+        return claimedCitizens;
+    }
+
+    public Collection<PlaceTile> getPlaceTiles() {
+        return placeTiles;
+    }
+
+    public Collection<FollowerType> getBathhouseChoices() {
+        return bathhouseChoices;
+    }
+
     public boolean isPhaseComplete() {
         return phaseComplete;
     }
@@ -215,8 +243,8 @@ public abstract class PlayerState {
             if (market.hasSpace()) {
                 Follower follower = bag.take();
                 if (follower != null) {
-                    log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + i + ")");
-                    market.addToMarket(follower);
+                    int slot = market.addToMarket(follower);
+                    log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + slot + ")");
                 }
             } else {
                 log.writeLine("" + playerId + " cannot draw more followers since her market is full!");
@@ -322,6 +350,7 @@ public abstract class PlayerState {
     }
 
     public FollowerType getBathhouseChoice() {
+        if (bathhouseChoices.isEmpty()) return null;
         return bathhouseChoices.iterator().next();
     }
 
@@ -360,16 +389,16 @@ public abstract class PlayerState {
         return market.getAvailableSlots();
     }
 
-    public void setTrackIndex(Track track, int trackIndex) {
-        tracks.put(track, trackIndex);
-    }
-
     public void addToMarket(Follower follower) {
         market.addToMarket(follower);
     }
 
     public boolean isMarketSlotFilled(int marketSlot) {
         return market.isSlotFilled(marketSlot);
+    }
+
+    public void setTrackIndex(Track track, int trackIndex) {
+        tracks.put(track, trackIndex);
     }
 
     protected Map<Track, Integer> getTracks() {

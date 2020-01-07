@@ -47,15 +47,27 @@ public class Market {
     }
 
     public boolean hasSpace() {
-        return availableSlots < marketSize;
+        return availableSlots > 0;
     }
 
-    public void addToMarket(Follower follower) {
-        if (hasSpace())
-            market[--availableSlots] = follower;
+    public int addToMarket(Follower follower) {
+        int index = marketSize + 1;
+        if (hasSpace()) {
+            index = --availableSlots;
+            market[index] = follower;
+        }
+        return marketSize - index;
     }
 
     public int getAvailableSlots() {
         return availableSlots;
+    }
+
+    protected int getMarketSize() {
+        return marketSize;
+    }
+
+    protected Follower[] getMarket() {
+        return market;
     }
 }

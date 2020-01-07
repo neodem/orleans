@@ -60,4 +60,6 @@ public class OriginalGameStateTest {
         assertThat(gameState.getHourGlassStack()).hasSize(18);
         assertThat(gameState.getHourGlassStack().get(0)).isEqualTo(HourGlassTile.Pilgrimage);
     }
+
+
 }

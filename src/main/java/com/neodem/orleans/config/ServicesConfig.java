@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class ServicesConfig {
 
     @Bean
-    public ActionHelper actionService() {
+    public ActionHelper actionHelper() {
         return new OriginalActionHelper();
     }
 

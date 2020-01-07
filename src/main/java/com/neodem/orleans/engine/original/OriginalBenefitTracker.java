@@ -34,4 +34,8 @@ public class OriginalBenefitTracker extends BenefitTrackerBase {
     protected Map<BenefitName, BenefitTrack> benefitTracks() {
         return benefitTracks;
     }
+
+    public Map<BenefitName, BenefitTrack> getBenefitTracks() {
+        return benefitTracks;
+    }
 }
