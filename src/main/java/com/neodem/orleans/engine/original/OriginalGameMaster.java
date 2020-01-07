@@ -196,15 +196,6 @@ public class OriginalGameMaster implements GameMaster {
 
                 playerState.drawFollowersFromBagToMarket(desiredDrawCount);
 
-//                for (int d = 0; d < desiredDrawCount; d++) {
-//                    int availableMarketSlots = playerState.getAvailableMarketSlots();
-//                    if (availableMarketSlots == 0) {
-//                        gameState.writeLine("" + playerState.getPlayerId() + " can't draw any more followers since they have no slots available in their market");
-//                    } else {
-//                        playerState.drawFollowersFromBagToMarket(1);
-//                    }
-//                }
-
                 if (playerWithBathHouse != null && playerWithBathHouse.equals(playerState.getPlayerId()) && !bathhouseCompleted) {
                     int availableMarketSlots = playerState.getAvailableMarketSlots();
                     if (availableMarketSlots > 0) {
