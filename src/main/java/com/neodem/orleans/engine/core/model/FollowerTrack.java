@@ -1,9 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
@@ -12,28 +10,28 @@ import java.util.List;
 public class FollowerTrack {
 
     protected static final class Slot {
-        FollowerType ft;
-        Follower f;
+        FollowerType expectedType;
+        Follower followerInSlot;
 
-        public Slot(FollowerType ft) {
-            this.ft = ft;
+        public Slot(FollowerType expectedType) {
+            this.expectedType = expectedType;
         }
 
         public Slot(Slot slot) {
-            this.ft = slot.ft;
-            this.f = slot.f;
+            this.expectedType = slot.expectedType;
+            this.followerInSlot = slot.followerInSlot;
         }
 
-        public FollowerType getFt() {
-            return ft;
+        public FollowerType getExpectedType() {
+            return expectedType;
         }
 
-        public Follower getF() {
-            return f;
+        public Follower getFollowerInSlot() {
+            return followerInSlot;
         }
     }
 
-    private final List<Slot> track = new ArrayList<>();
+    private final Slot[] track;
     private final int maxSize;
 
     private int filledSpotsCount;
@@ -45,10 +43,10 @@ public class FollowerTrack {
 
     public FollowerTrack(FollowerType... followerTypes) {
         maxSize = followerTypes.length;
-        for (FollowerType ft : followerTypes) {
-            track.add(new Slot(ft));
+        track = new Slot[maxSize];
+        for (int i = 0; i < maxSize; i++) {
+            track[i] = new Slot(followerTypes[i]);
         }
-
         full = false;
         filledSpotsCount = 0;
     }
@@ -60,10 +58,12 @@ public class FollowerTrack {
      */
     public FollowerTrack(FollowerTrack template) {
         maxSize = template.maxSize;
+        track = new Slot[maxSize];
         full = false;
         filledSpotsCount = template.filledSpotsCount;
-        for (Slot s : template.getTrack()) {
-            track.add(new Slot(s));
+        Slot[] templateTrack = template.getTrack();
+        for (int i = 0; i < maxSize; i++) {
+            track[i] = new Slot(templateTrack[i]);
         }
     }
 
@@ -73,9 +73,9 @@ public class FollowerTrack {
      * @param position
      * @return null if there are no Followers in that position
      */
-    public Follower getFollowerAtPosition(int position) {
-        Slot slot = track.get(position);
-        return slot.f;
+    public Follower peekFollowerAtPosition(int position) {
+        Slot slot = track[position];
+        return slot.followerInSlot;
     }
 
     /**
@@ -85,16 +85,16 @@ public class FollowerTrack {
      * @return
      */
     public Follower removeFollowerAtPosition(int position) {
-        Slot slot = track.get(position);
-        Follower follower = slot.f;
+        Slot slot = track[position];
+        Follower follower = slot.followerInSlot;
         if (follower != null) {
             filledSpotsCount--;
-            slot.f = null;
+            slot.followerInSlot = null;
         }
         return follower;
     }
 
-    public List<Slot> getTrack() {
+    public Slot[] getTrack() {
         return track;
     }
 
@@ -107,11 +107,11 @@ public class FollowerTrack {
      */
     public boolean isReady(Integer techSlot) {
         boolean ready = true;
-        for (int i = 0; i < track.size(); i++) {
+        for (int i = 0; i < track.length; i++) {
             if (techSlot != null && techSlot == i) continue;
-            Slot s = track.get(i);
-            if (s.f == null) return false;
-            if (!(s.f.getType() == s.ft || s.f.canSubFor(s.ft))) {
+            Slot s = track[i];
+            if (s.followerInSlot == null) return false;
+            if (!(s.followerInSlot.getType() == s.expectedType || s.followerInSlot.canSubFor(s.expectedType))) {
                 ready = false;
                 break;
             }
@@ -123,9 +123,9 @@ public class FollowerTrack {
         Collection<Follower> followers = new HashSet<>();
 
         for (Slot s : track) {
-            if (s.f != null) {
-                followers.add(s.f);
-                s.f = null;
+            if (s.followerInSlot != null) {
+                followers.add(s.followerInSlot);
+                s.followerInSlot = null;
                 filledSpotsCount--;
             }
         }
@@ -136,9 +136,9 @@ public class FollowerTrack {
     public boolean canAdd(Follower follower, int position) {
         if (full) return false;
 
-        Slot slot = track.get(position);
-        if (slot.f == null) {
-            return follower.getType() == slot.ft || follower.canSubFor(slot.ft);
+        Slot slot = track[position];
+        if (slot.followerInSlot == null) {
+            return follower.getType() == slot.expectedType || follower.canSubFor(slot.expectedType);
         }
 
         return false;
@@ -147,9 +147,9 @@ public class FollowerTrack {
     public boolean add(Follower follower, int position) {
         if (canAdd(follower, position)) {
 
-            Slot slot = track.get(position);
-            slot.f = follower;
-            track.add(position, slot);
+            Slot slot = track[position];
+            slot.followerInSlot = follower;
+            track[position] = slot;
 
             filledSpotsCount++;
 

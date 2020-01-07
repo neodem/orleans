@@ -347,6 +347,7 @@ public abstract class PlayerState {
     public void addTokenToAction(ActionType actionType, int actionSlot, Follower followerToken) {
         FollowerTrack followerTrack = plans.get(actionType);
         followerTrack.add(followerToken, actionSlot);
+        log.writeLine("" + playerId + " adds " + followerToken + " to action: " + actionType + ". slot:" + actionSlot);
     }
 
     public FollowerType getBathhouseChoice() {

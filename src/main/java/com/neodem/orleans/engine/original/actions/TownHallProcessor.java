@@ -36,8 +36,8 @@ public class TownHallProcessor extends ActionProcessorBase {
         BenefitTracker benefitTracker = gameState.getBenefitTracker();
 
         FollowerTrack followerTrack = player.getPlan(actionType);
-        Follower plannedFollower1 = followerTrack.getFollowerAtPosition(0);
-        Follower plannedFollower2 = followerTrack.getFollowerAtPosition(1);
+        Follower plannedFollower1 = followerTrack.peekFollowerAtPosition(0);
+        Follower plannedFollower2 = followerTrack.peekFollowerAtPosition(1);
         if (plannedFollower1 == null && plannedFollower2 == null) {
             throw new ActionProcessorException("There are no followers planned in this action: " + actionType);
         }

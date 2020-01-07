@@ -23,14 +23,6 @@ public class MarketTest {
         market = null;
     }
 
-    /*    public void init(int marketSize) {
-            this.marketSize = marketSize;
-            this.availableSlots = marketSize;
-            market = new Follower[marketSize];
-            for (int i = 0; i < marketSize; i++) market[i] = EMPTY;
-        }
-
-     */
     @Test
     void marketInitsWithEightAvailableSlots() {
         assertThat(market.getAvailableSlots()).isEqualTo(8);
@@ -48,5 +40,17 @@ public class MarketTest {
         assertThat(market.hasSpace()).isTrue();
     }
 
+    @Test
+    void firstFollowerShouldGoInSlotZero() {
+        int index = market.addToMarket(new Follower(FollowerType.Craftsman));
+        assertThat(index).isEqualTo(0);
+    }
+
+    @Test
+    void isSlotFilledShouldWork() {
+        assertThat(market.isSlotFilled(0)).isFalse();
+        market.addToMarket(new Follower(FollowerType.Craftsman));
+        assertThat(market.isSlotFilled(0)).isTrue();
+    }
 }
 

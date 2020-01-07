@@ -12,7 +12,7 @@ public class Market {
 
     private static class EmptyNode extends Follower {
         public EmptyNode() {
-            super(FollowerType.Monk);
+            super(FollowerType.None);
         }
     }
 
@@ -50,24 +50,37 @@ public class Market {
         return availableSlots > 0;
     }
 
+    /**
+     * add follower to the left most slot
+     *
+     * @param follower
+     * @return index of where follower was placed, else -1 if no room
+     */
     public int addToMarket(Follower follower) {
-        int index = marketSize + 1;
         if (hasSpace()) {
-            index = --availableSlots;
-            market[index] = follower;
+            int i = 0;
+            for (; i < marketSize; i++) {
+                if (market[i] == EMPTY) {
+                    market[i] = follower;
+                    availableSlots--;
+                    break;
+                }
+            }
+            return i;
+        } else {
+            return -1;
         }
-        return marketSize - index;
     }
 
     public int getAvailableSlots() {
         return availableSlots;
     }
 
-    protected int getMarketSize() {
+    public int getMarketSize() {
         return marketSize;
     }
 
-    protected Follower[] getMarket() {
+    public Follower[] getMarket() {
         return market;
     }
 }

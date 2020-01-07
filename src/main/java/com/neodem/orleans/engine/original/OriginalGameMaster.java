@@ -92,10 +92,22 @@ public class OriginalGameMaster implements GameMaster {
                     gameState.setGamePhase(GamePhase.Followers);
                     break;
                 case Followers:
-                    if (doFollowersPhase(gameState)) gameState.setGamePhase(GamePhase.Planning);
+                    if (doFollowersPhase(gameState)) {
+                        gameState.setGamePhase(GamePhase.Planning);
+                        // reset the phase complete flags
+                        for (PlayerState playerState : gameState.getPlayers()) {
+                            playerState.setPhaseComplete(false);
+                        }
+                    }
                     break;
                 case Planning:
-                    if (doPlanningPhase(gameState)) gameState.setGamePhase(GamePhase.Actions);
+                    if (doPlanningPhase(gameState)) {
+                        gameState.setGamePhase(GamePhase.Actions);
+                        // reset the phase complete flags
+                        for (PlayerState playerState : gameState.getPlayers()) {
+                            playerState.setPhaseComplete(false);
+                        }
+                    }
                     break;
                 case Actions:
                     if (doActionPhase(gameState)) gameState.setGamePhase(GamePhase.Event);
@@ -427,8 +439,8 @@ public class OriginalGameMaster implements GameMaster {
                 if (gameState.getGamePhase() == GamePhase.Planning) {
 
                     //1) does the player have a follower in that market slot?
-                    if (player.isMarketSlotFilled(marketSlot)) {
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available in slot " + marketSlot + " of her market");
+                    if (!player.isMarketSlotFilled(marketSlot)) {
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available follower in market slot " + marketSlot + " of her market");
                     }
 
                     //2) is this action available to the player (on their base board or as an additional place?)
@@ -447,6 +459,7 @@ public class OriginalGameMaster implements GameMaster {
                         // 5) add the token
                         player.addTokenToAction(actionType, actionSlot, followerToken);
                     } else {
+                        player.addToMarket(followerToken);
                         throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
                     }
 
@@ -469,6 +482,7 @@ public class OriginalGameMaster implements GameMaster {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 player.setPhaseComplete(true);
+                gameState.writeLine("player " + player + " has completed planning");
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }

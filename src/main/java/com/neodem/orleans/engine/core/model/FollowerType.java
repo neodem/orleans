@@ -15,5 +15,6 @@ public enum FollowerType {
     StarterTrader,
     Scholar,
     Knight,
-    Monk
+    Monk,
+    None
 }
