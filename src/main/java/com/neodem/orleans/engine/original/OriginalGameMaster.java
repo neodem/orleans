@@ -70,6 +70,11 @@ public class OriginalGameMaster implements GameMaster {
     }
 
     @Override
+    public GameState getGameState(String gameId) {
+        return storedGames.get(gameId);
+    }
+
+    @Override
     public GameState nextPhase(String gameId) {
         OriginalGameState gameState = storedGames.get(gameId);
         if (gameState != null) {
@@ -298,7 +303,6 @@ public class OriginalGameMaster implements GameMaster {
     }
 
 
-
     private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
         // TODO deal with an empty bag
         Follower take = playerState.getBag().take();
@@ -342,7 +346,8 @@ public class OriginalGameMaster implements GameMaster {
 
 
     @Override
-    public GameState doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
+    public GameState doAction(String gameId, String playerId, ActionType
+            actionType, Map<AdditionalDataType, String> additionalDataMap) {
         GameState gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
@@ -363,23 +368,28 @@ public class OriginalGameMaster implements GameMaster {
                         // 1) get the plan
                         FollowerTrack followerTrack = player.getPlan(actionType);
 
-                        // 2) get the techToken slot (if any)
-                        Integer techSlot = player.getTechTileSlot(actionType);
+                        if (followerTrack != null) {
 
-                        // 3) check if the action is ready
-                        if (followerTrack.isReady(techSlot)) {
+                            // 2) get the techToken slot (if any)
+                            Integer techSlot = player.getTechTileSlot(actionType);
 
-                            if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
-                                // send back to bag and remove plan
-                                player.unPlan(actionType);
+                            // 3) check if the action is ready
+                            if (followerTrack.isReady(techSlot)) {
 
-                                // do action
-                                actionHelper.processAction(actionType, gameState, player, additionalDataMap);
+                                if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
+                                    // send back to bag and remove plan
+                                    player.unPlan(actionType);
 
-                                // move to the next unpassed player
-                                gameState.advanceActionPlayer();
+                                    // do action
+                                    actionHelper.processAction(actionType, gameState, player, additionalDataMap);
+
+                                    // move to the next unpassed player
+                                    gameState.advanceActionPlayer();
+                                } else {
+                                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
+                                }
                             } else {
-                                throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
+                                throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
                             }
                         } else {
                             throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
@@ -426,32 +436,35 @@ public class OriginalGameMaster implements GameMaster {
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
-
                 if (gameState.getGamePhase() == GamePhase.Planning) {
+                    if (!player.isPhaseComplete()) {
 
-                    //1) does the player have a follower in that market slot?
-                    if (!player.isMarketSlotFilled(marketSlot)) {
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available follower in market slot " + marketSlot + " of her market");
-                    }
-
-                    //2) is this action available to the player (on their base board or as an additional place?)
-                    if (actionHelper.isPlaceTileAction(actionType)) {
-                        PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
-                        if (!player.hasPlaceTile(placeTile)) {
-                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
+                        //1) does the player have a follower in that market slot?
+                        if (!player.isMarketSlotFilled(marketSlot)) {
+                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available follower in market slot " + marketSlot + " of her market");
                         }
-                    }
 
-                    //3) get the follower from the market
-                    Follower followerToken = player.removeFromMarket(marketSlot);
+                        //2) is this action available to the player (on their base board or as an additional place?)
+                        if (actionHelper.isPlaceTileAction(actionType)) {
+                            PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
+                            if (!player.hasPlaceTile(placeTile)) {
+                                throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
+                            }
+                        }
 
-                    //4) can the token go into the track?
-                    if (player.canAddToAction(actionType, actionSlot, followerToken)) {
-                        // 5) add the token
-                        player.addTokenToAction(actionType, actionSlot, followerToken);
+                        //3) get the follower from the market
+                        Follower followerToken = player.removeFromMarket(marketSlot);
+
+                        //4) can the token go into the track?
+                        if (player.canAddToAction(actionType, actionSlot, followerToken)) {
+                            // 5) add the token
+                            player.addTokenToAction(actionType, actionSlot, followerToken);
+                        } else {
+                            player.addToMarket(followerToken);
+                            throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
+                        }
                     } else {
-                        player.addToMarket(followerToken);
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
+                        throw new IllegalArgumentException("Player playerId='" + playerId + "' has completd their planning phase.");
                     }
 
                 } else {
@@ -473,7 +486,7 @@ public class OriginalGameMaster implements GameMaster {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 player.setPhaseComplete(true);
-                gameState.writeLine("player " + player + " has completed planning");
+                gameState.writeLine("player " + player.getPlayerId() + " has completed planning");
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }
@@ -482,7 +495,6 @@ public class OriginalGameMaster implements GameMaster {
         }
         return gameState;
     }
-
 
     private int determineDrawFromKnight(int knightTrackLocation) {
         switch (knightTrackLocation) {

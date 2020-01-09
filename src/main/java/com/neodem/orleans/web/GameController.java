@@ -39,7 +39,7 @@ public class GameController {
     }
 
     @RequestMapping("/game/{gameId}/nextPhase")
-    public GameState gameStart(@PathVariable(value = "gameId") String gameId) {
+    public GameState nextPhase(@PathVariable(value = "gameId") String gameId) {
         GameState gameState = gameMaster.nextPhase(gameId);
         return gameState;
     }
@@ -79,6 +79,12 @@ public class GameController {
     @RequestMapping("/game/{gameId}/{playerId}/planSet")
     public GameState planSet(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
         GameState gameState = gameMaster.planSet(gameId, playerId);
+        return gameState;
+    }
+
+    @RequestMapping("/game/{gameId}/gameState")
+    public GameState gameState(@PathVariable(value = "gameId") String gameId) {
+        GameState gameState = gameMaster.getGameState(gameId);
         return gameState;
     }
 

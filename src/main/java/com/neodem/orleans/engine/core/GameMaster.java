@@ -69,4 +69,6 @@ public interface GameMaster {
      * @return
      */
     GameState pass(String gameId, String playerId);
+
+    GameState getGameState(String gameId);
 }

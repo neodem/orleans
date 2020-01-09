@@ -268,6 +268,8 @@ public abstract class GameState implements Loggable {
         return players.get(currentActionPlayerIndex).getPlayerId();
     }
 
+
+    //TODO fix
     public void advanceActionPlayer() {
         int count = 1;
         do {
@@ -275,7 +277,6 @@ public abstract class GameState implements Loggable {
             count++;
         } while (players.get(currentActionPlayerIndex).isPhaseComplete() && count == playerCount);
     }
-
 
     public boolean isGoodAvailable(GoodType goodType) {
         return goodsInventory.get(goodType) > 0;

@@ -53,6 +53,8 @@ public abstract class PlayerState {
     protected final Market market = new Market();
     protected final Map<Track, Integer> tracks = new HashMap<>();
     protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
+
+    // which slot has the tech tile in it?
     private final Map<ActionType, Integer> techTileMap = new HashMap<>();
     private final Collection<CitizenType> claimedCitizens = new HashSet<>();
     private final Collection<PlaceTile> placeTiles = new HashSet<>();
@@ -95,7 +97,7 @@ public abstract class PlayerState {
     }
 
     public Integer getTechTileSlot(ActionType actionType) {
-        return getTechTileSlot(actionType);
+        return techTileMap.get(actionType);
     }
 
     public int getCoinCount() {
