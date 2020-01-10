@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,6 +56,8 @@ public abstract class PlayerState {
 
     // internal state
     protected Market market = new Market();
+
+    @JsonProperty(value = "tracks")
     protected Map<Track, Integer> tracks = new HashMap<>();
     protected Map<GoodType, Integer> goodCounts = new HashMap<>();
 
@@ -92,6 +95,10 @@ public abstract class PlayerState {
             this.coinCount = json.get("coinCount").intValue();
 
             this.market = new Market(json.get("market"));
+
+            TypeReference<HashMap<Track, Integer>> tracksRef = new TypeReference<>() {
+            };
+            this.tracks = mapper.readValue(json.get("tracks").toString(), tracksRef);
 
             TypeReference<HashMap<GoodType, Integer>> goodCountsRef = new TypeReference<>() {
             };

@@ -347,12 +347,11 @@ public abstract class GameState implements Loggable {
         return players.get(currentActionPlayerIndex).getPlayerId();
     }
 
-
-    //TODO fix
     public void advanceActionPlayer() {
         int count = 1;
         do {
             currentActionPlayerIndex++;
+            if (currentActionPlayerIndex == playerCount) currentActionPlayerIndex = 0;
             count++;
         } while (players.get(currentActionPlayerIndex).isPhaseComplete() && count == playerCount);
     }

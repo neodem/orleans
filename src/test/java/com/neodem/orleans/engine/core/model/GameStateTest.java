@@ -69,7 +69,7 @@ public class GameStateTest {
 
     @BeforeEach
     void setUp() {
-        gameState = new TestableGameState("abc", 3);
+        gameState = new TestableGameState("abc", 4);
         p1 = new OriginalPlayerState(PLAYER1, PlayerColor.Blue, null);
         gameState.addPlayer(p1);
         p2 = new OriginalPlayerState(PLAYER2, PlayerColor.Blue, null);
@@ -87,6 +87,11 @@ public class GameStateTest {
         p3 = null;
         p2 = null;
         p1 = null;
+    }
+
+    @Test
+    void gameStateShouldHaveCorrectPlayerCount() {
+        assertThat(gameState.getPlayerCount()).isEqualTo(4);
     }
 
     @Test
@@ -156,10 +161,48 @@ public class GameStateTest {
         assertThat(result).isEqualTo(PLAYER4);
     }
 
+    /*
+        public void advanceActionPlayer() {
+        int count = 1;
+        do {
+            currentActionPlayerIndex++;
+            count++;
+        } while (players.get(currentActionPlayerIndex).isPhaseComplete() && count == playerCount);
+    }
+     */
+
+    @Test
+    void advanceActionPlayerShouldLoop() {
+        String currentActionPlayer = gameState.getCurrentActionPlayer();
+        assertThat(currentActionPlayer).isEqualTo(PLAYER1);
+
+        gameState.advanceActionPlayer();
+
+        currentActionPlayer = gameState.getCurrentActionPlayer();
+        assertThat(currentActionPlayer).isEqualTo(PLAYER2);
+
+        gameState.advanceActionPlayer();
+
+        currentActionPlayer = gameState.getCurrentActionPlayer();
+        assertThat(currentActionPlayer).isEqualTo(PLAYER3);
+
+        gameState.advanceActionPlayer();
+
+        currentActionPlayer = gameState.getCurrentActionPlayer();
+        assertThat(currentActionPlayer).isEqualTo(PLAYER4);
+
+        gameState.advanceActionPlayer();
+
+        currentActionPlayer = gameState.getCurrentActionPlayer();
+        assertThat(currentActionPlayer).isEqualTo(PLAYER1);
+    }
+
     private void setupFarmers(int count1, int count2, int count3, int count4) {
         p1.getTracks().put(Track.Farmers, count1);
         p2.getTracks().put(Track.Farmers, count2);
         p3.getTracks().put(Track.Farmers, count3);
         p4.getTracks().put(Track.Farmers, count4);
     }
+
+
 }
