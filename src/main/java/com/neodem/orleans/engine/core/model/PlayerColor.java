@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,5 +21,10 @@ public enum PlayerColor {
 
     public static PlayerColor randomColor() {
         return VALUES.get(RANDOM.nextInt(SIZE));
+    }
+
+    @JsonCreator
+    public static PlayerColor fromValue(String v) {
+        return PlayerColor.valueOf(v);
     }
 }

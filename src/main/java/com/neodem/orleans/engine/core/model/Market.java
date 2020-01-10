@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/30/19
@@ -24,6 +26,18 @@ public class Market {
 
     public Market() {
         init(8);
+    }
+
+    public Market(JsonNode json) {
+        this.marketSize = json.get("marketSize").intValue();
+        this.availableSlots = json.get("availableSlots").intValue();
+        init(this.marketSize);
+        JsonNode market = json.get("market");
+        int i = 0;
+        for (JsonNode follower : market) {
+            this.market[i] = new Follower(follower);
+            i++;
+        }
     }
 
     public void init(int marketSize) {

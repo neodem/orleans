@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.util.Assert;
 
@@ -8,8 +9,11 @@ import org.springframework.util.Assert;
  * Created on 12/27/19
  */
 public class PathBetween {
-    private final TokenLocation location1;
-    private final TokenLocation location2;
+    private TokenLocation location1;
+    private TokenLocation location2;
+
+    protected PathBetween() {
+    }
 
     public PathBetween(TokenLocation location1, TokenLocation location2) {
         Assert.notNull(location1, "location1 may not be null");
@@ -17,6 +21,12 @@ public class PathBetween {
         Assert.isTrue(location1 != location2, "PathBetween must reference 2 different places");
         this.location1 = location1;
         this.location2 = location2;
+    }
+
+    public PathBetween(String key) {
+        String[] splits = StringUtils.split(key, "-");
+        this.location1 = TokenLocation.fromValue(splits[0]);
+        this.location2 = TokenLocation.fromValue(splits[1]);
     }
 
     @Override
@@ -56,5 +66,13 @@ public class PathBetween {
 
     public boolean contains(TokenLocation location) {
         return location1 == location || location2 == location;
+    }
+
+    protected void setLocation1(TokenLocation location1) {
+        this.location1 = location1;
+    }
+
+    protected void setLocation2(TokenLocation location2) {
+        this.location2 = location2;
     }
 }

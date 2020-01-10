@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -11,12 +12,22 @@ import java.util.HashSet;
  * Created on 12/29/19
  */
 public class Follower {
-    private final FollowerType followerType;
+    private FollowerType followerType;
 
     private Collection<FollowerType> dba = new HashSet<>();
 
     public Follower(FollowerType followerType) {
         this.followerType = followerType;
+    }
+
+    public Follower(JsonNode json) {
+        this.followerType = FollowerType.fromValue(json.get("followerType").textValue());
+        JsonNode dba = json.get("dba");
+        if (dba != null) {
+            for (JsonNode node : dba) {
+                this.dba.add(FollowerType.fromValue(node.textValue()));
+            }
+        }
     }
 
     public static Follower makeStarter(FollowerType type, FollowerType subType) {
@@ -75,5 +86,21 @@ public class Follower {
 
     public void clearAliases() {
         dba.clear();
+    }
+
+    public FollowerType getFollowerType() {
+        return followerType;
+    }
+
+    protected void setFollowerType(FollowerType followerType) {
+        this.followerType = followerType;
+    }
+
+    public Collection<FollowerType> getDba() {
+        return dba;
+    }
+
+    protected void setDba(Collection<FollowerType> dba) {
+        this.dba = dba;
     }
 }

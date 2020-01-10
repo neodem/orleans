@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,5 +25,10 @@ public enum GoodType {
 
     public static GoodType randomGood() {
         return VALUES.get(RANDOM.nextInt(SIZE));
+    }
+
+    @JsonCreator
+    public static GoodType fromValue(String v) {
+        return GoodType.valueOf(v);
     }
 }

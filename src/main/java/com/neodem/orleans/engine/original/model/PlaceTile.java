@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
@@ -24,5 +26,10 @@ public enum PlaceTile {
     HerbGarden,
     Sacristy,
     GunpowderTower,
-    Laboratory
+    Laboratory;
+
+    @JsonCreator
+    public static PlaceTile fromValue(String v) {
+        return PlaceTile.valueOf(v);
+    }
 }

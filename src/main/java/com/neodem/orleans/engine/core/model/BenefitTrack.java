@@ -6,7 +6,10 @@ package com.neodem.orleans.engine.core.model;
  */
 public class BenefitTrack extends FollowerTrack {
 
-    private final int coinReward;
+    private int coinReward;
+
+    protected BenefitTrack() {
+    }
 
     public BenefitTrack(int coinReward, FollowerType... followerTypes) {
         super(followerTypes);
@@ -24,5 +27,9 @@ public class BenefitTrack extends FollowerTrack {
             if (s.expectedType == type) return i;
         }
         return -1;
+    }
+
+    protected void setCoinReward(int coinReward) {
+        this.coinReward = coinReward;
     }
 }

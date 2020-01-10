@@ -1,5 +1,8 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
@@ -23,12 +26,12 @@ public abstract class PlayerState {
     /**
      * the name/id of the player (should be unique in the game)
      */
-    protected final String playerId;
+    protected String playerId;
 
     /**
      * color of the player
      */
-    protected final PlayerColor playerColor;
+    protected PlayerColor playerColor;
 
     /**
      * if the player is complete the current phase
@@ -38,31 +41,78 @@ public abstract class PlayerState {
     /**
      * the bag the player has
      */
-    protected final FollowerBag bag = new FollowerBag();
+    protected FollowerBag bag = new FollowerBag();
 
     /**
      * actions the player has Followers in are called 'plans'
      */
-    protected final Map<ActionType, FollowerTrack> plans = new HashMap<>();
+    protected Map<ActionType, FollowerTrack> plans = new HashMap<>();
 
     protected TokenLocation merchantLocation;
 
     private int coinCount = 5;
 
     // internal state
-    protected final Market market = new Market();
-    protected final Map<Track, Integer> tracks = new HashMap<>();
-    protected final Map<GoodType, Integer> goodCounts = new HashMap<>();
+    protected Market market = new Market();
+    protected Map<Track, Integer> tracks = new HashMap<>();
+    protected Map<GoodType, Integer> goodCounts = new HashMap<>();
 
     // which slot has the tech tile in it?
-    private final Map<ActionType, Integer> techTileMap = new HashMap<>();
-    private final Collection<CitizenType> claimedCitizens = new HashSet<>();
-    private final Collection<PlaceTile> placeTiles = new HashSet<>();
-    private final Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
-    private final Collection<FollowerType> bathhouseChoices = new HashSet<>();
+    private Map<ActionType, Integer> techTileMap = new HashMap<>();
+    private Collection<CitizenType> claimedCitizens = new HashSet<>();
+    private Collection<PlaceTile> placeTiles = new HashSet<>();
+    private Collection<TokenLocation> tradingStationLocations = new ArrayList<>();
+    private Collection<FollowerType> bathhouseChoices = new HashSet<>();
 
     private Loggable log;
-    private final ActionHelper actionHelper;
+    private ActionHelper actionHelper;
+
+    protected PlayerState(JsonNode json) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            this.playerId = json.get("playerId").textValue();
+            this.playerColor = PlayerColor.fromValue(json.get("playerColor").textValue());
+            this.phaseComplete = json.get("phaseComplete").booleanValue();
+            this.bag = new FollowerBag(json.get("bag"));
+
+            TypeReference<HashMap<ActionType, FollowerTrack>> plansRef = new TypeReference<>() {
+            };
+            this.plans = mapper.readValue(json.get("plans").toString(), plansRef);
+
+            this.merchantLocation = TokenLocation.fromValue(json.get("merchantLocation").textValue());
+            this.coinCount = json.get("coinCount").intValue();
+
+            this.market = new Market(json.get("market"));
+
+            TypeReference<HashMap<GoodType, Integer>> goodCountsRef = new TypeReference<>() {
+            };
+            this.goodCounts = mapper.readValue(json.get("goodCounts").toString(), goodCountsRef);
+
+            TypeReference<HashMap<ActionType, Integer>> techTileRef = new TypeReference<>() {
+            };
+            this.techTileMap = mapper.readValue(json.get("techTileMap").toString(), techTileRef);
+
+            TypeReference<HashSet<CitizenType>> claimedCitizensRef = new TypeReference<>() {
+            };
+            this.claimedCitizens = mapper.readValue(json.get("claimedCitizens").toString(), claimedCitizensRef);
+
+            TypeReference<HashSet<PlaceTile>> placeTilesRef = new TypeReference<>() {
+            };
+            this.placeTiles = mapper.readValue(json.get("placeTiles").toString(), placeTilesRef);
+
+            TypeReference<ArrayList<TokenLocation>> tradingStationLocationsRef = new TypeReference<>() {
+            };
+            this.tradingStationLocations = mapper.readValue(json.get("tradingStationLocations").toString(), tradingStationLocationsRef);
+
+            TypeReference<HashSet<FollowerType>> bathhouseChoicesRef = new TypeReference<>() {
+            };
+            this.bathhouseChoices = mapper.readValue(json.get("bathhouseChoices").toString(), bathhouseChoicesRef);
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
 
     public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
         Assert.notNull(playerId, "playerId may not be null");
@@ -410,5 +460,25 @@ public abstract class PlayerState {
 
     public int getGoodCount(GoodType goodType) {
         return goodCounts.get(goodType);
+    }
+
+    protected void setPlayerId(String playerId) {
+        this.playerId = playerId;
+    }
+
+    protected void setPlayerColor(PlayerColor playerColor) {
+        this.playerColor = playerColor;
+    }
+
+    protected void setCoinCount(int coinCount) {
+        this.coinCount = coinCount;
+    }
+
+    protected void setLog(Loggable log) {
+        this.log = log;
+    }
+
+    protected void setActionHelper(ActionHelper actionHelper) {
+        this.actionHelper = actionHelper;
     }
 }

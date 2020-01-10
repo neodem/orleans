@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.core.model.FollowerType;
@@ -19,6 +20,10 @@ public class OriginalPlayerState extends PlayerState {
 
     public OriginalPlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
         super(playerId, playerColor, actionHelper);
+    }
+
+    public OriginalPlayerState(JsonNode json) {
+        super(json);
     }
 
     @Override

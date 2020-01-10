@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +49,21 @@ public class GameStateTest {
         @Override
         public void initGame(int playerCount) {
             //noop
+        }
+
+        @Override
+        protected BenefitTracker makeBenefitTrackerFromJson(JsonNode benefitTracker) {
+            return null;
+        }
+
+        @Override
+        protected BoardState makeBoardStateFromJson(JsonNode boardState) {
+            return null;
+        }
+
+        @Override
+        protected PlayerState makePlayerFromJson(JsonNode player) {
+            return null;
         }
     }
 

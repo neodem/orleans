@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/26/19
@@ -28,6 +30,11 @@ public enum TokenLocation {
     Nevers,
     ArgentonSurCreuse,
     LaChatre,
-    SAmandMontrond
+    SAmandMontrond;
+
+    @JsonCreator
+    public static TokenLocation fromValue(String v) {
+        return TokenLocation.valueOf(v);
+    }
 
 }

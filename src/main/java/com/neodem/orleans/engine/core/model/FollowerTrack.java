@@ -13,6 +13,9 @@ public class FollowerTrack {
         FollowerType expectedType;
         Follower followerInSlot;
 
+        public Slot() {
+        }
+
         public Slot(FollowerType expectedType) {
             this.expectedType = expectedType;
         }
@@ -29,13 +32,23 @@ public class FollowerTrack {
         public Follower getFollowerInSlot() {
             return followerInSlot;
         }
+
+        protected void setExpectedType(FollowerType expectedType) {
+            this.expectedType = expectedType;
+        }
+
+        protected void setFollowerInSlot(Follower followerInSlot) {
+            this.followerInSlot = followerInSlot;
+        }
     }
 
-    private final Slot[] track;
-    private final int maxSize;
-
+    private Slot[] track;
+    private int maxSize;
     private int filledSpotsCount;
     private boolean full;
+
+    protected FollowerTrack() {
+    }
 
     public int size() {
         return filledSpotsCount;
@@ -161,5 +174,33 @@ public class FollowerTrack {
         }
 
         return full;
+    }
+
+    protected void setTrack(Slot[] track) {
+        this.track = track;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    protected void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    public int getFilledSpotsCount() {
+        return filledSpotsCount;
+    }
+
+    protected void setFilledSpotsCount(int filledSpotsCount) {
+        this.filledSpotsCount = filledSpotsCount;
+    }
+
+    public boolean isFull() {
+        return full;
+    }
+
+    protected void setFull(boolean full) {
+        this.full = full;
     }
 }

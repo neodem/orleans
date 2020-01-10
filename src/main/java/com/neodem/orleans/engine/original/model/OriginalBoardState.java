@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.neodem.orleans.engine.core.model.BoardState;
 import com.neodem.orleans.engine.core.model.GoodType;
 
@@ -18,6 +19,10 @@ import static com.neodem.orleans.engine.core.model.TokenLocation.*;
 public class OriginalBoardState extends BoardState {
     public OriginalBoardState(Map<GoodType, Integer> goodsInventory, int playerCount) {
         super(goodsInventory, playerCount);
+    }
+
+    public OriginalBoardState(JsonNode json) {
+        super(json);
     }
 
     @Override

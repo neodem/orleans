@@ -1,5 +1,8 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.Loggable;
@@ -23,17 +26,17 @@ public abstract class GameState implements Loggable {
     protected BoardState boardState;
     protected BenefitTracker benefitTracker;
 
-    protected final Map<GoodType, Integer> goodsInventory = new HashMap<>();
-    protected final Map<FollowerType, Integer> followerInventory = new HashMap<>();
+    protected Map<GoodType, Integer> goodsInventory = new HashMap<>();
+    protected Map<FollowerType, Integer> followerInventory = new HashMap<>();
 
     protected int techTilesAvailable = 0;
-    protected final Collection<PlaceTile> placeTiles1 = new HashSet<>();
-    protected final Collection<PlaceTile> placeTiles2 = new HashSet<>();
+    protected Collection<PlaceTile> placeTiles1 = new HashSet<>();
+    protected Collection<PlaceTile> placeTiles2 = new HashSet<>();
     // TODO hide this from JSON
-    protected final List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
-    protected final List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
-    protected final List<String> gameLog = new ArrayList<>();
-    private final int playerCount;
+    protected List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
+    protected List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
+    protected List<String> gameLog = new ArrayList<>();
+    private int playerCount;
     private final Collection<CitizenType> claimedCitizens = new HashSet<>();
     protected String gameId;
     protected int round;
@@ -42,6 +45,82 @@ public abstract class GameState implements Loggable {
 
     protected HourGlassTile currentHourGlass;
     int currentActionPlayerIndex = 0;
+
+    protected GameState(JsonNode node) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonNode players = node.get("players");
+            if (players != null) {
+                for (JsonNode player : players) {
+                    this.players.add(makePlayerFromJson(player));
+                }
+            }
+            this.boardState = makeBoardStateFromJson(node.get("boardState"));
+            this.benefitTracker = makeBenefitTrackerFromJson(node.get("benefitTracker"));
+
+            JsonNode goodsInInventoryNode = node.get("goodsInventory");
+            if (goodsInInventoryNode != null) {
+                TypeReference<HashMap<GoodType, Integer>> goodCountsRef = new TypeReference<>() {
+                };
+                this.goodsInventory = mapper.readValue(goodsInInventoryNode.toString(), goodCountsRef);
+            }
+
+            TypeReference<HashMap<FollowerType, Integer>> followerInventoryRef = new TypeReference<>() {
+            };
+            this.followerInventory = mapper.readValue(node.get("followerInventory").toString(), followerInventoryRef);
+
+            TypeReference<ArrayList<PlaceTile>> placeTileRef = new TypeReference<>() {
+            };
+            this.placeTiles1 = mapper.readValue(node.get("placeTiles1").toString(), placeTileRef);
+            this.placeTiles2 = mapper.readValue(node.get("placeTiles2").toString(), placeTileRef);
+
+            TypeReference<ArrayList<HourGlassTile>> usedHourGlassTilesRef = new TypeReference<>() {
+            };
+            this.usedHourGlassTiles = mapper.readValue(node.get("usedHourGlassTiles").toString(), usedHourGlassTilesRef);
+            this.hourGlassTileStack = mapper.readValue(node.get("hourGlassStack").toString(), usedHourGlassTilesRef);
+
+            this.gameLog = mapper.readValue(node.get("gameLog").toString(), List.class);
+            this.playerCount = node.get("playerCount").intValue();
+
+            this.gameId = node.get("gameId").textValue();
+            this.round = node.get("round").intValue();
+            this.gamePhase = GamePhase.fromValue(node.get("gamePhase").textValue());
+
+            String startPlayer = node.get("startPlayer").textValue();
+            int i = 0;
+            for (PlayerState playerState : this.players) {
+                if (startPlayer.equals(playerState.getPlayerId())) break;
+                i++;
+            }
+            this.startPlayer = i;
+
+            String currentHourGlass = node.get("currentHourGlass").textValue();
+            if (currentHourGlass != null) {
+                this.currentHourGlass = HourGlassTile.fromValue(node.get("currentHourGlass").textValue());
+            }
+            this.techTilesAvailable = node.get("numberTechTilesAvailable").intValue();
+
+            String currentActionPlayer = node.get("currentActionPlayer").textValue();
+            if (currentActionPlayer != null) {
+                i = 0;
+                for (PlayerState playerState : this.players) {
+                    if (currentActionPlayer.equals(playerState.getPlayerId())) break;
+                    i++;
+                }
+                this.currentActionPlayerIndex = i;
+            }
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+    protected abstract BenefitTracker makeBenefitTrackerFromJson(JsonNode benefitTracker);
+
+    protected abstract BoardState makeBoardStateFromJson(JsonNode boardState);
+
+    protected abstract PlayerState makePlayerFromJson(JsonNode player);
 
     public GameState(String gameId, int playerCount) {
         Assert.isTrue(playerCount > 1 && playerCount < 5, "playerCount should be 2-4");

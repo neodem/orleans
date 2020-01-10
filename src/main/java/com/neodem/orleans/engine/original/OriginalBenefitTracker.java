@@ -1,5 +1,8 @@
 package com.neodem.orleans.engine.original;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neodem.orleans.engine.core.BenefitTrackerBase;
 import com.neodem.orleans.engine.core.model.BenefitTrack;
 import com.neodem.orleans.engine.original.model.BenefitName;
@@ -16,9 +19,13 @@ import static com.neodem.orleans.engine.original.model.BenefitName.*;
  */
 public class OriginalBenefitTracker extends BenefitTrackerBase {
 
-    private final Map<BenefitName, BenefitTrack> benefitTracks;
+    private Map<BenefitName, BenefitTrack> benefitTracks;
 
     public OriginalBenefitTracker() {
+        initTracks();
+    }
+
+    private void initTracks() {
         benefitTracks = new HashMap<>();
         benefitTracks.put(BuildingCityWall, new BenefitTrack(1, Knight, Knight, Knight, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman, Craftsman));
         benefitTracks.put(PapalConclave, new BenefitTrack(3, Knight, Monk, Monk));
@@ -28,6 +35,19 @@ public class OriginalBenefitTracker extends BenefitTrackerBase {
         benefitTracks.put(BuildingCathedral, new BenefitTrack(2, Craftsman, Craftsman, Monk, Monk, Trader, Trader));
         benefitTracks.put(PeaceTreaty, new BenefitTrack(2, Monk, Scholar, Knight, Knight));
         benefitTracks.put(Canalisation, new BenefitTrack(1, Boatman, Boatman, Boatman, Trader, Trader, Farmer, Farmer, Farmer, Craftsman, Craftsman));
+    }
+
+    public OriginalBenefitTracker(JsonNode json) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+
+            TypeReference<HashMap<BenefitName, BenefitTrack>> btRef = new TypeReference<>() {
+            };
+            this.benefitTracks = mapper.readValue(json.get("benefitTracks").toString(), btRef);
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     @Override

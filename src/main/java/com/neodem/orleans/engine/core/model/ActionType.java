@@ -1,5 +1,7 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/27/19
@@ -37,5 +39,10 @@ public enum ActionType {
     HerbGarden,
     Sacristy,
     GunpowderTower,
-    Laboratory
+    Laboratory;
+
+    @JsonCreator
+    public static ActionType fromValue(String v) {
+        return ActionType.valueOf(v);
+    }
 }

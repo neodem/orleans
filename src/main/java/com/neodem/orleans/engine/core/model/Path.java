@@ -12,9 +12,12 @@ import java.util.stream.Collectors;
  * Created on 12/26/19
  */
 public class Path {
-    private final PathBetween pathBetween;
-    private final PathType pathType;
-    private final Collection<GoodType> goods;
+    private PathBetween pathBetween;
+    private PathType pathType;
+    private Collection<GoodType> goods;
+
+    protected Path() {
+    }
 
     public Path(PathBetween pathBetween, PathType pathType) {
         Assert.notNull(pathBetween, "pathBetween may not be null");
@@ -74,5 +77,17 @@ public class Path {
         if (goodAvailable(desiredGood)) {
             goods.remove(desiredGood);
         }
+    }
+
+    protected void setPathBetween(PathBetween pathBetween) {
+        this.pathBetween = pathBetween;
+    }
+
+    protected void setPathType(PathType pathType) {
+        this.pathType = pathType;
+    }
+
+    protected void setGoods(Collection<GoodType> goods) {
+        this.goods = goods;
     }
 }

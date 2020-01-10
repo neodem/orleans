@@ -1,10 +1,14 @@
 package com.neodem.orleans.engine.original.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
+import com.neodem.orleans.engine.core.BenefitTracker;
+import com.neodem.orleans.engine.core.model.BoardState;
 import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.OriginalBenefitTracker;
 
 import java.util.Collections;
@@ -17,6 +21,25 @@ import static com.neodem.orleans.engine.original.model.PlaceTile.*;
  * Created on 12/27/19
  */
 public class OriginalGameState extends GameState {
+    public OriginalGameState(JsonNode jsonNode) {
+        super(jsonNode);
+    }
+
+    @Override
+    protected PlayerState makePlayerFromJson(JsonNode json) {
+        return new OriginalPlayerState(json);
+    }
+
+    @Override
+    protected BenefitTracker makeBenefitTrackerFromJson(JsonNode json) {
+        return new OriginalBenefitTracker(json);
+    }
+
+    @Override
+    protected BoardState makeBoardStateFromJson(JsonNode json) {
+        return new OriginalBoardState(json);
+    }
+
     public OriginalGameState(String gameId, int playerCount) {
         super(gameId, playerCount);
     }

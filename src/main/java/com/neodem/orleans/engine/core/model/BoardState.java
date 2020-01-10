@@ -1,5 +1,14 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,9 +19,9 @@ import java.util.Map;
  * Created on 12/26/19
  */
 public abstract class BoardState {
-    protected final Map<TokenLocation, Collection<Path>> pathsFromTown;
-    protected final Collection<Path> allPaths;
-    protected final Map<PathBetween, Collection<Path>> pathsBetween;
+    protected Map<TokenLocation, Collection<Path>> pathsFromTown;
+    protected Collection<Path> allPaths;
+    protected Map<PathBetween, Collection<Path>> pathsBetween;
 
     private BoardState() {
         pathsFromTown = new HashMap<>();
@@ -23,6 +32,38 @@ public abstract class BoardState {
     public BoardState(Map<GoodType, Integer> goodsInventory, int playerCount) {
         this();
         init(goodsInventory, playerCount);
+    }
+
+    class PathBetweenDeserializer extends KeyDeserializer {
+        @Override
+        public Object deserializeKey(final String key, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            return new PathBetween(key);
+        }
+    }
+
+    public BoardState(JsonNode json) {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addKeyDeserializer(PathBetween.class, new PathBetweenDeserializer());
+        mapper.registerModule(simpleModule);
+
+
+        try {
+            TypeReference<HashMap<TokenLocation, Collection<Path>>> pathsFromTownRef = new TypeReference<>() {
+            };
+            this.pathsFromTown = mapper.readValue(json.get("pathsFromTown").toString(), pathsFromTownRef);
+
+
+            TypeReference<HashSet<Path>> pathsRef = new TypeReference<>() {
+            };
+            this.allPaths = mapper.readValue(json.get("allPaths").toString(), pathsRef);
+
+            TypeReference<HashMap<PathBetween, Collection<Path>>> pathsBetweenRef = new TypeReference<>() {
+            };
+            this.pathsBetween = mapper.readValue(json.get("pathsBetween").toString(), pathsBetweenRef);
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     public Map<TokenLocation, Collection<Path>> getPathsFromTown() {
@@ -54,7 +95,6 @@ public abstract class BoardState {
     protected void addPath(TokenLocation location1, TokenLocation location2, PathType pathType, Map<GoodType, Integer> goodsInventory) {
         addPath(new PathBetween(location1, location2), pathType, goodsInventory, 1);
     }
-
 
     protected void addPath(TokenLocation location1, TokenLocation location2, PathType pathType, Map<GoodType, Integer> goodsInventory, int goodCount) {
         addPath(new PathBetween(location1, location2), pathType, goodsInventory, goodCount);

@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.neodem.orleans.collections.RandomBag;
 
 /**
@@ -7,6 +8,16 @@ import com.neodem.orleans.collections.RandomBag;
  * Created on 12/31/19
  */
 public class FollowerBag extends RandomBag<Follower> {
+    public FollowerBag(JsonNode json) {
+        for (JsonNode node : json) {
+            Follower f = new Follower(node);
+            super.add(f);
+        }
+    }
+
+    public FollowerBag() {
+    }
+
     /**
      * take a specific folllower of the given type from the bag
      *

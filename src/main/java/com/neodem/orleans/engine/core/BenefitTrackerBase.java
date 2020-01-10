@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.neodem.orleans.engine.core.model.BenefitTrack;
 import com.neodem.orleans.engine.core.model.Follower;
 import com.neodem.orleans.engine.original.model.BenefitName;
@@ -11,6 +12,12 @@ import java.util.Map;
  * Created on 12/29/19
  */
 public abstract class BenefitTrackerBase implements BenefitTracker {
+
+    public BenefitTrackerBase() {
+    }
+
+    public BenefitTrackerBase(JsonNode json) {
+    }
 
     protected abstract Map<BenefitName, BenefitTrack> benefitTracks();
 

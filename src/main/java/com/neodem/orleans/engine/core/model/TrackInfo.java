@@ -9,6 +9,9 @@ public class TrackInfo {
     private Track track;
     private int location;
 
+    protected TrackInfo() {
+    }
+
     public TrackInfo(Track track, int location) {
         this.track = track;
         this.location = location;
@@ -24,5 +27,13 @@ public class TrackInfo {
 
     public int incLocation() {
         return ++location;
+    }
+
+    protected void setTrack(Track track) {
+        this.track = track;
+    }
+
+    protected void setLocation(int location) {
+        this.location = location;
     }
 }
