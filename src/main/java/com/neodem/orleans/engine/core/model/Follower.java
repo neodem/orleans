@@ -20,6 +20,10 @@ public class Follower {
         this.followerType = followerType;
     }
 
+    protected Follower() {
+
+    }
+
     public Follower(JsonNode json) {
         this.followerType = FollowerType.fromValue(json.get("followerType").textValue());
         JsonNode dba = json.get("dba");
@@ -70,10 +74,6 @@ public class Follower {
     @Override
     public String toString() {
         return followerType.name();
-    }
-
-    public FollowerType getType() {
-        return followerType;
     }
 
     public void addAlias(FollowerType followerType) {

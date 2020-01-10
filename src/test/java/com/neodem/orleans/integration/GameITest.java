@@ -3,7 +3,16 @@ package com.neodem.orleans.integration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neodem.orleans.engine.core.model.ActionType;
+import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerTrack;
+import com.neodem.orleans.engine.core.model.FollowerType;
+import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.core.model.HourGlassTile;
+import com.neodem.orleans.engine.core.model.Market;
+import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +27,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static com.neodem.orleans.engine.original.model.PlaceTile.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -49,8 +60,73 @@ public class GameITest {
 
     @Test
     public void initShouldSucceed() throws JsonProcessingException {
-        GameState state = send("/game/init", "playerNames", "Bob,Tony");
-        assertThat(state).isNotNull();
+        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        assertThat(gameState).isNotNull();
+        assertThat(gameState.getGameId()).isNotNull();
+        assertThat(gameState.getRound()).isEqualTo(0);
+        assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.Setup);
+
+        List<PlayerState> players = gameState.getPlayers();
+        assertThat(players).hasSize(2);
+        assertThat(players).extracting(p -> p.getPlayerId()).contains("Bob", "Tony");
+
+        Map<GoodType, Integer> goodsInventory = gameState.getGoodsInventory();
+        // 5 good types
+        assertThat(goodsInventory).hasSize(5);
+        int totalGoods = 0;
+        for (GoodType type : goodsInventory.keySet()) {
+            totalGoods += goodsInventory.get(type);
+        }
+        // reflects 90- stuff assigned to board
+        assertThat(totalGoods).isEqualTo(35);
+
+        assertThat(gameState.getPlaceTiles1()).hasSize(12);
+        assertThat(gameState.getPlaceTiles1()).contains(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop);
+
+        assertThat(gameState.getPlaceTiles2()).hasSize(8);
+        assertThat(gameState.getPlaceTiles2()).contains(GunpowderTower, Cellar, Office, School, Pharmacy, HorseWagon, ShippingLine, Laboratory);
+
+        assertThat(gameState.getUsedHourGlassTiles()).hasSize(0);
+        assertThat(gameState.getHourGlassStack()).hasSize(18);
+        assertThat(gameState.getHourGlassStack().get(0)).isEqualTo(HourGlassTile.Pilgrimage);
+    }
+
+    @Test
+    public void nextPhaseAfterInitShouldTakeToPlanning() throws JsonProcessingException {
+        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        String gameId = gameState.getGameId();
+        gameState = send("/game/" + gameId + "/nextPhase");
+        assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.Planning);
+    }
+
+    @Test
+    public void firstPlayerShouldBeAbleToPlanFarmHouseAfterInit() throws JsonProcessingException {
+        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        String gameId = gameState.getGameId();
+        gameState = send("/game/" + gameId + "/nextPhase");
+
+        int boatmanSlot = findSlotInMarket(gameState, "Bob", FollowerType.StarterBoatman);
+        int craftsmanSlot = findSlotInMarket(gameState, "Bob", FollowerType.StarterCraftsman);
+
+        send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + boatmanSlot, "actionSlot", "0");
+        gameState = send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + craftsmanSlot, "actionSlot", "1");
+
+        Map<ActionType, FollowerTrack> bobsplans = gameState.getPlayer("Bob").getPlans();
+        FollowerTrack track = bobsplans.get(ActionType.FarmHouse);
+
+        assertThat(track).isNotNull();
+        assertThat(track.getFilledSpotsCount()).isEqualTo(2);
+        assertThat(track.isReady(null)).isTrue();
+    }
+
+    private int findSlotInMarket(GameState gameState, String playerId, FollowerType type) {
+        PlayerState player = gameState.getPlayer(playerId);
+        Market market = player.getMarket();
+        Follower[] marketSlots = market.getMarket();
+        for (int i = 0; i < marketSlots.length - 1; i++) {
+            if (type == marketSlots[i].getFollowerType()) return i;
+        }
+        return -1;
     }
 
     private GameState send(String uri, String... params) throws JsonProcessingException {
@@ -60,11 +136,12 @@ public class GameITest {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
 
         if (params != null) {
-            for (int i = 0; i < params.length - 1; i++) {
+            for (int i = 0; i < params.length - 1; i = i + 2) {
                 builder.queryParam(params[i], params[i + 1]);
             }
         }
-        ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, requestEntity, String.class);
+        String urlString = builder.toUriString();
+        ResponseEntity<String> response = restTemplate.exchange(urlString, HttpMethod.GET, requestEntity, String.class);
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         String json = response.getBody();
         JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);

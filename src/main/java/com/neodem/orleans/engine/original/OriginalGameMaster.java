@@ -82,21 +82,12 @@ public class OriginalGameMaster implements GameMaster {
             switch (gamePhase) {
                 case Setup:
                 case StartPlayer:
-                    if (doStartPlayerPhase(gameState)) {
-                        gameState.setGamePhase(GamePhase.HourGlass);
-                    } else {
-                        gameState.setGamePhase(GamePhase.Scoring);
-                    }
-                    break;
-                case HourGlass:
+                    doStartPlayerPhase(gameState);
+                    gameState.setGamePhase(GamePhase.HourGlass);
                     doHourGlassPhase(gameState);
                     gameState.setGamePhase(GamePhase.Census);
-                    break;
-                case Census:
                     doCensusPhase(gameState);
                     gameState.setGamePhase(GamePhase.Followers);
-                    break;
-                case Followers:
                     if (doFollowersPhase(gameState)) {
                         gameState.setGamePhase(GamePhase.Planning);
                         // reset the phase complete flags
@@ -133,36 +124,22 @@ public class OriginalGameMaster implements GameMaster {
      * @param gameState
      * @return false if we should not proceed
      */
-    private boolean doStartPlayerPhase(OriginalGameState gameState) {
+    private OriginalGameState doStartPlayerPhase(OriginalGameState gameState) {
         gameState.advancePlayer();
-
         int round = gameState.getRound();
-        if (round == 18) { // we are done
-            gameState.writeLine("We are at the end of the game!");
-            return false;
-        } else {
-            gameState.setRound(++round);
-        }
-
-        for (PlayerState playerState : gameState.getPlayers()) {
-            playerState.setPhaseComplete(false);
-        }
-
-        return true;
+        gameState.setRound(++round);
+        return gameState;
     }
 
-    private void doHourGlassPhase(OriginalGameState gameState) {
+    private OriginalGameState doHourGlassPhase(OriginalGameState gameState) {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
         gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
         gameState.getHourGlassStack().remove(0);
-
-        for (PlayerState playerState : gameState.getPlayers()) {
-            playerState.setPhaseComplete(false);
-        }
+        return gameState;
     }
 
-    private void doCensusPhase(OriginalGameState gameState) {
+    private OriginalGameState doCensusPhase(OriginalGameState gameState) {
         String most = gameState.mostFarmers();
         if (most != null) {
             gameState.getPlayer(most).addCoin();
@@ -182,10 +159,7 @@ public class OriginalGameMaster implements GameMaster {
                 //TODO torture
             }
         }
-
-        for (PlayerState playerState : gameState.getPlayers()) {
-            playerState.setPhaseComplete(false);
-        }
+        return gameState;
     }
 
     private boolean doFollowersPhase(OriginalGameState gameState) {
@@ -225,7 +199,7 @@ public class OriginalGameMaster implements GameMaster {
                                     bathhouseCompleted = true;
                                 } else {
                                     gameState.writeLine("" + playerState.getPlayerId() + " has to choose which follower to assign from:" + choice1 + " and " + choice2);
-                                    playerState.setBathhouseChoices(Sets.newHashSet(choice1.getType(), choice2.getType()));
+                                    playerState.setBathhouseChoices(Sets.newHashSet(choice1.getFollowerType(), choice2.getFollowerType()));
                                 }
                             }
                         }
@@ -306,7 +280,7 @@ public class OriginalGameMaster implements GameMaster {
     private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
         // TODO deal with an empty bag
         Follower take = playerState.getBag().take();
-        Util.mapInc(gameState.getFollowerInventory(), take.getType());
+        Util.mapInc(gameState.getFollowerInventory(), take.getFollowerType());
         gameState.writeLine("player " + playerState.getPlayerId() + " lost " + take + " due to the Plague  ");
     };
 

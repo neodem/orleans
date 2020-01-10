@@ -24,14 +24,14 @@ public abstract class BenefitTrackerBase implements BenefitTracker {
     @Override
     public boolean canAddToBenefit(BenefitName benefitName, Follower follower) {
         BenefitTrack benefitTrack = benefitTracks().get(benefitName);
-        int index = benefitTrack.getNextIndexForFollowerType(follower.getType());
+        int index = benefitTrack.getNextIndexForFollowerType(follower.getFollowerType());
         return index != -1;
     }
 
     @Override
     public boolean addToBenefit(BenefitName benefitName, Follower follower) {
         BenefitTrack benefitTrack = benefitTracks().get(benefitName);
-        int index = benefitTrack.getNextIndexForFollowerType(follower.getType());
+        int index = benefitTrack.getNextIndexForFollowerType(follower.getFollowerType());
 
         return benefitTracks().get(benefitName).add(follower, index);
     }

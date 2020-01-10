@@ -30,9 +30,7 @@ public class GameController {
     @RequestMapping("/game/init")
     public GameState gameInit(@RequestParam(value = "playerNames") List<String> names) {
         UUID uuid = UUID.randomUUID();
-//        String gameId = uuid.toString();
-
-        String gameId = "test";
+        String gameId = uuid.toString();
 
         GameState gameState = gameMaster.makeGame(gameId, names, GameVersion.Original);
         return gameState;

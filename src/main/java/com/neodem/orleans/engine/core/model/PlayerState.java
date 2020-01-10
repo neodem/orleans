@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +68,15 @@ public abstract class PlayerState {
     private Loggable log;
     private ActionHelper actionHelper;
 
+    public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
+        Assert.notNull(playerId, "playerId may not be null");
+        Assert.notNull(playerColor, "playerColor may not be null");
+        this.playerId = playerId;
+        this.playerColor = playerColor;
+        this.actionHelper = actionHelper;
+        initState();
+    }
+
     protected PlayerState(JsonNode json) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -76,9 +86,7 @@ public abstract class PlayerState {
             this.phaseComplete = json.get("phaseComplete").booleanValue();
             this.bag = new FollowerBag(json.get("bag"));
 
-            TypeReference<HashMap<ActionType, FollowerTrack>> plansRef = new TypeReference<>() {
-            };
-            this.plans = mapper.readValue(json.get("plans").toString(), plansRef);
+            this.plans = jsonUnmarshalPlans(json.get("plans").toString(), mapper);
 
             this.merchantLocation = TokenLocation.fromValue(json.get("merchantLocation").textValue());
             this.coinCount = json.get("coinCount").intValue();
@@ -112,15 +120,6 @@ public abstract class PlayerState {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
-    }
-
-    public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
-        Assert.notNull(playerId, "playerId may not be null");
-        Assert.notNull(playerColor, "playerColor may not be null");
-        this.playerId = playerId;
-        this.playerColor = playerColor;
-        this.actionHelper = actionHelper;
-        initState();
     }
 
     protected abstract void initState();
@@ -379,7 +378,7 @@ public abstract class PlayerState {
             plans.put(actionType, followerTrack);
         }
 
-        if (followerToken.getType() == FollowerType.Scholar && techTileMap.containsKey(ActionType.School)) {
+        if (followerToken.getFollowerType() == FollowerType.Scholar && techTileMap.containsKey(ActionType.School)) {
             followerToken.addAlias(FollowerType.Craftsman);
             followerToken.addAlias(FollowerType.Trader);
             followerToken.addAlias(FollowerType.Farmer);
@@ -387,7 +386,7 @@ public abstract class PlayerState {
             followerToken.addAlias(FollowerType.Knight);
         }
 
-        if (followerToken.getType() == FollowerType.Boatman && techTileMap.containsKey(ActionType.HerbGarden)) {
+        if (followerToken.getFollowerType() == FollowerType.Boatman && techTileMap.containsKey(ActionType.HerbGarden)) {
             followerToken.addAlias(FollowerType.Craftsman);
             followerToken.addAlias(FollowerType.Trader);
             followerToken.addAlias(FollowerType.Farmer);
@@ -480,5 +479,11 @@ public abstract class PlayerState {
 
     protected void setActionHelper(ActionHelper actionHelper) {
         this.actionHelper = actionHelper;
+    }
+
+    protected Map<ActionType, FollowerTrack> jsonUnmarshalPlans(String json, ObjectMapper mapper) throws JsonProcessingException {
+        TypeReference<HashMap<ActionType, FollowerTrack>> plansRef = new TypeReference<>() {
+        };
+        return mapper.readValue(json, plansRef);
     }
 }

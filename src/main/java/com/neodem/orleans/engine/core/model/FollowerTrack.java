@@ -124,7 +124,7 @@ public class FollowerTrack {
             if (techSlot != null && techSlot == i) continue;
             Slot s = track[i];
             if (s.followerInSlot == null) return false;
-            if (!(s.followerInSlot.getType() == s.expectedType || s.followerInSlot.canSubFor(s.expectedType))) {
+            if (!(s.followerInSlot.getFollowerType() == s.expectedType || s.followerInSlot.canSubFor(s.expectedType))) {
                 ready = false;
                 break;
             }
@@ -151,7 +151,7 @@ public class FollowerTrack {
 
         Slot slot = track[position];
         if (slot.followerInSlot == null) {
-            return follower.getType() == slot.expectedType || follower.canSubFor(slot.expectedType);
+            return follower.getFollowerType() == slot.expectedType || follower.canSubFor(slot.expectedType);
         }
 
         return false;

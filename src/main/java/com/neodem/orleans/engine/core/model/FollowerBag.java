@@ -28,7 +28,7 @@ public class FollowerBag extends RandomBag<Follower> {
 
         int found = -1;
         for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).getType() == followerType) {
+            if (data.get(i).getFollowerType() == followerType) {
                 found = i;
                 break;
             }
