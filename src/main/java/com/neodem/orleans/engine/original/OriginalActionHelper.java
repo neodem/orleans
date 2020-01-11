@@ -54,7 +54,11 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
         actionMappings.put(University, new FollowerTrack(Farmer, Craftsman, Trader));
         actionMappings.put(Castle, new FollowerTrack(Farmer, Boatman, Trader));
         actionMappings.put(Scriptorium, new FollowerTrack(Knight, Scholar));
-        actionMappings.put(TownHall, new FollowerTrack(Farmer, Scholar, Knight, Trader, Craftsman, Boatman));
+
+        FollowerTrack townHallTrack = new FollowerTrack(Any, Any);
+        townHallTrack.setReadyWhenNotFull(true);
+        actionMappings.put(TownHall, townHallTrack);
+
         actionMappings.put(Monastery, new FollowerTrack(Scholar, Trader));
         actionMappings.put(Ship, new FollowerTrack(Farmer, Boatman, Knight));
         actionMappings.put(Wagon, new FollowerTrack(Farmer, Trader, Knight));
@@ -132,40 +136,4 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
     public void processAction(ActionType actionType, GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         super.processAction(actionType, gameState, player, additionalDataMap);
     }
-
-//    @Override
-//    public boolean actionCanAccept(ActionType actionType, List<FollowerType> followerTypes) {
-//        Assert.notNull(actionType, "actionType may not be null");
-//        Assert.notNull(followerTypes, "followers may not be null");
-//
-//        if (actionType == Pharmacy || actionType == GunpowderTower) {
-//            return followerTypes != null && !followerTypes.isEmpty();
-//        }
-//
-//        if (actionType == TownHall || actionType == GunpowderTower) {
-//            for (FollowerType followerType : followerTypes) {
-//                if (followerType == StarterBoatman || followerType == StarterCraftsman || followerType == StarterFarmer || followerType == StarterTrader)
-//                    return false;
-//            }
-//            return true;
-//        }
-//
-//        return super.actionCanAccept(actionType, followerTypes);
-//    }
-
-//    @Override
-//    public boolean canPlaceIntoAction(ActionType actionType, List<Follower> followersToPlace, List<Follower> placedInActionAlready) {
-//        if (placedInActionAlready == null || placedInActionAlready.isEmpty() && actionCanAccept(actionType, followersToPlace))
-//            return true;
-//
-//        if (actionType == Pharmacy) {
-//            return (placedInActionAlready == null || placedInActionAlready.isEmpty()) && (followersToPlace != null && !followersToPlace.isEmpty());
-//        }
-//
-//        if (actionType == GunpowderTower) {
-//            return (placedInActionAlready == null || placedInActionAlready.size() < 2) && (followersToPlace != null && !followersToPlace.isEmpty());
-//        }
-//
-//        return super.canPlaceIntoAction(actionType, followersToPlace, placedInActionAlready);
-//    }
 }

@@ -47,6 +47,9 @@ public class FollowerTrack {
     private int filledSpotsCount;
     private boolean full;
 
+    // set to true if the action is ready with at least one follower
+    private boolean readyWhenNotFull = false;
+
     protected FollowerTrack() {
     }
 
@@ -78,6 +81,7 @@ public class FollowerTrack {
         for (int i = 0; i < maxSize; i++) {
             track[i] = new Slot(templateTrack[i]);
         }
+        readyWhenNotFull = template.readyWhenNotFull;
     }
 
     /**
@@ -117,7 +121,7 @@ public class FollowerTrack {
     }
 
     /**
-     * return true if all of the needed types are filled with Followers that can satify them
+     * return true if all of the needed types are filled with Followers that can satisfy them
      * optionally add one techSlot to override
      *
      * @param techSlot may be null
@@ -125,15 +129,32 @@ public class FollowerTrack {
      */
     public boolean isReady(Integer techSlot) {
         boolean ready = true;
+        boolean atLeastOneFilled = false;
         for (int i = 0; i < track.length; i++) {
-            if (techSlot != null && techSlot == i) continue;
+            if (techSlot != null && techSlot == i) {
+                atLeastOneFilled = true;
+                continue;
+            }
+            // get the slot
             Slot s = track[i];
-            if (s.followerInSlot == null) return false;
+
+            // if it's empty we are not ready
+            if (s.followerInSlot == null) {
+                ready = false;
+                continue;
+            } else {
+                atLeastOneFilled = true;
+            }
+
+            // if we have something in the slot but it's not the right type we are not ready
             if (!(s.followerInSlot.getFollowerType() == s.expectedType || s.followerInSlot.canSubFor(s.expectedType))) {
                 ready = false;
                 break;
             }
         }
+
+        if (!ready && readyWhenNotFull && atLeastOneFilled) return true;
+
         return ready;
     }
 
@@ -207,5 +228,13 @@ public class FollowerTrack {
 
     protected void setFull(boolean full) {
         this.full = full;
+    }
+
+    public boolean isReadyWhenNotFull() {
+        return readyWhenNotFull;
+    }
+
+    public void setReadyWhenNotFull(boolean readyWhenNotFull) {
+        this.readyWhenNotFull = readyWhenNotFull;
     }
 }

@@ -406,11 +406,12 @@ public class OriginalGameMaster implements GameMaster {
                             if (followerTrack.isReady(techSlot)) {
 
                                 if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
-                                    // send back to bag and remove plan
-                                    player.unPlan(actionType);
 
                                     // do action
                                     actionHelper.processAction(actionType, gameState, player, additionalDataMap);
+
+                                    // send back to bag and remove plan
+                                    player.unPlan(actionType);
 
                                     // move to the next unpassed player
                                     gameState.advanceActionPlayer();

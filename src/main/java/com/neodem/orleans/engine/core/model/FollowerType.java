@@ -18,6 +18,7 @@ public enum FollowerType {
     Scholar,
     Knight,
     Monk,
+    Any,
     None;
 
     @JsonCreator

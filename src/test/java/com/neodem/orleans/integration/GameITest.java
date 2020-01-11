@@ -264,7 +264,7 @@ public class GameITest {
     }
 
     @Test
-    public void villageAndUniversityShouldWork() throws JsonProcessingException {
+    public void villageUniversityMonasaryAndTownHallShouldWork() throws JsonProcessingException {
         GameState gameState = send("/game/init", "playerNames", P1 + "," + P2);
         String gameId = gameState.getGameId();
         send("/game/" + gameId + "/startGame");
@@ -301,6 +301,32 @@ public class GameITest {
         assertThat(gameState.getPlayer(P2).getTrackValue(Track.Development)).isEqualTo(1);
         assertThat(gameState.getPlayer(P2).getBag()).contains(new Follower(FollowerType.Scholar), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterTrader));
 
+        sendForPlayer(gameId, P1, "pass");
+        sendForPlayer(gameId, P2, "pass");
+
+        // plan phase 2
+        gameState = getGameState(gameId);
+
+        sendForPlayer(gameId, P2, "plan", "action", "Monastery", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.Scholar), "actionSlot", "0");
+        sendForPlayer(gameId, P2, "plan", "action", "Monastery", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "1");
+        sendForPlayer(gameId, P2, "planSet");
+
+        sendForPlayer(gameId, P1, "plan", "action", "TownHall", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.Trader), "actionSlot", "0");
+        sendForPlayer(gameId, P1, "planSet");
+
+        // do Monastery
+        sendForPlayer(gameId, P2, "action", "action", "Monastery");
+
+        gameState = getGameState(gameId);
+        assertThat(gameState.getPlayer(P2).getBag()).contains(new Follower(FollowerType.Monk));
+
+        // do town hall
+        assertThat(gameState.getPlayer(P1).getTrackValue(Track.Development)).isEqualTo(0);
+
+        sendForPlayer(gameId, P1, "action", "action", "TownHall", "benefit1", "Canalisation", "takeDevPoint", "true");
+
+        gameState = getGameState(gameId);
+        assertThat(gameState.getPlayer(P1).getTrackValue(Track.Development)).isEqualTo(1);
     }
 
     // helpers
