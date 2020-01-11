@@ -2,6 +2,8 @@ package com.neodem.orleans.engine.core.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Arrays;
+
 /**
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/30/19
@@ -34,6 +36,13 @@ public class Market {
             this.market[i] = new Follower(follower);
             i++;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Market{" +
+                "market=" + Arrays.toString(market) +
+                '}';
     }
 
     public void init(int marketSize) {

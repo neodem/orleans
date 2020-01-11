@@ -18,12 +18,19 @@ public class GuildHallProcessor extends ActionProcessorBase {
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
         TokenLocation merchantLocation = player.getMerchantLocation();
+        Collection<String> names = gameState.getTradingStationOwners(merchantLocation);
 
-        if(merchantLocation != TokenLocation.Orleans) {
-            Collection<String> names = gameState.getTradingStationOwners(merchantLocation);
+        // if there are names associatged with this location we should check further
+        if (names != null) {
+            // if we are in Orleans we need to be sure we don't have a TH there.
+            if (merchantLocation == TokenLocation.Orleans) {
+                return !names.contains(player.getPlayerId());
+            }
+
+            // otherwise we check to see if nobody is at the location
             return names.isEmpty();
-
         }
+
         return true;
     }
 

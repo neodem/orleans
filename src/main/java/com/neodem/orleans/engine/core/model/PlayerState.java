@@ -254,7 +254,7 @@ public abstract class PlayerState {
     }
 
     public void addTradingHallToCurrentLocation() {
-        if (tradingStationLocations.size() == tradingStationMax()) {
+        if (tradingStationLocations.size() != tradingStationMax()) {
             tradingStationLocations.add(merchantLocation);
         } else {
             throw new IllegalStateException("Out of trading stations");
