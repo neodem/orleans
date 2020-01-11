@@ -5,11 +5,12 @@ a REST engine to play the game orleans
 1) init Game:
 `GET /game/init?playerNames=Bob,Tony,Jane`
 
-2) Iterate through phases:
-`GET /game/test/nextPhase`
+2) Start game:
+`GET /game/test/startGame`
 
 3) For Planning Phase, Submit Plans:
 `GET /game/test/Bob/plan?action=FarmHouse&followerTypes=StarterBoatman,StarterCraftsman`
+`GET /game/test/Bob/planSet`
 
 4) For Action Phase, Sumit Actions
 4a) Simple actions: `GET /game/{gameId}/{playerId}/action?action=FarmHouse`
@@ -23,7 +24,10 @@ a REST engine to play the game orleans
 `GET /game/{gameId}/{playerId}/action?action=Pharmacy&times=3`
 `GET /game/{gameId}/{playerId}/action?action=TownHall&benefit1=DefeatPlague&benefit2=PapalConclave`
 
+`GET /game/test/Bob/action/pass`
 
 Notes
 =====
 User facing indexes are 0 based
+
+see GameITest for a good idea of how the API works.. 
