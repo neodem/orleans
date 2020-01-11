@@ -75,71 +75,125 @@ public class OriginalGameMaster implements GameMaster {
     }
 
     @Override
-    public GameState nextPhase(String gameId) {
+    public GameState startGame(String gameId) {
+        return advance(gameId);
+    }
+
+    /**
+     * advance the game until we get to a point where a player decision needs to be made
+     *
+     * @param gameId
+     * @return
+     */
+    protected GameState advance(String gameId) {
         OriginalGameState gameState = storedGames.get(gameId);
         if (gameState != null) {
-            GamePhase gamePhase = gameState.getGamePhase();
-            switch (gamePhase) {
-                case Setup:
-                case StartPlayer:
-                    doStartPlayerPhase(gameState);
-                    gameState.setGamePhase(GamePhase.HourGlass);
-                    doHourGlassPhase(gameState);
-                    gameState.setGamePhase(GamePhase.Census);
-                    doCensusPhase(gameState);
-                    gameState.setGamePhase(GamePhase.Followers);
-                    if (doFollowersPhase(gameState)) {
-                        gameState.setGamePhase(GamePhase.Planning);
-                        // reset the phase complete flags
-                        for (PlayerState playerState : gameState.getPlayers()) {
-                            playerState.setPhaseComplete(false);
-                        }
-                    }
-                    break;
-                case Planning:
-                    if (doPlanningPhase(gameState)) {
-                        gameState.setGamePhase(GamePhase.Actions);
-                        // reset the phase complete flags
-                        for (PlayerState playerState : gameState.getPlayers()) {
-                            playerState.setPhaseComplete(false);
-                        }
-                    }
-                    break;
-                case Actions:
-                    if (doActionPhase(gameState)) gameState.setGamePhase(GamePhase.Event);
-                    break;
-                case Event:
-                    doEventPhase(gameState);
-                    gameState.setGamePhase(GamePhase.StartPlayer);
-                case Scoring:
-                    //TODO
-            }
-        } else {
-            throw new IllegalArgumentException("No game exists for gameId=" + gameId);
+            boolean moveToNextPhase;
+            do {
+                moveToNextPhase = nextPhase(gameState);
+            } while (moveToNextPhase);
         }
         return gameState;
     }
 
     /**
      * @param gameState
-     * @return false if we should not proceed
+     * @return true if we should move to the next phase
      */
-    private OriginalGameState doStartPlayerPhase(OriginalGameState gameState) {
-        gameState.advancePlayer();
-        int round = gameState.getRound();
-        gameState.setRound(++round);
-        return gameState;
+    protected boolean nextPhase(OriginalGameState gameState) {
+        GamePhase gamePhase = gameState.getGamePhase();
+        boolean phaseComplete = true;
+        switch (gamePhase) {
+            case Setup:
+            case StartPlayer:
+                phaseComplete = doStartPlayerPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.HourGlass);
+                    resetPhaseCompleteFlags(gameState);
+                }
+                break;
+            case HourGlass:
+                phaseComplete = doHourGlassPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Census);
+                    resetPhaseCompleteFlags(gameState);
+                }
+            case Census:
+                phaseComplete = doCensusPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Followers);
+                    resetPhaseCompleteFlags(gameState);
+                }
+            case Followers:
+                phaseComplete = doFollowersPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Planning);
+                    resetPhaseCompleteFlags(gameState);
+                }
+                break;
+            case Planning:
+                phaseComplete = doPlanningPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Actions);
+                    resetPhaseCompleteFlags(gameState);
+                }
+                break;
+            case Actions:
+                phaseComplete = doActionPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Event);
+                    resetPhaseCompleteFlags(gameState);
+                }
+                break;
+            case Event:
+                phaseComplete = doEventPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.StartPlayer);
+                    resetPhaseCompleteFlags(gameState);
+                }
+                break;
+            case Scoring:
+                phaseComplete = doScoringPhase(gameState);
+                if (phaseComplete) {
+                    gameState.setGamePhase(GamePhase.Over);
+                }
+                break;
+        }
+        return phaseComplete;
     }
 
-    private OriginalGameState doHourGlassPhase(OriginalGameState gameState) {
+    private boolean doScoringPhase(OriginalGameState gameState) {
+        return true;
+    }
+
+    private void resetPhaseCompleteFlags(OriginalGameState gameState) {
+        // reset the phase complete flags
+        for (PlayerState playerState : gameState.getPlayers()) {
+            playerState.setPhaseComplete(false);
+        }
+    }
+
+    /**
+     * @param gameState
+     * @return false if we should not proceed
+     */
+    private boolean doStartPlayerPhase(OriginalGameState gameState) {
+        gameState.advancePlayer();
+        gameState.syncActionPlayer();
+        int round = gameState.getRound();
+        gameState.setRound(++round);
+        return true;
+    }
+
+    private boolean doHourGlassPhase(OriginalGameState gameState) {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         if (currentHourGlass != null) gameState.getUsedHourGlassTiles().add(currentHourGlass);
         gameState.setCurrentHourGlass(gameState.getHourGlassStack().get(0));
         gameState.getHourGlassStack().remove(0);
-        return gameState;
+        return true;
     }
 
-    private OriginalGameState doCensusPhase(OriginalGameState gameState) {
+    private boolean doCensusPhase(OriginalGameState gameState) {
         String most = gameState.mostFarmers();
         if (most != null) {
             gameState.getPlayer(most).addCoin();
@@ -159,7 +213,7 @@ public class OriginalGameMaster implements GameMaster {
                 //TODO torture
             }
         }
-        return gameState;
+        return true;
     }
 
     private boolean doFollowersPhase(OriginalGameState gameState) {
@@ -243,7 +297,7 @@ public class OriginalGameMaster implements GameMaster {
         return !actionNeeded;
     }
 
-    private void doEventPhase(OriginalGameState gameState) {
+    private boolean doEventPhase(OriginalGameState gameState) {
         HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
         switch (currentHourGlass) {
             case Plague:
@@ -262,6 +316,8 @@ public class OriginalGameMaster implements GameMaster {
                 handleEvent(gameState, handleHarvestEvent);
                 break;
         }
+
+        return true;
     }
 
     private void handleEvent(GameState gameState, BiConsumer<GameState, PlayerState> eventHandler) {
@@ -275,7 +331,6 @@ public class OriginalGameMaster implements GameMaster {
             }
         }
     }
-
 
     private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
         // TODO deal with an empty bag
@@ -384,7 +439,6 @@ public class OriginalGameMaster implements GameMaster {
     }
 
 
-
     @Override
     public GameState addToPlan(String gameId, String playerId, ActionType actionType, int marketSlot, int actionSlot) {
 
@@ -449,6 +503,11 @@ public class OriginalGameMaster implements GameMaster {
         } else {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
+
+        if (gameState.isPhaseComplete()) {
+            gameState = advance(gameId);
+        }
+
         return gameState;
     }
 
@@ -469,6 +528,11 @@ public class OriginalGameMaster implements GameMaster {
         } else {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
+
+        if (gameState.isPhaseComplete()) {
+            gameState = advance(gameId);
+        }
+
         return gameState;
     }
 

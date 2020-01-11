@@ -198,11 +198,6 @@ public abstract class GameState implements Loggable {
         return players.get(startPlayer).getPlayerId();
     }
 
-    public void advancePlayer() {
-        startPlayer++;
-        if (startPlayer == players.size()) startPlayer = 0;
-        writeLine("Start Player set to: " + getStartPlayer());
-    }
 
     public int getPlayerCount() {
         return playerCount;
@@ -347,6 +342,16 @@ public abstract class GameState implements Loggable {
         return players.get(currentActionPlayerIndex).getPlayerId();
     }
 
+    public void advancePlayer() {
+        startPlayer++;
+        if (startPlayer == players.size()) startPlayer = 0;
+        writeLine("Start Player set to: " + getStartPlayer());
+    }
+
+    public void syncActionPlayer() {
+        this.currentActionPlayerIndex = startPlayer;
+    }
+
     public void advanceActionPlayer() {
         int count = 1;
         do {
@@ -367,5 +372,13 @@ public abstract class GameState implements Loggable {
     public Collection<String> getTradingStationOwners(TokenLocation location) {
         Map<TokenLocation, Collection<String>> allTradingStations = getAllTradingStations();
         return allTradingStations.get(location);
+    }
+
+    public boolean isPhaseComplete() {
+        boolean complete = true;
+        for (PlayerState playerState : players) {
+            complete = complete && playerState.isPhaseComplete();
+        }
+        return complete;
     }
 }

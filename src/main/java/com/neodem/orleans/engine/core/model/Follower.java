@@ -33,9 +33,34 @@ public class Follower {
         }
     }
 
-    public static Follower makeStarter(FollowerType type, FollowerType subType) {
+    /**
+     * make a starter Follower with correct alias
+     *
+     * @param type
+     * @return
+     */
+    public static Follower makeStarter(FollowerType type) {
+        FollowerType alias;
+        switch (type) {
+            case StarterBoatman:
+                alias = FollowerType.Boatman;
+                break;
+            case StarterCraftsman:
+                alias = FollowerType.Craftsman;
+                break;
+            case StarterTrader:
+                alias = FollowerType.Trader;
+                break;
+            case StarterFarmer:
+                alias = FollowerType.Farmer;
+                break;
+            default:
+                throw new IllegalArgumentException("this type " + type + " is not a starter type");
+
+        }
+
         Follower f = new Follower(type);
-        f.addAlias(subType);
+        f.addAlias(alias);
         return f;
     }
 

@@ -39,10 +39,10 @@ public class OriginalPlayerState extends PlayerState {
 
         market.init(MARKET_SIZE);
 
-        addToBag(Follower.makeStarter(FollowerType.StarterBoatman, FollowerType.Boatman));
-        addToBag(Follower.makeStarter(FollowerType.StarterCraftsman, FollowerType.Craftsman));
-        addToBag(Follower.makeStarter(FollowerType.StarterFarmer, FollowerType.Farmer));
-        addToBag(Follower.makeStarter(FollowerType.StarterTrader, FollowerType.Trader));
+        addToBag(Follower.makeStarter(FollowerType.StarterBoatman));
+        addToBag(Follower.makeStarter(FollowerType.StarterCraftsman));
+        addToBag(Follower.makeStarter(FollowerType.StarterFarmer));
+        addToBag(Follower.makeStarter(FollowerType.StarterTrader));
 
         goodCounts.put(GoodType.Grain, 0);
         goodCounts.put(GoodType.Cheese, 0);

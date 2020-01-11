@@ -35,9 +35,9 @@ public class GameController {
         return gameState;
     }
 
-    @RequestMapping("/game/{gameId}/nextPhase")
-    public GameState nextPhase(@PathVariable(value = "gameId") String gameId) {
-        GameState gameState = gameMaster.nextPhase(gameId);
+    @RequestMapping("/game/{gameId}/startGame")
+    public GameState startGame(@PathVariable(value = "gameId") String gameId) {
+        GameState gameState = gameMaster.startGame(gameId);
         return gameState;
     }
 

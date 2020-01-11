@@ -8,10 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class Market {
 
-    public boolean isSlotFilled(int slot) {
-        return market[slot] != EMPTY;
-    }
-
     private static class EmptyNode extends Follower {
         public EmptyNode() {
             super(FollowerType.None);
@@ -31,7 +27,7 @@ public class Market {
     public Market(JsonNode json) {
         this.marketSize = json.get("marketSize").intValue();
         this.availableSlots = json.get("availableSlots").intValue();
-        init(this.marketSize);
+        this.market = new Follower[marketSize];
         JsonNode market = json.get("market");
         int i = 0;
         for (JsonNode follower : market) {
@@ -64,6 +60,10 @@ public class Market {
         return availableSlots > 0;
     }
 
+    public int getFilledSlotCount() {
+        return marketSize - availableSlots;
+    }
+
     /**
      * add follower to the left most slot
      *
@@ -84,6 +84,26 @@ public class Market {
         } else {
             return -1;
         }
+    }
+
+    /**
+     * return the index of the first follower of the given type or null if none found
+     *
+     * @param followerType
+     * @return
+     */
+    public Integer getSlotIndexForFirst(FollowerType followerType) {
+        int i = 0;
+        for (; i < marketSize; i++) {
+            if (market[i] != EMPTY) {
+                if (market[i].getFollowerType() == followerType) return i;
+            }
+        }
+        return null;
+    }
+
+    public boolean isSlotFilled(int slot) {
+        return market[slot] != EMPTY;
     }
 
     public int getAvailableSlots() {

@@ -23,13 +23,8 @@ public interface GameMaster {
      */
     GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion);
 
-    /**
-     * move to the next phase
-     *
-     * @param gameId
-     * @return
-     */
-    GameState nextPhase(String gameId);
+
+    GameState startGame(String gameId);
 
     /**
      * indicate that you are all good with your planning and ready to move forward to the next phase

@@ -15,7 +15,7 @@ public enum GamePhase {
     Event,
     StartPlayer,
     Setup,
-    Scoring, Complete;
+    Scoring, Complete, Over;
 
     @JsonCreator
     public static GamePhase fromValue(String v) {

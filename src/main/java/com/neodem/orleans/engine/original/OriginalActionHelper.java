@@ -50,7 +50,7 @@ public class OriginalActionHelper extends ActionHelperBase implements ActionHelp
 
     public OriginalActionHelper() {
         actionMappings.put(FarmHouse, new FollowerTrack(Boatman, Craftsman));
-        actionMappings.put(Village, new FollowerTrack(Boatman, Craftsman, Farmer));
+        actionMappings.put(Village, new FollowerTrack(Farmer, Boatman, Craftsman));
         actionMappings.put(University, new FollowerTrack(Farmer, Craftsman, Trader));
         actionMappings.put(Castle, new FollowerTrack(Farmer, Boatman, Trader));
         actionMappings.put(Scriptorium, new FollowerTrack(Knight, Scholar));
