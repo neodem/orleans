@@ -43,6 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GameITest {
 
+    public static final String PLAYER1 = "Amanda";
+    public static final String PLAYER2 = "Vincent";
+
     @LocalServerPort
     private int port;
 
@@ -61,7 +64,7 @@ public class GameITest {
 
     @Test
     public void initShouldSucceed() throws JsonProcessingException {
-        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        GameState gameState = send("/game/init", "playerNames", PLAYER1 + "," + PLAYER2);
 
         assertThat(gameState).isNotNull();
         assertThat(gameState.getGameId()).isNotNull();
@@ -70,13 +73,13 @@ public class GameITest {
 
         List<PlayerState> players = gameState.getPlayers();
         assertThat(players).hasSize(2);
-        assertThat(players).extracting(p -> p.getPlayerId()).contains("Bob", "Tony");
+        assertThat(players).extracting(p -> p.getPlayerId()).contains(PLAYER1, PLAYER2);
 
-        assertThat(gameState.getPlayer("Bob").getTrackValue(Track.Farmers)).isEqualTo(0);
-        assertThat(gameState.getPlayer("Tony").getTrackValue(Track.Farmers)).isEqualTo(0);
+        assertThat(gameState.getPlayer(PLAYER1).getTrackValue(Track.Farmers)).isEqualTo(0);
+        assertThat(gameState.getPlayer(PLAYER2).getTrackValue(Track.Farmers)).isEqualTo(0);
 
-        assertThat(gameState.getPlayer("Bob").getBag()).contains(new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterTrader));
-        assertThat(gameState.getPlayer("Tony").getBag()).contains(new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterTrader));
+        assertThat(gameState.getPlayer(PLAYER1).getBag()).contains(new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterTrader));
+        assertThat(gameState.getPlayer(PLAYER2).getBag()).contains(new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman), new Follower(FollowerType.StarterTrader));
 
         Map<GoodType, Integer> goodsInventory = gameState.getGoodsInventory();
         // 5 good types
@@ -101,34 +104,41 @@ public class GameITest {
 
     @Test
     public void nextPhaseAfterStartGameShouldBePlanning() throws JsonProcessingException {
-        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        GameState gameState = send("/game/init", "playerNames", PLAYER1 + "," + PLAYER2);
         String gameId = gameState.getGameId();
-        gameState = send("/game/" + gameId + "/startGame");
+        send("/game/" + gameId + "/startGame");
+
+        gameState = getGameState(gameId);
+
         assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.Planning);
 
-        assertThat(gameState.getStartPlayer()).isEqualTo("Bob");
-        assertThat(gameState.getCurrentActionPlayer()).isEqualTo("Bob");
+        assertThat(gameState.getStartPlayer()).isEqualTo(PLAYER1);
+        assertThat(gameState.getCurrentActionPlayer()).isEqualTo(PLAYER1);
 
-        assertThat(gameState.getPlayer("Bob").getBag()).isEmpty();
-        assertThat(gameState.getPlayer("Tony").getBag()).isEmpty();
+        assertThat(gameState.getPlayer(PLAYER1).getBag()).isEmpty();
+        assertThat(gameState.getPlayer(PLAYER2).getBag()).isEmpty();
 
-        assertThat(marketContains(gameState, "Bob", FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
-        assertThat(marketContains(gameState, "Tony", FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
+        assertThat(marketContains(gameState, PLAYER1, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
+        assertThat(marketContains(gameState, PLAYER2, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
     }
 
     @Test
     public void firstPlayerShouldBeAbleToPlanFarmHouseAfterStartGame() throws JsonProcessingException {
-        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        GameState gameState = send("/game/init", "playerNames", PLAYER1 + "," + PLAYER2);
         String gameId = gameState.getGameId();
-        gameState = send("/game/" + gameId + "/startGame");
+        send("/game/" + gameId + "/startGame");
 
-        int boatmanSlot = findSlotInMarket(gameState, "Bob", FollowerType.StarterBoatman);
-        int craftsmanSlot = findSlotInMarket(gameState, "Bob", FollowerType.StarterCraftsman);
+        gameState = getGameState(gameId);
 
-        send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + boatmanSlot, "actionSlot", "0");
-        gameState = send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + craftsmanSlot, "actionSlot", "1");
+        int boatmanSlot = findSlotInMarket(gameState, PLAYER1, FollowerType.StarterBoatman);
+        int craftsmanSlot = findSlotInMarket(gameState, PLAYER1, FollowerType.StarterCraftsman);
 
-        Map<ActionType, FollowerTrack> bobsplans = gameState.getPlayer("Bob").getPlans();
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "FarmHouse", "marketSlot", "" + boatmanSlot, "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "FarmHouse", "marketSlot", "" + craftsmanSlot, "actionSlot", "1");
+
+        gameState = getGameState(gameId);
+
+        Map<ActionType, FollowerTrack> bobsplans = gameState.getPlayer(PLAYER1).getPlans();
         FollowerTrack track = bobsplans.get(ActionType.FarmHouse);
 
         assertThat(track).isNotNull();
@@ -138,19 +148,23 @@ public class GameITest {
 
     @Test
     public void secondPlayerShouldBeAbleToPlanCastleAfterInit() throws JsonProcessingException {
-        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        GameState gameState = send("/game/init", "playerNames", PLAYER1 + "," + PLAYER2);
         String gameId = gameState.getGameId();
-        gameState = send("/game/" + gameId + "/startGame");
+        send("/game/" + gameId + "/startGame");
 
-        int boatmanSlot = findSlotInMarket(gameState, "Tony", FollowerType.StarterBoatman);
-        int traderSlot = findSlotInMarket(gameState, "Tony", FollowerType.StarterTrader);
-        int farmerSlot = findSlotInMarket(gameState, "Tony", FollowerType.StarterFarmer);
+        gameState = getGameState(gameId);
 
-        send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + farmerSlot, "actionSlot", "0");
-        send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + boatmanSlot, "actionSlot", "1");
-        gameState = send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + traderSlot, "actionSlot", "2");
+        int boatmanSlot = findSlotInMarket(gameState, PLAYER2, FollowerType.StarterBoatman);
+        int traderSlot = findSlotInMarket(gameState, PLAYER2, FollowerType.StarterTrader);
+        int farmerSlot = findSlotInMarket(gameState, PLAYER2, FollowerType.StarterFarmer);
 
-        Map<ActionType, FollowerTrack> plans = gameState.getPlayer("Tony").getPlans();
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + farmerSlot, "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + boatmanSlot, "actionSlot", "1");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + traderSlot, "actionSlot", "2");
+
+        gameState = getGameState(gameId);
+
+        Map<ActionType, FollowerTrack> plans = gameState.getPlayer(PLAYER2).getPlans();
         FollowerTrack track = plans.get(ActionType.Castle);
 
         assertThat(track).isNotNull();
@@ -160,64 +174,89 @@ public class GameITest {
 
     @Test
     public void aSampleGame() throws JsonProcessingException {
-        GameState gameState = send("/game/init", "playerNames", "Bob,Tony");
+        GameState gameState = send("/game/init", "playerNames", PLAYER1 + "," + PLAYER2);
         String gameId = gameState.getGameId();
-        gameState = send("/game/" + gameId + "/startGame");
-        send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, "Bob", FollowerType.StarterBoatman), "actionSlot", "0");
-        send("/game/" + gameId + "/Bob/plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, "Bob", FollowerType.StarterCraftsman), "actionSlot", "1");
-        send("/game/" + gameId + "/Bob/planSet");
-        send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterFarmer), "actionSlot", "0");
-        send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterBoatman), "actionSlot", "1");
-        send("/game/" + gameId + "/Tony/plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterTrader), "actionSlot", "2");
-        gameState = send("/game/" + gameId + "/Tony/planSet");
+        send("/game/" + gameId + "/startGame");
+        gameState = getGameState(gameId);
+
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, PLAYER1, FollowerType.StarterBoatman), "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, PLAYER1, FollowerType.StarterCraftsman), "actionSlot", "1");
+        sendForPlayer(gameId, PLAYER1, "planSet");
+
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterFarmer), "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterBoatman), "actionSlot", "1");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterTrader), "actionSlot", "2");
+        sendForPlayer(gameId, PLAYER2, "planSet");
+
+        gameState = getGameState(gameId);
 
         assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.Actions);
 
         // do bobs FarmHouse
-        assertThat(gameState.getPlayer("Bob").getTrackValue(Track.Farmers)).isEqualTo(0);
-        assertThat(gameState.getPlayer("Bob").getGoodCount(GoodType.Grain)).isEqualTo(0);
+        assertThat(gameState.getPlayer(PLAYER1).getTrackValue(Track.Farmers)).isEqualTo(0);
+        assertThat(gameState.getPlayer(PLAYER1).getGoodCount(GoodType.Grain)).isEqualTo(0);
 
-        gameState = send("/game/" + gameId + "/Bob/action", "action", "FarmHouse");
+        sendForPlayer(gameId, PLAYER1, "action", "action", "FarmHouse");
 
-        PlayerState bob = gameState.getPlayer("Bob");
-        assertThat(bob.getTrackValue(Track.Farmers)).isEqualTo(1);
-        assertThat(bob.getGoodCount(GoodType.Grain)).isEqualTo(1);
-        assertThat(gameState.getPlayer("Bob").getBag()).contains(new Follower(FollowerType.Farmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman));
+        gameState = getGameState(gameId);
+        assertThat(gameState.getPlayer(PLAYER1).getTrackValue(Track.Farmers)).isEqualTo(1);
+        assertThat(gameState.getPlayer(PLAYER1).getGoodCount(GoodType.Grain)).isEqualTo(1);
+        assertThat(gameState.getPlayer(PLAYER1).getBag()).contains(new Follower(FollowerType.Farmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman));
 
         // do tonys Castle
-        assertThat(gameState.getPlayer("Tony").getTrackValue(Track.Knights)).isEqualTo(0);
-        gameState = send("/game/" + gameId + "/Tony/action", "action", "Castle");
-        assertThat(gameState.getPlayer("Tony").getTrackValue(Track.Knights)).isEqualTo(1);
+        assertThat(gameState.getPlayer(PLAYER2).getTrackValue(Track.Knights)).isEqualTo(0);
 
-        assertThat(gameState.getPlayer("Tony").getBag()).contains(new Follower(FollowerType.Knight), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterTrader));
+        sendForPlayer(gameId, PLAYER2, "action", "action", "Castle");
 
-        send("/game/" + gameId + "/Bob/pass");
-        gameState = send("/game/" + gameId + "/Tony/pass");
+        gameState = getGameState(gameId);
+        assertThat(gameState.getPlayer(PLAYER2).getTrackValue(Track.Knights)).isEqualTo(1);
+        assertThat(gameState.getPlayer(PLAYER2).getBag()).contains(new Follower(FollowerType.Knight), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterTrader));
+
+        sendForPlayer(gameId, PLAYER1, "pass");
+        sendForPlayer(gameId, PLAYER2, "pass");
+
+        gameState = getGameState(gameId);
         assertThat(gameState.getGamePhase()).isEqualTo(GamePhase.Planning);
 
         // check market of each player.. should be filled properly!
-        assertThat(marketContains(gameState, "Bob", FollowerType.Farmer, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
-        assertThat(marketContains(gameState, "Tony", FollowerType.Knight, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
+        assertThat(marketContains(gameState, PLAYER1, FollowerType.Farmer, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
+        assertThat(marketContains(gameState, PLAYER2, FollowerType.Knight, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
 
-        assertThat(gameState.getStartPlayer()).isEqualTo("Tony");
+        assertThat(gameState.getStartPlayer()).isEqualTo(PLAYER2);
 
-        send("/game/" + gameId + "/Tony/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterFarmer), "actionSlot", "0");
-        send("/game/" + gameId + "/Tony/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterBoatman), "actionSlot", "1");
-        send("/game/" + gameId + "/Tony/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Tony", FollowerType.StarterCraftsman), "actionSlot", "2");
-        send("/game/" + gameId + "/Tony/planSet");
-        send("/game/" + gameId + "/Bob/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Bob", FollowerType.StarterFarmer), "actionSlot", "0");
-        send("/game/" + gameId + "/Bob/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Bob", FollowerType.StarterBoatman), "actionSlot", "1");
-        send("/game/" + gameId + "/Bob/plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, "Bob", FollowerType.StarterCraftsman), "actionSlot", "2");
-        gameState = send("/game/" + gameId + "/Bob/planSet");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterFarmer), "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterBoatman), "actionSlot", "1");
+        sendForPlayer(gameId, PLAYER2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER2, FollowerType.StarterCraftsman), "actionSlot", "2");
+        sendForPlayer(gameId, PLAYER2, "planSet");
 
-        // do tonys Village
-        assertThat(gameState.getPlayer("Tony").getTrackValue(Track.Boatmen)).isEqualTo(0);
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER1, FollowerType.StarterFarmer), "actionSlot", "0");
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER1, FollowerType.StarterBoatman), "actionSlot", "1");
+        sendForPlayer(gameId, PLAYER1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, PLAYER1, FollowerType.StarterCraftsman), "actionSlot", "2");
+        sendForPlayer(gameId, PLAYER1, "planSet");
 
-        gameState = send("/game/" + gameId + "/Tony/action", "action", "Village", "follower", "Boatman");
+        gameState = getGameState(gameId);
 
-        assertThat(gameState.getPlayer("Tony").getTrackValue(Track.Boatmen)).isEqualTo(1);
-        assertThat(gameState.getPlayer("Tony").getBag()).contains(new Follower(FollowerType.Knight), new Follower(FollowerType.Boatman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman));
+        // do tonys Village : boatman should add boatman, +2 coints and bump boat track to 1
+        assertThat(gameState.getPlayer(PLAYER2).getTrackValue(Track.Boatmen)).isEqualTo(0);
+        int coinCountTony = gameState.getPlayer(PLAYER2).getCoinCount();
 
+        sendForPlayer(gameId, PLAYER2, "action", "action", "Village", "follower", "Boatman");
+
+        gameState = getGameState(gameId);
+        assertThat(gameState.getPlayer(PLAYER2).getTrackValue(Track.Boatmen)).isEqualTo(1);
+        assertThat(gameState.getPlayer(PLAYER2).getBag()).contains(new Follower(FollowerType.Boatman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman));
+        assertThat(marketContains(gameState, PLAYER2, FollowerType.Knight, FollowerType.StarterTrader)).isTrue();
+        assertThat(gameState.getPlayer(PLAYER2).getCoinCount()).isEqualTo(coinCountTony + 2);
+
+//        // do bobs Village : Craftsman should add chraftsman and a tech tile
+//        assertThat(gameState.getPlayer(BOB).getTrackValue(Track.Craftsmen)).isEqualTo(0);
+//
+//        sendForPlayer(BOB, gameId, "action",  "action", "Village", "follower", "Craftsmen");
+//
+//        assertThat(gameState.getPlayer(BOB).getTrackValue(Track.Boatmen)).isEqualTo(1);
+//        assertThat(gameState.getPlayer(BOB).getBag()).contains(new Follower(FollowerType.Boatman), new Follower(FollowerType.StarterFarmer), new Follower(FollowerType.StarterBoatman), new Follower(FollowerType.StarterCraftsman));
+//        assertThat(marketContains(gameState, BOB, FollowerType.Knight, FollowerType.StarterTrader)).isTrue();
+//        assertThat(gameState.getPlayer(BOB).getCoinCount()).isEqualTo(coinCountTony + 2);
     }
 
     // helpers
@@ -232,7 +271,11 @@ public class GameITest {
         return -1;
     }
 
-    private GameState send(String uri, String... params) throws JsonProcessingException {
+    private GameState sendForPlayer(String gameId, String playerId, String command, String... params) {
+        return send("/game/" + gameId + "/" + playerId + "/" + command, params);
+    }
+
+    private GameState send(String uri, String... params) {
         String url = createURLWithPort(uri);
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 
@@ -247,9 +290,18 @@ public class GameITest {
         ResponseEntity<String> response = restTemplate.exchange(urlString, HttpMethod.GET, requestEntity, String.class);
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         String json = response.getBody();
-        JsonNode jsonNode = objectMapper.readValue(json, JsonNode.class);
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = objectMapper.readValue(json, JsonNode.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         return new OriginalGameState(jsonNode);
+    }
+
+    private GameState getGameState(String gameId) {
+        return send("/game/" + gameId + "/gameState");
     }
 
     private String createURLWithPort(String uri) {
