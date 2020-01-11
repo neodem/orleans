@@ -59,7 +59,8 @@ public abstract class ActionHelperBase implements ActionHelper {
 
     @Override
     public FollowerType getTypeForAction(ActionType actionType, int position) {
-        return null;
+        FollowerTrack followerTrack = actionMappings().get(actionType);
+        return followerTrack.getTypeForSlot(position);
     }
 
 }

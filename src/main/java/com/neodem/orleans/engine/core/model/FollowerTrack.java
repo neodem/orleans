@@ -91,6 +91,11 @@ public class FollowerTrack {
         return slot.followerInSlot;
     }
 
+    public FollowerType getTypeForSlot(int position) {
+        Slot slot = track[position];
+        return slot.expectedType;
+    }
+
     /**
      * will return a reference to the follower in the given position AND remove it from the track
      *
