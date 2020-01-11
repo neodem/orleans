@@ -383,25 +383,7 @@ public class OriginalGameMaster implements GameMaster {
         return gameState;
     }
 
-    @Override
-    public GameState pass(String gameId, String playerId) {
-        GameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            PlayerState player = gameState.getPlayer(playerId);
-            if (player != null) {
-                if (gameState.getGamePhase() == GamePhase.Actions) {
-                    player.setPhaseComplete(true);
-                } else {
-                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
-                }
-            } else {
-                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
-            }
-        } else {
-            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
-        }
-        return gameState;
-    }
+
 
     @Override
     public GameState addToPlan(String gameId, String playerId, ActionType actionType, int marketSlot, int actionSlot) {
@@ -461,6 +443,26 @@ public class OriginalGameMaster implements GameMaster {
             if (player != null) {
                 player.setPhaseComplete(true);
                 gameState.writeLine("player " + player.getPlayerId() + " has completed planning");
+            } else {
+                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+            }
+        } else {
+            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
+        }
+        return gameState;
+    }
+
+    @Override
+    public GameState pass(String gameId, String playerId) {
+        GameState gameState = storedGames.get(gameId);
+        if (gameState != null) {
+            PlayerState player = gameState.getPlayer(playerId);
+            if (player != null) {
+                if (gameState.getGamePhase() == GamePhase.Actions) {
+                    player.setPhaseComplete(true);
+                } else {
+                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
+                }
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }

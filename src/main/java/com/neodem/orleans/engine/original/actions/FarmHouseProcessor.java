@@ -2,6 +2,8 @@ package com.neodem.orleans.engine.original.actions;
 
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.Follower;
+import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerState;
@@ -17,8 +19,9 @@ public class FarmHouseProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int farmerIndex = player.getTrackValue(Track.Farmers);
+        if (gameState.getFollowerInventory().get(FollowerType.Farmer) == 0) return false;
 
+        int farmerIndex = player.getTrackValue(Track.Farmers);
         switch (farmerIndex) {
             case 0:
             case 1:
@@ -67,7 +70,10 @@ public class FarmHouseProcessor extends ActionProcessorBase {
                 gameState.removeGoodFromInventory(GoodType.Brocade);
                 player.addGood(GoodType.Brocade);
                 break;
-
         }
+
+        gameState.removeFollowerFromInventory(FollowerType.Farmer);
+        player.addToBag(new Follower(FollowerType.Farmer));
+
     }
 }

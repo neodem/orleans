@@ -21,7 +21,6 @@ public class Follower {
     }
 
     protected Follower() {
-
     }
 
     public Follower(JsonNode json) {

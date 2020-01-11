@@ -3,7 +3,6 @@ package com.neodem.orleans.web;
 import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.FollowerType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,51 +49,12 @@ public class GameController {
             @RequestParam(value = "marketSlot") int marketSlot,
             @RequestParam(value = "actionSlot") int actionSlot
     ) {
-
-        ActionType actionType;
-        try {
-            actionType = ActionType.valueOf(action);
-        } catch (IllegalArgumentException e) {
-            // TODO
-            throw e;
-        }
-
-        GameState gameState = gameMaster.addToPlan(gameId, playerId, actionType, marketSlot, actionSlot);
-        return gameState;
-    }
-
-    private FollowerType getFollowerType(String valueString) {
-        FollowerType followerType;
-        try {
-            followerType = FollowerType.valueOf(valueString);
-        } catch (IllegalArgumentException e) {
-            // TODO
-            throw e;
-        }
-        return followerType;
-    }
-
-    @RequestMapping("/game/{gameId}/{playerId}/planSet")
-    public GameState planSet(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
-        GameState gameState = gameMaster.planSet(gameId, playerId);
-        return gameState;
-    }
-
-    @RequestMapping("/game/{gameId}/gameState")
-    public GameState gameState(@PathVariable(value = "gameId") String gameId) {
-        GameState gameState = gameMaster.getGameState(gameId);
+        GameState gameState = gameMaster.addToPlan(gameId, playerId, ActionType.valueOf(action), marketSlot, actionSlot);
         return gameState;
     }
 
     @RequestMapping("/game/{gameId}/{playerId}/action")
     public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action, @RequestParam Map<String, String> allParams) {
-        ActionType actionType = null;
-        try {
-            actionType = ActionType.valueOf(action);
-        } catch (IllegalArgumentException e) {
-            // TODO
-        }
-
         Map<AdditionalDataType, String> additionalDataMap = new HashMap<>();
         if (allParams != null) {
             for (String key : allParams.keySet()) {
@@ -109,7 +69,13 @@ public class GameController {
             }
         }
 
-        GameState gameState = gameMaster.doAction(gameId, playerId, actionType, additionalDataMap);
+        GameState gameState = gameMaster.doAction(gameId, playerId, ActionType.valueOf(action), additionalDataMap);
+        return gameState;
+    }
+
+    @RequestMapping("/game/{gameId}/{playerId}/planSet")
+    public GameState planSet(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
+        GameState gameState = gameMaster.planSet(gameId, playerId);
         return gameState;
     }
 
@@ -119,4 +85,9 @@ public class GameController {
         return gameState;
     }
 
+    @RequestMapping("/game/{gameId}/gameState")
+    public GameState gameState(@PathVariable(value = "gameId") String gameId) {
+        GameState gameState = gameMaster.getGameState(gameId);
+        return gameState;
+    }
 }
