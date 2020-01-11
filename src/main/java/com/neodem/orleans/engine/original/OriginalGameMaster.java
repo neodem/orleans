@@ -3,19 +3,14 @@ package com.neodem.orleans.engine.original;
 import com.google.common.collect.Sets;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
-import com.neodem.orleans.engine.core.GameMaster;
+import com.neodem.orleans.engine.core.BaseGameMaster;
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
-import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static com.neodem.orleans.engine.core.model.AdditionalDataType.follower;
@@ -24,82 +19,36 @@ import static com.neodem.orleans.engine.core.model.AdditionalDataType.follower;
  * Created by Vincent Fumo (neodem@gmail.com)
  * Created on 12/27/19
  */
-public class OriginalGameMaster implements GameMaster {
-
-    private final ActionHelper actionHelper;
-    private Map<String, OriginalGameState> storedGames = new HashMap<>();
+public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
     public OriginalGameMaster(ActionHelper actionHelper) {
-        this.actionHelper = actionHelper;
+        super(actionHelper);
     }
 
     @Override
-    public GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion) {
+    protected OriginalGameState makeGame(String gameId, int playerCount, GameVersion gameVersion) {
 
-        OriginalGameState gameState;
-
-        if (storedGames.containsKey(gameId)) {
-            throw new IllegalArgumentException("Game with id = " + gameId + " exists already!");
+        if (gameVersion != GameVersion.Original) {
+            throw new IllegalArgumentException("Game of this version:" + gameVersion + " is not implemented");
         }
-
-        if (!playerNames.isEmpty() && playerNames.size() > 1 && playerNames.size() <= 4) {
-
-            if (gameVersion == GameVersion.Original) {
-                gameState = new OriginalGameState(gameId, playerNames.size());
-            } else {
-                throw new IllegalArgumentException("Only Original game is implemented");
-            }
-
-            Set<PlayerColor> playerColors = new HashSet<>();
-            do {
-                playerColors.add(PlayerColor.randomColor());
-            } while (playerColors.size() != playerNames.size());
-            Iterator<PlayerColor> pci = playerColors.iterator();
-
-            for (String playerName : playerNames) {
-                PlayerState playerState = new OriginalPlayerState(playerName, pci.next(), actionHelper);
-                gameState.addPlayer(playerState);
-            }
-
-            storedGames.put(gameId, gameState);
-        } else {
-            throw new IllegalArgumentException("we must have 2-4 players to init game");
-        }
-
-        return gameState;
+        return new OriginalGameState(gameId, playerCount);
     }
 
     @Override
-    public GameState getGameState(String gameId) {
-        return storedGames.get(gameId);
+    protected int playersMax() {
+        return 4;
     }
 
     @Override
-    public GameState startGame(String gameId) {
-        return advance(gameId);
-    }
-
-    /**
-     * advance the game until we get to a point where a player decision needs to be made
-     *
-     * @param gameId
-     * @return
-     */
-    protected GameState advance(String gameId) {
-        OriginalGameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            boolean moveToNextPhase;
-            do {
-                moveToNextPhase = nextPhase(gameState);
-            } while (moveToNextPhase);
-        }
-        return gameState;
+    protected int playersMin() {
+        return 2;
     }
 
     /**
      * @param gameState
      * @return true if we should move to the next phase
      */
+    @Override
     protected boolean nextPhase(OriginalGameState gameState) {
         GamePhase gamePhase = gameState.getGamePhase();
         boolean phaseComplete = true;
@@ -373,165 +322,96 @@ public class OriginalGameMaster implements GameMaster {
         }
     };
 
-
     @Override
-    public GameState doAction(String gameId, String playerId, ActionType
-            actionType, Map<AdditionalDataType, String> additionalDataMap) {
-        GameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            PlayerState player = gameState.getPlayer(playerId);
-            if (player != null) {
+    protected OriginalGameState doActionForPlayer(OriginalGameState gameState, PlayerState player, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
 
-                if (actionType == ActionType.Bathhouse && player.hasPlaceTile(PlaceTile.Bathhouse)) {
-                    if (gameState.getGamePhase() == GamePhase.Followers) {
-                        FollowerType followerType = ActionProcessorBase.getFollowerFromMap(additionalDataMap, follower);
-                        if (followerType != null) {
-                            player.setBathhouseChoices(Sets.newHashSet(followerType));
-                        }
-                    }
+        if (actionType == ActionType.Bathhouse && player.hasPlaceTile(PlaceTile.Bathhouse)) {
+            if (gameState.getGamePhase() == GamePhase.Followers) {
+                FollowerType followerType = ActionProcessorBase.getFollowerFromMap(additionalDataMap, follower);
+                if (followerType != null) {
+                    player.setBathhouseChoices(Sets.newHashSet(followerType));
                 }
+            }
+        }
 
-                if (gameState.getGamePhase() == GamePhase.Actions) {
-                    if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
+        if (gameState.getGamePhase() == GamePhase.Actions) {
+            if (gameState.getCurrentActionPlayer().equals(player.getPlayerId())) {
 
-                        // 1) get the plan
-                        FollowerTrack followerTrack = player.getPlan(actionType);
+                // 1) get the plan
+                FollowerTrack followerTrack = player.getPlan(actionType);
 
-                        if (followerTrack != null) {
+                if (followerTrack != null) {
 
-                            // 2) get the techToken slot (if any)
-                            Integer techSlot = player.getTechTileSlot(actionType);
+                    // 2) get the techToken slot (if any)
+                    Integer techSlot = player.getTechTileSlot(actionType);
 
-                            // 3) check if the action is ready
-                            if (followerTrack.isReady(techSlot)) {
+                    // 3) check if the action is ready
+                    if (followerTrack.isReady(techSlot)) {
 
-                                if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
+                        if (actionHelper.isActionValid(actionType, gameState, player, additionalDataMap)) {
 
-                                    // do action
-                                    actionHelper.processAction(actionType, gameState, player, additionalDataMap);
+                            // do action
+                            actionHelper.processAction(actionType, gameState, player, additionalDataMap);
 
-                                    // send back to bag and remove plan
-                                    player.unPlan(actionType);
+                            // send back to bag and remove plan
+                            player.unPlan(actionType);
 
-                                    // move to the next unpassed player
-                                    gameState.advanceActionPlayer();
-                                } else {
-                                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not allowed!");
-                                }
-                            } else {
-                                throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
-                            }
+                            // move to the next unpassed player
+                            gameState.advanceActionPlayer();
                         } else {
-                            throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do action " + actionType + " but it's not filled!");
+                            throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to do action " + actionType + " but it's not allowed!");
                         }
                     } else {
-                        throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do an action but it's not their turn");
+                        throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to do action " + actionType + " but it's not filled!");
                     }
                 } else {
-                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to do an action but the current Phase is: " + gameState.getGamePhase());
+                    throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to do action " + actionType + " but it's not filled!");
                 }
             } else {
-                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+                throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to do an action but it's not their turn");
             }
         } else {
-            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
+            throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to do an action but the current Phase is: " + gameState.getGamePhase());
         }
         return gameState;
     }
 
-
     @Override
-    public GameState addToPlan(String gameId, String playerId, ActionType actionType, int marketSlot, int actionSlot) {
+    protected OriginalGameState doAddToPlanForPlayer(OriginalGameState gameState, PlayerState player, ActionType actionType, int marketSlot, int actionSlot) {
 
-        GameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            PlayerState player = gameState.getPlayer(playerId);
-            if (player != null) {
-                if (gameState.getGamePhase() == GamePhase.Planning) {
-                    if (!player.isPhaseComplete()) {
+        if (gameState.getGamePhase() == GamePhase.Planning) {
+            if (!player.isPhaseComplete()) {
 
-                        //1) does the player have a follower in that market slot?
-                        if (!player.isMarketSlotFilled(marketSlot)) {
-                            throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have an available follower in market slot " + marketSlot + " of her market");
-                        }
+                //1) does the player have a follower in that market slot?
+                if (!player.isMarketSlotFilled(marketSlot)) {
+                    throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' does not have an available follower in market slot " + marketSlot + " of her market");
+                }
 
-                        //2) is this action available to the player (on their base board or as an additional place?)
-                        if (actionHelper.isPlaceTileAction(actionType)) {
-                            PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
-                            if (!player.hasPlaceTile(placeTile)) {
-                                throw new IllegalArgumentException("Player playerId='" + playerId + "' does not have the available PlaceTile to place on" + actionType);
-                            }
-                        }
-
-                        //3) get the follower from the market
-                        Follower followerToken = player.removeFromMarket(marketSlot);
-
-                        //4) can the token go into the track?
-                        if (player.canAddToAction(actionType, actionSlot, followerToken)) {
-                            // 5) add the token
-                            player.addTokenToAction(actionType, actionSlot, followerToken);
-                        } else {
-                            player.addToMarket(followerToken);
-                            throw new IllegalArgumentException("Player playerId='" + playerId + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
-                        }
-                    } else {
-                        throw new IllegalArgumentException("Player playerId='" + playerId + "' has completd their planning phase.");
+                //2) is this action available to the player (on their base board or as an additional place?)
+                if (actionHelper.isPlaceTileAction(actionType)) {
+                    PlaceTile placeTile = actionHelper.getPlaceTile(actionType);
+                    if (!player.hasPlaceTile(placeTile)) {
+                        throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' does not have the available PlaceTile to place on" + actionType);
                     }
+                }
 
+                //3) get the follower from the market
+                Follower followerToken = player.removeFromMarket(marketSlot);
+
+                //4) can the token go into the track?
+                if (player.canAddToAction(actionType, actionSlot, followerToken)) {
+                    // 5) add the token
+                    player.addTokenToAction(actionType, actionSlot, followerToken);
                 } else {
-                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to plan but the current Phase is: " + gameState.getGamePhase());
+                    player.addToMarket(followerToken);
+                    throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' cannot place a " + followerToken + " onto slot " + actionSlot + " of their " + actionType + " action");
                 }
             } else {
-                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
+                throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' has completd their planning phase.");
             }
+
         } else {
-            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
-        }
-        return gameState;
-    }
-
-    @Override
-    public GameState planSet(String gameId, String playerId) {
-        GameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            PlayerState player = gameState.getPlayer(playerId);
-            if (player != null) {
-                player.setPhaseComplete(true);
-                gameState.writeLine("player " + player.getPlayerId() + " has completed planning");
-            } else {
-                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
-            }
-        } else {
-            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
-        }
-
-        if (gameState.isPhaseComplete()) {
-            gameState = advance(gameId);
-        }
-
-        return gameState;
-    }
-
-    @Override
-    public GameState pass(String gameId, String playerId) {
-        GameState gameState = storedGames.get(gameId);
-        if (gameState != null) {
-            PlayerState player = gameState.getPlayer(playerId);
-            if (player != null) {
-                if (gameState.getGamePhase() == GamePhase.Actions) {
-                    player.setPhaseComplete(true);
-                } else {
-                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
-                }
-            } else {
-                throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
-            }
-        } else {
-            throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
-        }
-
-        if (gameState.isPhaseComplete()) {
-            gameState = advance(gameId);
+            throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to plan but the current Phase is: " + gameState.getGamePhase());
         }
 
         return gameState;
