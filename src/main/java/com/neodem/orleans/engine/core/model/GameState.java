@@ -386,4 +386,11 @@ public abstract class GameState implements Loggable {
         }
         return complete;
     }
+
+    public boolean arePlayersBeingTotrured() {
+        for (PlayerState player : players) {
+            if (player.isBeingTortured()) return true;
+        }
+        return false;
+    }
 }

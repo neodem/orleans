@@ -55,8 +55,6 @@ public abstract class PlayerState {
 
     private int coinCount = 5;
 
-    private int coinsOwed = 0;
-
     // internal state
     protected Market market = new Market();
 
@@ -98,7 +96,6 @@ public abstract class PlayerState {
 
             this.merchantLocation = TokenLocation.fromValue(json.get("merchantLocation").textValue());
             this.coinCount = json.get("coinCount").intValue();
-            this.coinsOwed = json.get("coinsOwed").intValue();
 
             this.market = new Market(json.get("market"));
 
@@ -211,24 +208,35 @@ public abstract class PlayerState {
     }
 
     public int removeCoin() {
-        writeLog("loses 1 coin");
-        return --coinCount;
+        return removeCoin(1);
     }
 
     public int removeCoin(int coins) {
         writeLog("loses " + coins + " coin");
         coinCount -= coins;
+
+        if (coinCount < 0) {
+            int tortureAmount = Math.abs(coinCount);
+            writeLog("is in debt by " + tortureAmount + " and must endure torture");
+            setBeingTortured(true);
+        }
+
         return coinCount;
     }
 
     public int addCoin() {
-        writeLog("gains 1 coin");
-        return ++coinCount;
+        return addCoin(1);
     }
 
     public int addCoin(int coins) {
         writeLog("gains " + coins + " coins");
         coinCount += coins;
+
+        if (beingTortured && coinCount >= 0) {
+            writeLog("has satisfied their debt and endured torture enough!");
+            beingTortured = false;
+        }
+
         return coinCount;
     }
 
@@ -542,11 +550,4 @@ public abstract class PlayerState {
         this.beingTortured = beingTortured;
     }
 
-    public int getCoinsOwed() {
-        return coinsOwed;
-    }
-
-    public void setCoinsOwed(int coinsOwed) {
-        this.coinsOwed = coinsOwed;
-    }
 }

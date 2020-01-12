@@ -10,7 +10,6 @@ import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TokenLocation;
 import com.neodem.orleans.engine.core.model.TortureType;
 import com.neodem.orleans.engine.core.model.Track;
-import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 
 import java.util.Map;
@@ -67,7 +66,7 @@ public class TortureHelper {
         return valid;
     }
 
-    public static void applyPlan(OriginalGameState gameState, PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
+    public static void applyPlan(PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
         switch (tortureType) {
             case Follower:
                 FollowerBag bag = player.getBag();
@@ -76,35 +75,42 @@ public class TortureHelper {
                     bag.add(f);
                     f = bag.take();
                 } while (f.isStarter());
+                player.addCoin();
                 player.writeLog("pulled a " + f + " from their bag and lost them due to torture.");
                 break;
             case TechTile:
                 ActionType actionType = Util.getActionTypeFromADMap(additionalDataMap, AdditionalDataType.techAction);
                 player.removeTechTile(actionType);
+                player.addCoin();
                 player.writeLog("lost their tech tile on " + actionType + " due to torture.");
                 break;
             case GoodsTile:
                 GoodType good = Util.getGoodFromADMap(additionalDataMap, AdditionalDataType.good);
                 player.removeGood(good);
+                player.addCoin();
                 player.writeLog("lost a " + good + " due to torture.");
                 break;
             case PlaceTile:
                 PlaceTile placeTile = Util.getPlaceTileFromADMap(additionalDataMap, AdditionalDataType.placeTile);
                 player.removePlaceTile(placeTile);
+                player.addCoin();
                 player.writeLog("lost " + placeTile + " due to torture.");
                 break;
             case TradingStation:
                 if (additionalDataMap.containsKey(AdditionalDataType.from)) {
                     TokenLocation from = Util.getLocationFromADMap(additionalDataMap, AdditionalDataType.from);
                     player.removeTradingStationFromLocation(from);
+                    player.addCoin();
                     player.writeLog("lost a trading station at " + from + " due to torture.");
                 } else {
                     player.decrementMaxAllowableTradingStations();
+                    player.addCoin();
                     player.writeLog("lost a trading station from their supply due to torture.");
                 }
                 break;
             case DevelopmentPoint:
                 player.decrementTrack(Track.Development);
+                player.addCoin();
                 player.writeLog("lost a development point due to torture.");
                 break;
             default:

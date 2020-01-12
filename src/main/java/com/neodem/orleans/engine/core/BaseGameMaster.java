@@ -196,7 +196,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 if (player.isBeingTortured()) {
-                    gameState = doAddToTorturePlanForPlayer(gameState, player, tortureType, additionalDataMap);
+                    doEndureTortureForPlayer(player, tortureType, additionalDataMap);
                 } else {
                     throw new IllegalArgumentException("playerId='" + playerId + "is trying to submit a torture plan but isn't being tortured!");
                 }
@@ -213,5 +213,5 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
         return gameState;
     }
 
-    protected abstract G doAddToTorturePlanForPlayer(G gameState, PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap);
+    protected abstract void doEndureTortureForPlayer(PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap);
 }

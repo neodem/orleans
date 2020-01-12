@@ -143,26 +143,29 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     }
 
     private boolean doCensusPhase(OriginalGameState gameState) {
-        String most = gameState.mostFarmers();
-        if (most != null) {
-            gameState.getPlayer(most).addCoin();
-            gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
-        } else {
-            gameState.writeLine("No one gets a coin for the Census.");
-        }
+        // if a player is being tortured, this phase has happened before and we should skip doing it, but wait for the torture to be done
+        if (!gameState.arePlayersBeingTotrured()) {
 
-        String least = gameState.leastFarmers();
-        if (least != null) {
-            gameState.getPlayer(least).removeCoin();
-            gameState.writeLine("" + least + " pays a coin for being the least far on the Census/Farmer track");
-
-            int coinCount = gameState.getPlayer(least).getCoinCount();
-            if (coinCount < 0) {
-                gameState.writeLine("" + least + " doesn't have enough money to pay for the Census, they need to be tortured!");
-                //TODO torture
+            String most = gameState.mostFarmers();
+            if (most != null) {
+                gameState.getPlayer(most).addCoin();
+                gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
+            } else {
+                gameState.writeLine("No one gets a coin for the Census.");
             }
+
+            String least = gameState.leastFarmers();
+            PlayerState leastPlayer = gameState.getPlayer(least);
+            if (least != null) {
+                leastPlayer.writeLog("pays a coin for being the least far on the Census/Farmer track");
+                leastPlayer.removeCoin();
+                return leastPlayer.isBeingTortured();
+            }
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 
     private boolean doFollowersPhase(OriginalGameState gameState) {
@@ -247,26 +250,29 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     }
 
     private boolean doEventPhase(OriginalGameState gameState) {
-        HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
-        switch (currentHourGlass) {
-            case Plague:
-                handleEvent(gameState, handlePlagueEvent);
-                break;
-            case Taxes:
-                handleEvent(gameState, handleTaxesEvent);
-                break;
-            case TradingDay:
-                handleEvent(gameState, handleTradingDayEvent);
-                break;
-            case Income:
-                handleEvent(gameState, handleIncomeEvent);
-                break;
-            case Harvest:
-                handleEvent(gameState, handleHarvestEvent);
-                break;
-        }
 
-        return true;
+        if (!gameState.arePlayersBeingTotrured()) {
+            HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
+            switch (currentHourGlass) {
+                case Plague:
+                    handleEvent(gameState, handlePlagueEvent);
+                    break;
+                case Taxes:
+                    handleEvent(gameState, handleTaxesEvent);
+                    break;
+                case TradingDay:
+                    handleEvent(gameState, handleTradingDayEvent);
+                    break;
+                case Income:
+                    handleEvent(gameState, handleIncomeEvent);
+                    break;
+                case Harvest:
+                    handleEvent(gameState, handleHarvestEvent);
+                    break;
+            }
+            return true;
+        }
+        return false;
     }
 
     private void handleEvent(GameState gameState, BiConsumer<GameState, PlayerState> eventHandler) {
@@ -312,9 +318,8 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     private BiConsumer<GameState, PlayerState> handleTaxesEvent = (gameState, playerState) -> {
         int goodCount = playerState.getFullGoodCount();
         int tax = goodCount / 3;
-        gameState.writeLine("player " + playerState.getPlayerId() + " looses " + tax + " due to the Taxes Event");
+        playerState.writeLog("looses " + tax + " due to the Taxes Event");
         playerState.removeCoin(tax);
-        //TODO check for torture
     };
 
     private BiConsumer<GameState, PlayerState> handleHarvestEvent = (gameState, playerState) -> {
@@ -326,7 +331,6 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
         } else {
             gameState.writeLine("player " + playerState.getPlayerId() + " looses 5 coins due to the Harvest Event");
             playerState.removeCoin(5);
-            //TODO check for torture
         }
     };
 
@@ -426,17 +430,14 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     }
 
     @Override
-    protected OriginalGameState doAddToTorturePlanForPlayer(OriginalGameState gameState, PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
-
+    protected void doEndureTortureForPlayer(PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
         // log in the player what the issue is if we fail validation
         if (TortureHelper.isValidPlan(player, tortureType, additionalDataMap)) {
             // apply the plan and update the gameState/playerState accordingly
-            TortureHelper.applyPlan(gameState, player, tortureType, additionalDataMap);
+            TortureHelper.applyPlan(player, tortureType, additionalDataMap);
         } else {
             throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' is trying to submit an invalid torture plan.");
         }
-
-        return gameState;
     }
 
     private int determineDrawFromKnight(int knightTrackLocation) {
