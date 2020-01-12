@@ -57,7 +57,12 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
             case StartPlayer:
                 phaseComplete = doStartPlayerPhase(gameState);
                 if (phaseComplete) {
-                    gameState.setGamePhase(GamePhase.HourGlass);
+                    if (gameState.getRound() == 19) {
+                        // game over
+                        gameState.setGamePhase(GamePhase.Scoring);
+                    } else {
+                        gameState.setGamePhase(GamePhase.HourGlass);
+                    }
                     resetPhaseCompleteFlags(gameState);
                 }
                 break;
