@@ -152,10 +152,10 @@ public class OriginalGameState extends GameState {
 
     public String getPlayerWithMostTradingStations() {
         Collection<String> leaders = new HashSet<>();
-        int max = Integer.MIN_VALUE;
+        int max = 1;
         for (PlayerState player : players) {
             int tsCount = player.getTradingStationLocations().size();
-            if (tsCount > max) {
+            if (tsCount >= max) {
                 max = tsCount;
                 leaders.add(player.getPlayerId());
             }

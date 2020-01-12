@@ -207,8 +207,6 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
 
-        //TODO continue game if torture is over, else stay paused/interrupted
-
         gameStateService.saveGameState(gameState);
         return gameState;
     }

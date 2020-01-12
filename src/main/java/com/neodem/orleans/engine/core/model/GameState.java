@@ -50,6 +50,7 @@ public abstract class GameState implements Loggable {
 
     protected HourGlassTile currentHourGlass;
     int currentActionPlayerIndex = 0;
+    private Collection<String> winners;
 
     protected GameState(JsonNode node) {
         ObjectMapper mapper = new ObjectMapper();
@@ -63,6 +64,14 @@ public abstract class GameState implements Loggable {
             }
             this.boardState = makeBoardStateFromJson(node.get("boardState"));
             this.benefitTracker = makeBenefitTrackerFromJson(node.get("benefitTracker"));
+
+            JsonNode winners = node.get("winners");
+            if (winners != null) {
+                this.winners = new HashSet<>();
+                for (JsonNode winner : winners) {
+                    this.winners.add(winner.textValue());
+                }
+            }
 
             JsonNode goodsInInventoryNode = node.get("goodsInventory");
             if (goodsInInventoryNode != null) {
@@ -396,5 +405,13 @@ public abstract class GameState implements Loggable {
             if (player.isBeingTortured()) return true;
         }
         return false;
+    }
+
+    public void setWinners(Collection<String> winners) {
+        this.winners = winners;
+    }
+
+    public Collection<String> getWinners() {
+        return winners;
     }
 }

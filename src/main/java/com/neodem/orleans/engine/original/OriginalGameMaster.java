@@ -10,7 +10,8 @@ import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.service.GameStateService;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -128,23 +129,30 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
             leader.addCitizen(CitizenType.TradingStationBonus);
         }
 
-        int maxScore = Integer.MIN_VALUE;
-        String maxScoreName = null;
-        Map<String, Integer> scores = new HashMap<>();
+        int maxScore = 0;
+        Collection<String> topScorers = new HashSet<>();
         for (PlayerState player : gameState.getPlayers()) {
             int score = scorePlayer(gameState, player);
-            if (score > maxScore) {
+            if (score >= maxScore) {
                 maxScore = score;
-                maxScoreName = player.getPlayerId();
+                topScorers.add(player.getPlayerId());
             }
-            scores.put(player.getPlayerId(), score);
         }
 
-        for (String player : scores.keySet()) {
-            gameState.writeLine("Scoring: " + player + " has a total VP of: " + scores.get(player));
+        for (PlayerState player : gameState.getPlayers()) {
+            gameState.writeLine("Scoring: " + player.getPlayerId() + " has a total VP of: " + player.getScore());
         }
 
-        gameState.writeLine("Scoring: " + maxScoreName + " has won.");
+        if (topScorers.size() == 1) {
+            gameState.writeLine("Scoring: " + topScorers.iterator().next() + " has won.");
+        } else {
+            gameState.writeLine("Scoring: " + topScorers.size() + " players have tied!");
+            for (String name : topScorers) {
+                gameState.writeLine("Scoring: " + name + " has tied!");
+            }
+        }
+
+        gameState.setWinners(topScorers);
 
         return true;
     }
@@ -157,25 +165,11 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
         totalScore += vpGained;
         gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for coins");
 
-        vpGained = player.getGoodCount(GoodType.Brocade) * 5;
-        totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Brocade");
-
-        vpGained = player.getGoodCount(GoodType.Wool) * 4;
-        totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Wool");
-
-        vpGained = player.getGoodCount(GoodType.Wine) * 3;
-        totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Wine");
-
-        vpGained = player.getGoodCount(GoodType.Cheese) * 2;
-        totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Cheese");
-
-        vpGained = player.getGoodCount(GoodType.Grain);
-        totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Grain");
+        totalScore += scoreGood(gameState, player, 5, GoodType.Brocade);
+        totalScore += scoreGood(gameState, player, 4, GoodType.Wool);
+        totalScore += scoreGood(gameState, player, 3, GoodType.Wine);
+        totalScore += scoreGood(gameState, player, 2, GoodType.Cheese);
+        totalScore += scoreGood(gameState, player, 1, GoodType.Grain);
 
         int tradingStations = player.getTradingStationCount();
         int citizens = player.getClaimedCitizenCount();
@@ -184,10 +178,18 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
         vpGained = devMultiplier * (tradingStations + citizens);
         totalScore += vpGained;
-        gameState.writeLine("Scoring: " + player.getPlayerId() + " has " + tradingStations + " Trading Stations and " + citizens + " citizens. And a development level of " + devMultiplier + "for a total of " + vpGained + "VP");
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " has " + tradingStations + " Trading Stations and " + citizens + " citizens. And a development level of " + devMultiplier + " for a total of " + vpGained + " VP");
+
+        player.setScore(totalScore);
 
         return totalScore;
+    }
 
+    private int scoreGood(OriginalGameState gameState, PlayerState player, int multiplier, GoodType goodType) {
+        int goodCount = player.getGoodCount(goodType);
+        int vpGained = goodCount * multiplier;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for " + goodCount + " " + goodType);
+        return vpGained;
     }
 
     private void resetPhaseCompleteFlags(OriginalGameState gameState) {

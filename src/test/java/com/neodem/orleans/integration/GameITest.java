@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neodem.orleans.engine.core.model.*;
+import com.neodem.orleans.engine.original.model.CitizenType;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
+import com.neodem.orleans.engine.original.model.OriginalPlayerState;
+import com.neodem.orleans.service.GameStateService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +43,9 @@ public class GameITest {
 
     @LocalServerPort
     private int port;
+
+    @Resource
+    private GameStateService gameStateService;
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
     private HttpHeaders headers = new HttpHeaders();
@@ -439,6 +446,61 @@ public class GameITest {
         sendForPlayer(gameId, P2, "pass");
         sendForPlayer(gameId, P1, "pass");
     }
+
+    @Test
+    public void scoringShouldWork() {
+        GameState gameState = new OriginalGameState("scoreTest", 2);
+        gameState.setRound(18);
+        gameState.setGamePhase(GamePhase.StartPlayer);
+
+        PlayerState p1 = new OriginalPlayerState(P1, PlayerColor.Blue, null);
+        p1.connectLog(gameState);
+        p1.setMerchantLocation(TokenLocation.Orleans);
+        p1.addTradingStationToCurrentLocation();
+        p1.setMerchantLocation(TokenLocation.LeMans);
+        p1.addTradingStationToCurrentLocation();
+        p1.addGood(GoodType.Brocade);
+        p1.addGood(GoodType.Brocade);
+        p1.addGood(GoodType.Wool);
+        p1.addGood(GoodType.Brocade);
+        p1.addGood(GoodType.Wine);
+        p1.addGood(GoodType.Brocade);
+        p1.addGood(GoodType.Brocade);
+        p1.addCitizen(CitizenType.BenefitTrack);
+        p1.addCitizen(CitizenType.Dev1);
+        p1.addCitizen(CitizenType.Dev2);
+        p1.setTrackIndex(Track.Development, 23);
+        gameState.addPlayer(p1);
+
+        PlayerState p2 = new OriginalPlayerState(P2, PlayerColor.Green, null);
+        p2.connectLog(gameState);
+        p2.setMerchantLocation(TokenLocation.Orleans);
+        p2.addTradingStationToCurrentLocation();
+        p2.addGood(GoodType.Cheese);
+        p2.addGood(GoodType.Grain);
+        p2.addGood(GoodType.Wool);
+        p2.addGood(GoodType.Brocade);
+        p2.addGood(GoodType.Wine);
+        p2.addGood(GoodType.Brocade);
+        p2.addGood(GoodType.Brocade);
+        p2.addCitizen(CitizenType.BoatTrack);
+        p2.addCitizen(CitizenType.KnightTrack);
+        p2.setTrackIndex(Track.Development, 12);
+        gameState.addPlayer(p2);
+
+        gameStateService.saveGameState(gameState);
+
+        // this should move us to and through the scoring phase
+        send("/game/scoreTest/startGame");
+
+        gameState = getGameState("scoreTest");
+
+        assertThat(gameState.getWinners()).hasSize(1).contains(P1);
+        assertThat(gameState.getPlayer(P1).getScore()).isEqualTo(49);
+        assertThat(gameState.getPlayer(P2).getScore()).isEqualTo(36);
+    }
+
+    //////////////////
 
     private String startTwoPlayerGame() {
         GameState gameState = send("/game/init", "playerNames", P1 + "," + P2);

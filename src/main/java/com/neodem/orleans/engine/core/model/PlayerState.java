@@ -72,6 +72,7 @@ public abstract class PlayerState {
     private Loggable log;
     private ActionHelper actionHelper;
     private boolean beingTortured;
+    private int score;
 
     public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
         Assert.notNull(playerId, "playerId may not be null");
@@ -96,6 +97,7 @@ public abstract class PlayerState {
 
             this.merchantLocation = TokenLocation.fromValue(json.get("merchantLocation").textValue());
             this.coinCount = json.get("coinCount").intValue();
+            this.score = json.get("score").intValue();
 
             this.market = new Market(json.get("market"));
 
@@ -554,4 +556,11 @@ public abstract class PlayerState {
         this.beingTortured = beingTortured;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getScore() {
+        return score;
+    }
 }
