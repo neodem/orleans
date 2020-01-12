@@ -206,24 +206,28 @@ public abstract class PlayerState {
         this.phaseComplete = phaseComplete;
     }
 
+    public void writeLog(String line) {
+        log.writeLine(playerId + ": " + line);
+    }
+
     public int removeCoin() {
-        log.writeLine("" + playerId + " loses 1 coin");
+        writeLog("loses 1 coin");
         return --coinCount;
     }
 
     public int removeCoin(int coins) {
-        log.writeLine("" + playerId + " loses " + coins + " coins");
+        writeLog("loses " + coins + " coin");
         coinCount -= coins;
         return coinCount;
     }
 
     public int addCoin() {
-        log.writeLine("" + playerId + " gains 1 coin");
+        writeLog("gains 1 coin");
         return ++coinCount;
     }
 
     public int addCoin(int coins) {
-        log.writeLine("" + playerId + " gains " + coins + " coins");
+        writeLog("gains " + coins + " coins");
         coinCount += coins;
         return coinCount;
     }
@@ -236,6 +240,13 @@ public abstract class PlayerState {
      */
     public int bumpTrack(Track track) {
         int trackIndex = Util.mapInc(tracks, track);
+        writeLog("increased Development track by one. New value=" + trackIndex + ".");
+        return trackIndex;
+    }
+
+    public int decrementTrack(Track track) {
+        int trackIndex = Util.mapDec(tracks, track);
+        writeLog("decreased Development track by one. New value=" + trackIndex + ".");
         return trackIndex;
     }
 
@@ -257,17 +268,33 @@ public abstract class PlayerState {
 
     public void addPlaceTile(PlaceTile placeTile) {
         this.placeTiles.add(placeTile);
+        writeLog("adds a place tile: " + placeTile);
+    }
+
+    public void removePlaceTile(PlaceTile placeTile) {
+        this.placeTiles.remove(placeTile);
+        writeLog("removes a place tile: " + placeTile);
     }
 
     public Collection<TokenLocation> getTradingStationLocations() {
         return tradingStationLocations;
     }
 
-    public void addTradingHallToCurrentLocation() {
-        if (tradingStationLocations.size() != tradingStationMax()) {
+    public void addTradingStationToCurrentLocation() {
+        if (tradingStationLocations.size() != getMaxAllowableTradingStations()) {
             tradingStationLocations.add(merchantLocation);
+            writeLog("adds a trading station to " + merchantLocation);
         } else {
             throw new IllegalStateException("Out of trading stations");
+        }
+    }
+
+    public void removeTradingStationFromLocation(TokenLocation location) {
+        if (tradingStationLocations.contains(location)) {
+            tradingStationLocations.remove(location);
+            writeLog("removes a trading station from " + location);
+        } else {
+            throw new IllegalArgumentException("trading station doesn't exist at " + location);
         }
     }
 
@@ -275,13 +302,14 @@ public abstract class PlayerState {
         return tradingStationLocations.size();
     }
 
-    /**
-     * return the number of trading stations the player has in their personal supply
-     *
-     * @return
-     */
-    public int tradingStationMax() {
-        return 10;
+    private int maxAllowableTradingStations = 10;
+
+    public int getMaxAllowableTradingStations() {
+        return maxAllowableTradingStations;
+    }
+
+    public void decrementMaxAllowableTradingStations() {
+        this.maxAllowableTradingStations--;
     }
 
     public void addGood(GoodType goodType) {
@@ -312,10 +340,10 @@ public abstract class PlayerState {
                 Follower follower = bag.take();
                 if (follower != null) {
                     int slot = market.addToMarket(follower);
-                    log.writeLine("" + playerId + " draws " + follower + " from her bag and adds to her market (slot " + slot + ")");
+                    writeLog("draws " + follower + " from her bag and adds to her market (slot " + slot + ")");
                 }
             } else {
-                log.writeLine("" + playerId + " cannot draw more followers since her market is full!");
+                writeLog("cannot draw more followers since her market is full!");
                 break;
             }
         }
@@ -324,14 +352,14 @@ public abstract class PlayerState {
     public Follower removeFromMarket(int slot) {
         Follower follower = market.remove(slot);
         if (follower != null) {
-            log.writeLine("" + playerId + " removes " + follower + " from her market");
+            writeLog("removes " + follower + " from her market");
         } else {
-            log.writeLine("" + playerId + " tried to remove a follower from an empty slot in her market. slot= " + slot);
+            writeLog("tried to remove a follower from an empty slot in her market. slot= " + slot);
         }
         return follower;
     }
 
-    public void addLog(Loggable log) {
+    public void connectLog(Loggable log) {
         this.log = log;
     }
 
@@ -356,6 +384,12 @@ public abstract class PlayerState {
 
     public void addTechTile(ActionType actionType, int techPosition) {
         techTileMap.put(actionType, techPosition);
+        writeLog("adds a TechTile to " + actionType + " on slot " + techPosition);
+    }
+
+    public void removeTechTile(ActionType actionType) {
+        techTileMap.remove(actionType);
+        writeLog("removes a TechTile from " + actionType + ".");
     }
 
     public int getFullGoodCount() {
@@ -415,7 +449,7 @@ public abstract class PlayerState {
     public void addTokenToAction(ActionType actionType, int actionSlot, Follower followerToken) {
         FollowerTrack followerTrack = plans.get(actionType);
         followerTrack.add(followerToken, actionSlot);
-        log.writeLine("" + playerId + " adds " + followerToken + " to action: " + actionType + ". slot:" + actionSlot);
+        writeLog("adds " + followerToken + " to action: " + actionType + ". slot:" + actionSlot);
     }
 
     public FollowerType getBathhouseChoice() {
@@ -488,10 +522,6 @@ public abstract class PlayerState {
 
     protected void setCoinCount(int coinCount) {
         this.coinCount = coinCount;
-    }
-
-    protected void setLog(Loggable log) {
-        this.log = log;
     }
 
     protected void setActionHelper(ActionHelper actionHelper) {

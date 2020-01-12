@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -126,5 +127,10 @@ public class Follower {
 
     protected void setDba(Collection<FollowerType> dba) {
         this.dba = dba;
+    }
+
+    @JsonIgnore
+    public boolean isStarter() {
+        return followerType == FollowerType.StarterFarmer || followerType == FollowerType.StarterTrader || followerType == FollowerType.StarterCraftsman || followerType == FollowerType.StarterBoatman;
     }
 }

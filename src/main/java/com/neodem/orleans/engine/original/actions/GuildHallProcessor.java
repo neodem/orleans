@@ -36,6 +36,6 @@ public class GuildHallProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        player.addTradingHallToCurrentLocation();
+        player.addTradingStationToCurrentLocation();
     }
 }

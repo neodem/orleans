@@ -28,8 +28,10 @@ public class RandomBag<T> implements Iterable<T> {
      * @param t
      */
     public void add(T t) {
-        data.add(t);
-        Collections.shuffle(data);
+        if (t != null) {
+            data.add(t);
+            Collections.shuffle(data);
+        }
     }
 
     /**

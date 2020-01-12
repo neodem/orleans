@@ -40,7 +40,7 @@ public class OriginalPlayerStateTest {
         assertThat(playerState.getPlayerColor()).isEqualTo(PlayerColor.Blue);
         assertThat(playerState.getCoinCount()).isEqualTo(5);
         assertThat(playerState.getMerchantLocation()).isEqualTo(TokenLocation.Orleans);
-        assertThat(playerState.tradingStationMax()).isEqualTo(10);
+        assertThat(playerState.getMaxAllowableTradingStations()).isEqualTo(10);
         assertThat(playerState.getTradingStationLocations()).isEmpty();
         RandomBag<Follower> bag = playerState.getBag();
         assertThat(bag).hasSize(4);

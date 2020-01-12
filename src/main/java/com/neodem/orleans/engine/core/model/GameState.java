@@ -300,7 +300,7 @@ public abstract class GameState implements Loggable {
         if (players.contains(player)) {
             throw new IllegalArgumentException("Player " + player.getPlayerId() + " is in the game already!");
         }
-        player.addLog(this);
+        player.connectLog(this);
         this.players.add(player);
     }
 

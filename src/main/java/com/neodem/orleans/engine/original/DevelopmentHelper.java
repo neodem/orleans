@@ -11,6 +11,10 @@ import com.neodem.orleans.engine.original.model.CitizenType;
 public class DevelopmentHelper {
     public static final int MAXTRACK = 30;
 
+    public static boolean isCoinSlot(int trackIndex) {
+        return trackIndex == 7 || trackIndex == 12 || trackIndex == 25;
+    }
+
     public static void processReward(int previousTrackIndex, int trackIndex, GameState gameState, PlayerState player) {
         if (trackIndex > 3 && !gameState.isCitizenClaimed(CitizenType.Dev1)) {
             gameState.citizenClaimed(CitizenType.Dev1);

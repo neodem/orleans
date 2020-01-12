@@ -37,4 +37,17 @@ public class FollowerBag extends RandomBag<Follower> {
         if (found != -1) return data.remove(found);
         return null;
     }
+
+    public boolean containsANonStarterFollower() {
+        boolean result = false;
+
+        for (Follower f : data) {
+            if (!f.isStarter()) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
 }
