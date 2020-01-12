@@ -11,7 +11,9 @@ import com.neodem.orleans.engine.core.model.GoodType;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.original.OriginalBenefitTracker;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static com.neodem.orleans.engine.core.model.HourGlassTile.*;
 import static com.neodem.orleans.engine.original.model.PlaceTile.*;
@@ -146,6 +148,21 @@ public class OriginalGameState extends GameState {
             } while (goodCount == 0);
             goodsInventory.put(goodType, --goodCount);
         }
+    }
+
+    public String getPlayerWithMostTradingStations() {
+        Collection<String> leaders = new HashSet<>();
+        int max = Integer.MIN_VALUE;
+        for (PlayerState player : players) {
+            int tsCount = player.getTradingStationLocations().size();
+            if (tsCount > max) {
+                max = tsCount;
+                leaders.add(player.getPlayerId());
+            }
+        }
+
+        if (leaders.size() == 1) return leaders.iterator().next();
+        return null;
     }
 
     private String playerHasBathhouse = null;

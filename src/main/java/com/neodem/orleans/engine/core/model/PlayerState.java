@@ -391,8 +391,8 @@ public abstract class PlayerState {
 
     public void addCitizen(CitizenType citizenType) {
         claimedCitizens.add(citizenType);
+        writeLog("adds a citizen to their empire! type:" + citizenType);
     }
-
 
     public void addTechTile(ActionType actionType, int techPosition) {
         techTileMap.put(actionType, techPosition);

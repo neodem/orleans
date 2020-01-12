@@ -5,10 +5,12 @@ import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.BaseGameMaster;
 import com.neodem.orleans.engine.core.model.*;
+import com.neodem.orleans.engine.original.model.CitizenType;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
 import com.neodem.orleans.service.GameStateService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -58,7 +60,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
                 phaseComplete = doStartPlayerPhase(gameState);
                 if (phaseComplete) {
                     if (gameState.getRound() == 19) {
-                        // game over
+                        // game is over
                         gameState.setGamePhase(GamePhase.Scoring);
                     } else {
                         gameState.setGamePhase(GamePhase.HourGlass);
@@ -112,12 +114,80 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
                     gameState.setGamePhase(GamePhase.Over);
                 }
                 break;
+            case Over:
+                return false;
         }
         return phaseComplete;
     }
 
     private boolean doScoringPhase(OriginalGameState gameState) {
+        String tradingStationLeader = gameState.getPlayerWithMostTradingStations();
+        if (tradingStationLeader != null) {
+            PlayerState leader = gameState.getPlayer(tradingStationLeader);
+            gameState.writeLine("Scoring: " + leader.getPlayerId() + " gets a bonus Citizen for having most TradingStations built");
+            leader.addCitizen(CitizenType.TradingStationBonus);
+        }
+
+        int maxScore = Integer.MIN_VALUE;
+        String maxScoreName = null;
+        Map<String, Integer> scores = new HashMap<>();
+        for (PlayerState player : gameState.getPlayers()) {
+            int score = scorePlayer(gameState, player);
+            if (score > maxScore) {
+                maxScore = score;
+                maxScoreName = player.getPlayerId();
+            }
+            scores.put(player.getPlayerId(), score);
+        }
+
+        for (String player : scores.keySet()) {
+            gameState.writeLine("Scoring: " + player + " has a total VP of: " + scores.get(player));
+        }
+
+        gameState.writeLine("Scoring: " + maxScoreName + " has won.");
+
         return true;
+    }
+
+    private int scorePlayer(OriginalGameState gameState, PlayerState player) {
+        int totalScore = 0;
+        int vpGained;
+
+        vpGained = player.getCoinCount();
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for coins");
+
+        vpGained = player.getGoodCount(GoodType.Brocade) * 5;
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Brocade");
+
+        vpGained = player.getGoodCount(GoodType.Wool) * 4;
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Wool");
+
+        vpGained = player.getGoodCount(GoodType.Wine) * 3;
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Wine");
+
+        vpGained = player.getGoodCount(GoodType.Cheese) * 2;
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Cheese");
+
+        vpGained = player.getGoodCount(GoodType.Grain);
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " gets " + vpGained + " VP for Grain");
+
+        int tradingStations = player.getTradingStationCount();
+        int citizens = player.getClaimedCitizenCount();
+        int devTrack = player.getTrackValue(Track.Development);
+        int devMultiplier = DevelopmentHelper.getLevel(devTrack);
+
+        vpGained = devMultiplier * (tradingStations + citizens);
+        totalScore += vpGained;
+        gameState.writeLine("Scoring: " + player.getPlayerId() + " has " + tradingStations + " Trading Stations and " + citizens + " citizens. And a development level of " + devMultiplier + "for a total of " + vpGained + "VP");
+
+        return totalScore;
+
     }
 
     private void resetPhaseCompleteFlags(OriginalGameState gameState) {
