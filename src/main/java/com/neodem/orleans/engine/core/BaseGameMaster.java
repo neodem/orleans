@@ -171,7 +171,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 player.setPhaseComplete(true);
-                gameState.writeLine("player " + player.getPlayerId() + " has completed their turn (plan/action)");
+                player.writeLog("has completed their turn (plan/action)");
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }

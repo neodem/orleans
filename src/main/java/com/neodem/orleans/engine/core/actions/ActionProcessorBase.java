@@ -55,7 +55,7 @@ public abstract class ActionProcessorBase implements ActionProcessor {
                 if (!additionalDataMap.containsKey(requiredType)) missingTypes.add(requiredType.name());
             }
             if (!missingTypes.isEmpty()) {
-                throw new ActionProcessorException("This Action is missing the required aditional data keys: " + String.join(",", missingTypes));
+                throw new ActionProcessorException("This Action is missing the required additional data keys: " + String.join(",", missingTypes));
             }
         }
     }

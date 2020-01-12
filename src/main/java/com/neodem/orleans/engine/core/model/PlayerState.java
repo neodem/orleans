@@ -212,12 +212,16 @@ public abstract class PlayerState {
     }
 
     public int removeCoin(int coins) {
-        writeLog("loses " + coins + " coin");
+        if (coins == 1)
+            writeLog("loses 1 coin");
+        else
+            writeLog("loses " + coins + " coins");
+
         coinCount -= coins;
 
         if (coinCount < 0) {
             int tortureAmount = Math.abs(coinCount);
-            writeLog("is in debt by " + tortureAmount + "coins and must endure torture");
+            writeLog("is in debt by " + tortureAmount + " coins and must endure torture");
             setBeingTortured(true);
         }
 
@@ -248,13 +252,13 @@ public abstract class PlayerState {
      */
     public int bumpTrack(Track track) {
         int trackIndex = Util.mapInc(tracks, track);
-        writeLog("increased Development track by one. New value=" + trackIndex + ".");
+        writeLog("increased " + track + " track by one. New value=" + trackIndex);
         return trackIndex;
     }
 
     public int decrementTrack(Track track) {
         int trackIndex = Util.mapDec(tracks, track);
-        writeLog("decreased Development track by one. New value=" + trackIndex + ".");
+        writeLog("decreased " + track + " track by one. New value=" + trackIndex);
         return trackIndex;
     }
 

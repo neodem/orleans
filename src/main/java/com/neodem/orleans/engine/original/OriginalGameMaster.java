@@ -148,8 +148,8 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
             String most = gameState.mostFarmers();
             if (most != null) {
-                gameState.getPlayer(most).addCoin();
                 gameState.writeLine("" + most + " gets a coin for being the farthest on the Census/Farmer track");
+                gameState.getPlayer(most).addCoin();
             } else {
                 gameState.writeLine("No one gets a coin for the Census.");
             }
@@ -226,9 +226,9 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     private boolean doPlanningPhase(OriginalGameState gameState) {
         List<PlayerState> players = gameState.getPlayers();
         boolean planningNeeded = false;
-        for (PlayerState playerState : players) {
-            if (!playerState.isPhaseComplete()) {
-                gameState.writeLine("" + playerState.getPlayerId() + " has not completed their planning!");
+        for (PlayerState player : players) {
+            if (!player.isPhaseComplete()) {
+                gameState.writeLine("Waiting for " + player.getPlayerId() + " to complete planning");
                 planningNeeded = true;
             }
         }
@@ -252,6 +252,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     protected boolean doEventPhase(OriginalGameState gameState) {
         if (!gameState.arePlayersBeingTotrured()) {
             HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
+            gameState.writeLine("Processing HourGlass: " + currentHourGlass);
             switch (currentHourGlass) {
                 case Plague:
                     handleEvent(gameState, handlePlagueEvent);

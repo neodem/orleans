@@ -10,6 +10,8 @@ import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.Loggable;
 import com.neodem.orleans.engine.original.model.CitizenType;
 import com.neodem.orleans.engine.original.model.PlaceTile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ import java.util.Map;
  * Created on 12/26/19
  */
 public abstract class GameState implements Loggable {
+    private static final Logger logger = LoggerFactory.getLogger(GameState.class);
+
     protected final List<PlayerState> players = new ArrayList<>();
     protected BoardState boardState;
     protected BenefitTracker benefitTracker;
@@ -34,7 +38,6 @@ public abstract class GameState implements Loggable {
     protected int techTilesAvailable = 0;
     protected Collection<PlaceTile> placeTiles1 = new HashSet<>();
     protected Collection<PlaceTile> placeTiles2 = new HashSet<>();
-    // TODO hide this from JSON
     protected List<HourGlassTile> hourGlassTileStack = new ArrayList<>();
     protected List<HourGlassTile> usedHourGlassTiles = new ArrayList<>();
     protected List<String> gameLog = new ArrayList<>();
@@ -176,6 +179,7 @@ public abstract class GameState implements Loggable {
 
     @Override
     public void writeLine(String line) {
+        logger.debug("gameId:{} :: game.writeLine(): {}", gameId, line);
         gameLog.add(line);
     }
 
@@ -289,7 +293,7 @@ public abstract class GameState implements Loggable {
 
     public void setGamePhase(GamePhase gamePhase) {
         this.gamePhase = gamePhase;
-        writeLine("Phase: " + gamePhase);
+        writeLine("Phase Changed to: " + gamePhase);
     }
 
     public List<PlayerState> getPlayers() {
