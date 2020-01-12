@@ -20,7 +20,7 @@ public class OriginalGameMasterTest {
 
     @BeforeEach
     void setUp() {
-        originalGameMaster = new OriginalGameMaster(new OriginalActionHelper());
+        originalGameMaster = new OriginalGameMaster(new OriginalActionHelper(), null);
     }
 
     @AfterEach

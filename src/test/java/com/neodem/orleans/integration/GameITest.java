@@ -112,7 +112,6 @@ public class GameITest {
         assertThat(marketContains(gameState, P2, FollowerType.StarterBoatman, FollowerType.StarterCraftsman, FollowerType.StarterFarmer, FollowerType.StarterTrader)).isTrue();
     }
 
-
     @Test
     public void firstPlayerShouldBeAbleToPlanFarmHouseAfterStartGame() {
         String gameId = startTwoPlayerGame();

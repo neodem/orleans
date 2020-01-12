@@ -7,6 +7,7 @@ import com.neodem.orleans.engine.core.BaseGameMaster;
 import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
+import com.neodem.orleans.service.GameStateService;
 
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,8 @@ import static com.neodem.orleans.engine.core.model.AdditionalDataType.follower;
  */
 public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
-    public OriginalGameMaster(ActionHelper actionHelper) {
-        super(actionHelper);
+    public OriginalGameMaster(ActionHelper actionHelper, GameStateService gameStateService) {
+        super(actionHelper, gameStateService);
     }
 
     @Override

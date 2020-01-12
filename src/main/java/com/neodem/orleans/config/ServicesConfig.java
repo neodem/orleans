@@ -4,6 +4,8 @@ import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.GameMaster;
 import com.neodem.orleans.engine.original.OriginalActionHelper;
 import com.neodem.orleans.engine.original.OriginalGameMaster;
+import com.neodem.orleans.service.GameStateService;
+import com.neodem.orleans.service.OriginalGameStateInMemoryService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,7 +22,12 @@ public class ServicesConfig {
     }
 
     @Bean
-    public GameMaster gameMaster(ActionHelper actionHelper) {
-        return new OriginalGameMaster(actionHelper);
+    public GameStateService gameStateService() {
+        return new OriginalGameStateInMemoryService();
+    }
+
+    @Bean
+    public GameMaster gameMaster(ActionHelper actionHelper, GameStateService gameStateService) {
+        return new OriginalGameMaster(actionHelper, gameStateService);
     }
 }

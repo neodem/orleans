@@ -8,8 +8,8 @@ import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
 import com.neodem.orleans.engine.core.model.TortureType;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
+import com.neodem.orleans.service.GameStateService;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -23,10 +23,11 @@ import java.util.Set;
 public abstract class BaseGameMaster<G extends GameState> implements GameMaster {
 
     protected final ActionHelper actionHelper;
-    private final Map<String, G> storedGames = new HashMap<>();
+    private final GameStateService<G> gameStateService;
 
-    public BaseGameMaster(ActionHelper actionHelper) {
+    public BaseGameMaster(ActionHelper actionHelper, GameStateService<G> gameStateService) {
         this.actionHelper = actionHelper;
+        this.gameStateService = gameStateService;
     }
 
     /**
@@ -56,7 +57,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
     @Override
     public G makeGame(String gameId, List<String> playerNames, GameVersion gameVersion) {
 
-        if (storedGames.containsKey(gameId)) {
+        if (gameStateService.gameStateExists(gameId)) {
             throw new IllegalArgumentException("Game with id = " + gameId + " exists already!");
         }
 
@@ -76,7 +77,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
                 gameState.addPlayer(playerState);
             }
 
-            storedGames.put(gameId, gameState);
+            gameStateService.saveGameState(gameState);
         } else {
             throw new IllegalArgumentException("we must have the correct number of players to init game. This game type supports from " + playersMin() + " to " + playersMax() + " players");
         }
@@ -86,7 +87,9 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
 
     @Override
     public G getGameState(String gameId) {
-        return storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
+        gameStateService.cancelLease(gameId);
+        return gameState;
     }
 
     @Override
@@ -101,13 +104,14 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
      * @return
      */
     protected G advance(String gameId) {
-        G gameState = storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
         if (gameState != null) {
             boolean moveToNextPhase;
             do {
                 moveToNextPhase = nextPhase(gameState);
             } while (moveToNextPhase);
         }
+        gameStateService.saveGameState(gameState);
         return gameState;
     }
 
@@ -115,7 +119,8 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
 
     @Override
     public G doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap) {
-        G gameState = storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
+
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
@@ -129,6 +134,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
 
+        gameStateService.saveGameState(gameState);
         return gameState;
     }
 
@@ -136,7 +142,8 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
 
     @Override
     public G addToPlan(String gameId, String playerId, ActionType actionType, int marketSlot, int actionSlot) {
-        G gameState = storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
+
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
@@ -149,6 +156,8 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
         } else {
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
+
+        gameStateService.saveGameState(gameState);
         return gameState;
     }
 
@@ -156,7 +165,8 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
 
     @Override
     public G pass(String gameId, String playerId) {
-        G gameState = storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
+
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
@@ -170,15 +180,18 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
         }
 
         if (gameState.isPhaseComplete()) {
+            gameStateService.cancelLease(gameId);
             gameState = advance(gameId);
         }
 
+        gameStateService.saveGameState(gameState);
         return gameState;
     }
 
     @Override
     public G torturePlan(String gameId, String playerId, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
-        G gameState = storedGames.get(gameId);
+        G gameState = gameStateService.waitAndLeaseGameState(gameId);
+
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
@@ -196,6 +209,7 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
 
         //TODO continue game if torture is over, else stay paused/interrupted
 
+        gameStateService.saveGameState(gameState);
         return gameState;
     }
 
