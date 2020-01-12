@@ -217,7 +217,7 @@ public abstract class PlayerState {
 
         if (coinCount < 0) {
             int tortureAmount = Math.abs(coinCount);
-            writeLog("is in debt by " + tortureAmount + " and must endure torture");
+            writeLog("is in debt by " + tortureAmount + "coins and must endure torture");
             setBeingTortured(true);
         }
 

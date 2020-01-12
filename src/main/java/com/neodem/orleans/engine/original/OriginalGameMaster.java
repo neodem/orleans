@@ -142,7 +142,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
         return true;
     }
 
-    private boolean doCensusPhase(OriginalGameState gameState) {
+    protected boolean doCensusPhase(OriginalGameState gameState) {
         // if a player is being tortured, this phase has happened before and we should skip doing it, but wait for the torture to be done
         if (!gameState.arePlayersBeingTotrured()) {
 
@@ -159,7 +159,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
             if (least != null) {
                 leastPlayer.writeLog("pays a coin for being the least far on the Census/Farmer track");
                 leastPlayer.removeCoin();
-                return leastPlayer.isBeingTortured();
+                return !leastPlayer.isBeingTortured();
             }
 
             return true;
@@ -249,8 +249,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
         return !actionNeeded;
     }
 
-    private boolean doEventPhase(OriginalGameState gameState) {
-
+    protected boolean doEventPhase(OriginalGameState gameState) {
         if (!gameState.arePlayersBeingTotrured()) {
             HourGlassTile currentHourGlass = gameState.getCurrentHourGlass();
             switch (currentHourGlass) {
@@ -270,9 +269,9 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
                     handleEvent(gameState, handleHarvestEvent);
                     break;
             }
-            return true;
         }
-        return false;
+
+        return !gameState.arePlayersBeingTotrured();
     }
 
     private void handleEvent(GameState gameState, BiConsumer<GameState, PlayerState> eventHandler) {
