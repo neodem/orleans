@@ -164,12 +164,12 @@ public class GameITest {
 
         sendForPlayer(gameId, P1, "plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterBoatman), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "FarmHouse", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterCraftsman), "actionSlot", "1");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         gameState = getGameState(gameId);
 
@@ -210,12 +210,12 @@ public class GameITest {
         sendForPlayer(gameId, P2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterCraftsman), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterCraftsman), "actionSlot", "2");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         gameState = getGameState(gameId);
 
@@ -254,12 +254,12 @@ public class GameITest {
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P1, "plan", "action", "Village", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterCraftsman), "actionSlot", "2");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterCraftsman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         gameState = getGameState(gameId);
 
@@ -290,10 +290,10 @@ public class GameITest {
 
         sendForPlayer(gameId, P2, "plan", "action", "Monastery", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.Scholar), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "Monastery", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "1");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         sendForPlayer(gameId, P1, "plan", "action", "TownHall", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.Trader), "actionSlot", "0");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         // do Monastery
         sendForPlayer(gameId, P2, "action", "action", "Monastery");
@@ -322,12 +322,12 @@ public class GameITest {
 
         sendForPlayer(gameId, P1, "plan", "action", "Scriptorium", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.Knight), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "Scriptorium", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.Scholar), "actionSlot", "1");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "plan", "action", "Ship", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "Ship", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "Ship", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.Knight), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         // test the scriptorium
         gameState = getGameState(gameId);
@@ -367,12 +367,12 @@ public class GameITest {
         sendForPlayer(gameId, P1, "plan", "action", "Wagon", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "Wagon", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterTrader), "actionSlot", "1");
         sendForPlayer(gameId, P1, "plan", "action", "Wagon", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.Knight), "actionSlot", "2");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "plan", "action", "GuildHall", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "GuildHall", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterCraftsman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "GuildHall", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.Knight), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         // test the Wagon
         gameState = getGameState(gameId);
@@ -409,12 +409,12 @@ public class GameITest {
         sendForPlayer(gameId, P1, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P1, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterBoatman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "Castle", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         sendForPlayer(gameId, P1, "action", "action", "Castle");
         sendForPlayer(gameId, P2, "action", "action", "Castle");
@@ -427,12 +427,12 @@ public class GameITest {
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterCraftsman), "actionSlot", "1");
         sendForPlayer(gameId, P2, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P2, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P2, "planSet");
+        sendForPlayer(gameId, P2, "pass");
 
         sendForPlayer(gameId, P1, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterFarmer), "actionSlot", "0");
         sendForPlayer(gameId, P1, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterCraftsman), "actionSlot", "1");
         sendForPlayer(gameId, P1, "plan", "action", "University", "marketSlot", "" + findSlotInMarket(gameState, P1, FollowerType.StarterTrader), "actionSlot", "2");
-        sendForPlayer(gameId, P1, "planSet");
+        sendForPlayer(gameId, P1, "pass");
 
         sendForPlayer(gameId, P2, "action", "action", "University");
         sendForPlayer(gameId, P1, "action", "action", "University");

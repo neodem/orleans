@@ -6,3 +6,5 @@ docker run --rm --name=orleans -p 8080:8080 -t orleans
 - need to come up with a consistent way to get the reason for a failed action validation to the player. Right now
 we do a bit of boolean mixed with ActionProcessorException
 
+-- need to add ability to do an optional move from action space to market during Follower phase
+

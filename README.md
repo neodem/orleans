@@ -10,7 +10,7 @@ a REST engine to play the game orleans
 
 3) For Planning Phase, Submit Plans:
 `GET /game/test/Bob/plan?action=FarmHouse&followerTypes=StarterBoatman,StarterCraftsman`
-`GET /game/test/Bob/planSet`
+`GET /game/test/Bob/pass`
 
 4) For Action Phase, Sumit Actions
 4a) Simple actions: `GET /game/{gameId}/{playerId}/action?action=FarmHouse`

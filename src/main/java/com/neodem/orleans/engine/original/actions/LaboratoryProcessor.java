@@ -1,6 +1,7 @@
 package com.neodem.orleans.engine.original.actions;
 
 import com.google.common.collect.Sets;
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.ActionProcessorException;
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
@@ -33,8 +34,8 @@ public class LaboratoryProcessor extends ActionProcessorBase {
             throw new ActionProcessorException("There are no more tech tiles available");
         }
 
-        ActionType actionType = getActionTypeFromMap(additionalDataMap, AdditionalDataType.techAction);
-        int position = getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
+        ActionType actionType = Util.getActionTypeFromADMap(additionalDataMap, AdditionalDataType.techAction);
+        int position = Util.getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
         FollowerType followerType = actionHelper.getTypeForAction(actionType, position);
 
         if (followerType == FollowerType.Monk)
@@ -45,8 +46,8 @@ public class LaboratoryProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        ActionType actionType = getActionTypeFromMap(additionalDataMap, AdditionalDataType.techAction);
-        int position = getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
+        ActionType actionType = Util.getActionTypeFromADMap(additionalDataMap, AdditionalDataType.techAction);
+        int position = Util.getIntegerFromMap(additionalDataMap, AdditionalDataType.position);
         TechTileHelper.addTechTileToPlayer(gameState, player, position, actionType, actionHelper);
     }
 }

@@ -2,11 +2,11 @@ package com.neodem.orleans.engine.core;
 
 import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
-import com.neodem.orleans.engine.core.model.GamePhase;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
 import com.neodem.orleans.engine.core.model.PlayerColor;
 import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.TortureType;
 import com.neodem.orleans.engine.original.model.OriginalPlayerState;
 
 import java.util.HashMap;
@@ -155,13 +155,13 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
     protected abstract G doAddToPlanForPlayer(G gameState, PlayerState player, ActionType actionType, int marketSlot, int actionSlot);
 
     @Override
-    public G planSet(String gameId, String playerId) {
+    public G pass(String gameId, String playerId) {
         G gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
                 player.setPhaseComplete(true);
-                gameState.writeLine("player " + player.getPlayerId() + " has completed planning");
+                gameState.writeLine("player " + player.getPlayerId() + " has completed their turn (plan/action)");
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
             }
@@ -177,15 +177,15 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
     }
 
     @Override
-    public G pass(String gameId, String playerId) {
+    public G torturePlan(String gameId, String playerId, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
         G gameState = storedGames.get(gameId);
         if (gameState != null) {
             PlayerState player = gameState.getPlayer(playerId);
             if (player != null) {
-                if (gameState.getGamePhase() == GamePhase.Actions) {
-                    player.setPhaseComplete(true);
+                if (player.isBeingTortured()) {
+                    gameState = doAddToTorturePlanForPlayer(gameState, player, tortureType, additionalDataMap);
                 } else {
-                    throw new IllegalStateException("Player playerId='" + playerId + "' is attempting to pass but the current Phase is: " + gameState.getGamePhase());
+                    throw new IllegalArgumentException("playerId='" + playerId + "is trying to submit a torture plan but isn't being tortured!");
                 }
             } else {
                 throw new IllegalArgumentException("No player exists for playerId='" + playerId + "' in gameId='" + gameId + "'");
@@ -194,10 +194,10 @@ public abstract class BaseGameMaster<G extends GameState> implements GameMaster 
             throw new IllegalArgumentException("No game exists for gameId='" + gameId + "'");
         }
 
-        if (gameState.isPhaseComplete()) {
-            gameState = advance(gameId);
-        }
+        //TODO continue game if torture is over, else stay paused/interrupted
 
         return gameState;
     }
+
+    protected abstract G doAddToTorturePlanForPlayer(G gameState, PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap);
 }

@@ -1,5 +1,7 @@
 package com.neodem.orleans.collections;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -57,5 +59,8 @@ public class RandomBag<T> implements Iterable<T> {
         return data.spliterator();
     }
 
-
+    @JsonIgnore
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
 }

@@ -1,8 +1,17 @@
 package com.neodem.orleans.engine.core.actions;
 
 import com.google.common.collect.Sets;
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionProcessorException;
-import com.neodem.orleans.engine.core.model.*;
+import com.neodem.orleans.engine.core.model.AdditionalDataType;
+import com.neodem.orleans.engine.core.model.BoardState;
+import com.neodem.orleans.engine.core.model.GameState;
+import com.neodem.orleans.engine.core.model.GoodType;
+import com.neodem.orleans.engine.core.model.Path;
+import com.neodem.orleans.engine.core.model.PathBetween;
+import com.neodem.orleans.engine.core.model.PathType;
+import com.neodem.orleans.engine.core.model.PlayerState;
+import com.neodem.orleans.engine.core.model.TokenLocation;
 
 import java.util.Collection;
 import java.util.Map;
@@ -27,10 +36,10 @@ public class MovementProcessor extends ActionProcessorBase {
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
 
-        TokenLocation from = getLocationFromMap(additionalDataMap, AdditionalDataType.from);
+        TokenLocation from = Util.getLocationFromADMap(additionalDataMap, AdditionalDataType.from);
         TokenLocation merchantLocation = player.getMerchantLocation();
         if (merchantLocation == from) {
-            TokenLocation to = getLocationFromMap(additionalDataMap, AdditionalDataType.to);
+            TokenLocation to = Util.getLocationFromADMap(additionalDataMap, AdditionalDataType.to);
 
             PathBetween pathBetween = new PathBetween(from, to);
 
@@ -41,7 +50,7 @@ public class MovementProcessor extends ActionProcessorBase {
                 throw new ActionProcessorException("" + pathType + " path does not exist between " + from + " and " + to);
             }
 
-            GoodType desiredGood = getGoodFromMap(additionalDataMap, AdditionalDataType.good);
+            GoodType desiredGood = Util.getGoodFromADMap(additionalDataMap, AdditionalDataType.good);
             if (!path.goodAvailable(desiredGood)) {
                 throw new ActionProcessorException("The good: " + desiredGood + " is not on the path from " + from + " to " + to + ".");
 
@@ -55,13 +64,13 @@ public class MovementProcessor extends ActionProcessorBase {
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        TokenLocation from = getLocationFromMap(additionalDataMap, AdditionalDataType.from);
-        TokenLocation to = getLocationFromMap(additionalDataMap, AdditionalDataType.to);
+        TokenLocation from = Util.getLocationFromADMap(additionalDataMap, AdditionalDataType.from);
+        TokenLocation to = Util.getLocationFromADMap(additionalDataMap, AdditionalDataType.to);
         PathBetween pathBetween = new PathBetween(from, to);
         BoardState board = gameState.getBoardState();
         Path path = board.getPathBetween(pathBetween, pathType);
 
-        GoodType desiredGood = getGoodFromMap(additionalDataMap, AdditionalDataType.good);
+        GoodType desiredGood = Util.getGoodFromADMap(additionalDataMap, AdditionalDataType.good);
         if (path.goodAvailable(desiredGood)) {
             path.removeGoodFromPath(desiredGood);
             player.addGood(desiredGood);

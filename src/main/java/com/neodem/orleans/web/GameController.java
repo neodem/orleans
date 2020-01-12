@@ -5,6 +5,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
+import com.neodem.orleans.engine.core.model.TortureType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,27 +56,8 @@ public class GameController {
 
     @RequestMapping("/game/{gameId}/{playerId}/action")
     public GameState doAction(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "action") String action, @RequestParam Map<String, String> allParams) {
-        Map<AdditionalDataType, String> additionalDataMap = new HashMap<>();
-        if (allParams != null) {
-            for (String key : allParams.keySet()) {
-                AdditionalDataType type = null;
-                try {
-                    type = AdditionalDataType.valueOf(key);
-                } catch (IllegalArgumentException e) {
-                }
-                if (type != null) {
-                    additionalDataMap.put(type, allParams.get(key));
-                }
-            }
-        }
-
+        Map<AdditionalDataType, String> additionalDataMap = convertAdditionalDataMap(allParams, "action");
         GameState gameState = gameMaster.doAction(gameId, playerId, ActionType.valueOf(action), additionalDataMap);
-        return gameState;
-    }
-
-    @RequestMapping("/game/{gameId}/{playerId}/planSet")
-    public GameState planSet(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId) {
-        GameState gameState = gameMaster.planSet(gameId, playerId);
         return gameState;
     }
 
@@ -85,9 +67,30 @@ public class GameController {
         return gameState;
     }
 
+    // player needs to submit one per coin owed.. game will not proceed until all coins are accounted for
+    @RequestMapping("/game/{gameId}/{playerId}/torture")
+    public GameState torturePlan(@PathVariable(value = "gameId") String gameId, @PathVariable(value = "playerId") String playerId, @RequestParam(value = "tortureType") String tortureTypeString, @RequestParam Map<String, String> allParams) {
+        TortureType tortureType = TortureType.valueOf(tortureTypeString);
+        Map<AdditionalDataType, String> additionalDataMap = convertAdditionalDataMap(allParams, "tortureType");
+        GameState gameState = gameMaster.torturePlan(gameId, playerId, tortureType, additionalDataMap);
+        return gameState;
+    }
+
     @RequestMapping("/game/{gameId}/gameState")
     public GameState gameState(@PathVariable(value = "gameId") String gameId) {
         GameState gameState = gameMaster.getGameState(gameId);
         return gameState;
+    }
+
+    private Map<AdditionalDataType, String> convertAdditionalDataMap(@RequestParam Map<String, String> allParams, String skipKey) {
+        Map<AdditionalDataType, String> additionalDataMap = new HashMap<>();
+        if (allParams != null) {
+            for (String key : allParams.keySet()) {
+                if (key.equals(skipKey)) continue;
+                AdditionalDataType type = AdditionalDataType.valueOf(key);
+                additionalDataMap.put(type, allParams.get(key));
+            }
+        }
+        return additionalDataMap;
     }
 }

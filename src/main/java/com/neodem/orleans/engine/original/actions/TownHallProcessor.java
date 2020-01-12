@@ -1,5 +1,6 @@
 package com.neodem.orleans.engine.original.actions;
 
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionProcessorException;
 import com.neodem.orleans.engine.core.BenefitTracker;
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
@@ -52,7 +53,7 @@ public class TownHallProcessor extends ActionProcessorBase {
     }
 
     private void isAllowedForFollower(BenefitTracker benefitTracker, Map<AdditionalDataType, String> additionalDataMap, Follower f, AdditionalDataType additionalDataType) {
-        BenefitName benefitName = getBenefitNameFromMap(additionalDataMap, additionalDataType);
+        BenefitName benefitName = Util.getBenefitNameFromADMap(additionalDataMap, additionalDataType);
         if (!benefitTracker.canAddToBenefit(benefitName, f)) {
             throw new ActionProcessorException("the desired follower: " + f + " can't go on " + benefitName);
         }
@@ -70,7 +71,7 @@ public class TownHallProcessor extends ActionProcessorBase {
         Follower plannedFollower = followerTrack.removeFollowerAtPosition(index);
 
         if (plannedFollower != null) {
-            BenefitName benefitName = getBenefitNameFromMap(additionalDataMap, additionalDataType);
+            BenefitName benefitName = Util.getBenefitNameFromADMap(additionalDataMap, additionalDataType);
             boolean citizenAcquired = benefitTracker.addToBenefit(benefitName, plannedFollower);
             if (citizenAcquired) {
                 player.addCitizen(CitizenType.BenefitTrack);

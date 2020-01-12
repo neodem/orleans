@@ -3,6 +3,7 @@ package com.neodem.orleans.engine.core.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
@@ -54,6 +55,8 @@ public abstract class PlayerState {
 
     private int coinCount = 5;
 
+    private int coinsOwed = 0;
+
     // internal state
     protected Market market = new Market();
 
@@ -70,6 +73,7 @@ public abstract class PlayerState {
 
     private Loggable log;
     private ActionHelper actionHelper;
+    private boolean beingTortured;
 
     public PlayerState(String playerId, PlayerColor playerColor, ActionHelper actionHelper) {
         Assert.notNull(playerId, "playerId may not be null");
@@ -87,12 +91,14 @@ public abstract class PlayerState {
             this.playerId = json.get("playerId").textValue();
             this.playerColor = PlayerColor.fromValue(json.get("playerColor").textValue());
             this.phaseComplete = json.get("phaseComplete").booleanValue();
+            this.beingTortured = json.get("beingTortured").booleanValue();
             this.bag = new FollowerBag(json.get("bag"));
 
             this.plans = jsonUnmarshalPlans(json.get("plans").toString(), mapper);
 
             this.merchantLocation = TokenLocation.fromValue(json.get("merchantLocation").textValue());
             this.coinCount = json.get("coinCount").intValue();
+            this.coinsOwed = json.get("coinsOwed").intValue();
 
             this.market = new Market(json.get("market"));
 
@@ -124,8 +130,12 @@ public abstract class PlayerState {
             };
             this.bathhouseChoices = mapper.readValue(json.get("bathhouseChoices").toString(), bathhouseChoicesRef);
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+        } catch (JsonMappingException e) {
+
+            // TODO better than this
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -492,5 +502,21 @@ public abstract class PlayerState {
         TypeReference<HashMap<ActionType, FollowerTrack>> plansRef = new TypeReference<>() {
         };
         return mapper.readValue(json, plansRef);
+    }
+
+    public boolean isBeingTortured() {
+        return beingTortured;
+    }
+
+    public void setBeingTortured(boolean beingTortured) {
+        this.beingTortured = beingTortured;
+    }
+
+    public int getCoinsOwed() {
+        return coinsOwed;
+    }
+
+    public void setCoinsOwed(int coinsOwed) {
+        this.coinsOwed = coinsOwed;
     }
 }

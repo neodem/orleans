@@ -4,6 +4,7 @@ import com.neodem.orleans.engine.core.model.ActionType;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
 import com.neodem.orleans.engine.core.model.GameVersion;
+import com.neodem.orleans.engine.core.model.TortureType;
 
 import java.util.List;
 import java.util.Map;
@@ -23,17 +24,7 @@ public interface GameMaster {
      */
     GameState makeGame(String gameId, List<String> playerNames, GameVersion gameVersion);
 
-
     GameState startGame(String gameId);
-
-    /**
-     * indicate that you are all good with your planning and ready to move forward to the next phase
-     *
-     * @param gameId
-     * @param playerId
-     * @return
-     */
-    GameState planSet(String gameId, String playerId);
 
     /**
      * @param gameId
@@ -57,7 +48,7 @@ public interface GameMaster {
     GameState doAction(String gameId, String playerId, ActionType actionType, Map<AdditionalDataType, String> additionalDataMap);
 
     /**
-     * player does an action
+     * indicate that you are all good with your planning or done actions and ready to move forward to the next phase
      *
      * @param gameId
      * @param playerId
@@ -66,4 +57,15 @@ public interface GameMaster {
     GameState pass(String gameId, String playerId);
 
     GameState getGameState(String gameId);
+
+    /**
+     * submit a plan to remove a single coin of torture
+     *
+     * @param gameId
+     * @param playerId
+     * @param tortureType
+     * @param additionalDataMap
+     * @return
+     */
+    GameState torturePlan(String gameId, String playerId, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap);
 }

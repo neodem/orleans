@@ -1,6 +1,8 @@
 package com.neodem.orleans.engine.core.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neodem.orleans.Util;
@@ -110,9 +112,12 @@ public abstract class GameState implements Loggable {
                 }
                 this.currentActionPlayerIndex = i;
             }
+        } catch (JsonMappingException e) {
 
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
+            // TODO better than this
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 

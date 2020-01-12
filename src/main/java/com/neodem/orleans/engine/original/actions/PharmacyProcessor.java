@@ -1,6 +1,7 @@
 package com.neodem.orleans.engine.original.actions;
 
 import com.google.common.collect.Sets;
+import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.AdditionalDataType;
 import com.neodem.orleans.engine.core.model.GameState;
@@ -22,14 +23,14 @@ public class PharmacyProcessor extends ActionProcessorBase {
 
     @Override
     public boolean doIsAllowed(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int times = getIntegerFromMap(additionalDataMap, AdditionalDataType.times);
+        int times = Util.getIntegerFromMap(additionalDataMap, AdditionalDataType.times);
         int coinCount = player.getCoinCount();
         return coinCount >= times && times < 3;
     }
 
     @Override
     public void doProcess(GameState gameState, PlayerState player, Map<AdditionalDataType, String> additionalDataMap) {
-        int times = getIntegerFromMap(additionalDataMap, AdditionalDataType.times);
+        int times = Util.getIntegerFromMap(additionalDataMap, AdditionalDataType.times);
         player.removeCoin(times);
     }
 }

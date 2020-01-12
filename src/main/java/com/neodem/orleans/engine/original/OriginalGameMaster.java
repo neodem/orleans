@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import com.neodem.orleans.Util;
 import com.neodem.orleans.engine.core.ActionHelper;
 import com.neodem.orleans.engine.core.BaseGameMaster;
-import com.neodem.orleans.engine.core.actions.ActionProcessorBase;
 import com.neodem.orleans.engine.core.model.*;
 import com.neodem.orleans.engine.original.model.OriginalGameState;
 import com.neodem.orleans.engine.original.model.PlaceTile;
@@ -282,10 +281,18 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
     }
 
     private BiConsumer<GameState, PlayerState> handlePlagueEvent = (gameState, playerState) -> {
-        // TODO deal with an empty bag
         Follower take = playerState.getBag().take();
-        Util.mapInc(gameState.getFollowerInventory(), take.getFollowerType());
-        gameState.writeLine("player " + playerState.getPlayerId() + " lost " + take + " due to the Plague  ");
+        if (take != null) {
+            FollowerType followerType = take.getFollowerType();
+            if (followerType == FollowerType.StarterTrader || followerType == FollowerType.StarterCraftsman || followerType == FollowerType.StarterFarmer || followerType == FollowerType.StarterBoatman) {
+                gameState.writeLine("player " + playerState.getPlayerId() + " avoided the plague by pulling a " + followerType + ".");
+            } else {
+                Util.mapInc(gameState.getFollowerInventory(), followerType);
+                gameState.writeLine("player " + playerState.getPlayerId() + " lost " + take + " due to the Plague.");
+            }
+        } else {
+            gameState.writeLine("player " + playerState.getPlayerId() + " avoided the plague by having no followers in her bag!");
+        }
     };
 
     private BiConsumer<GameState, PlayerState> handleIncomeEvent = (gameState, playerState) -> {
@@ -327,7 +334,7 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
         if (actionType == ActionType.Bathhouse && player.hasPlaceTile(PlaceTile.Bathhouse)) {
             if (gameState.getGamePhase() == GamePhase.Followers) {
-                FollowerType followerType = ActionProcessorBase.getFollowerFromMap(additionalDataMap, follower);
+                FollowerType followerType = Util.getFollowerFromADMap(additionalDataMap, follower);
                 if (followerType != null) {
                     player.setBathhouseChoices(Sets.newHashSet(followerType));
                 }
@@ -412,6 +419,20 @@ public class OriginalGameMaster extends BaseGameMaster<OriginalGameState> {
 
         } else {
             throw new IllegalStateException("Player playerId='" + player.getPlayerId() + "' is attempting to plan but the current Phase is: " + gameState.getGamePhase());
+        }
+
+        return gameState;
+    }
+
+    @Override
+    protected OriginalGameState doAddToTorturePlanForPlayer(OriginalGameState gameState, PlayerState player, TortureType tortureType, Map<AdditionalDataType, String> additionalDataMap) {
+
+        // log in the player what the issue is if we fail validation
+        if (TortureHelper.isValidPlan(player, tortureType, additionalDataMap)) {
+            // apply the plan and update the gameState/playerState accordingly
+            TortureHelper.applyPlan(gameState, player, tortureType, additionalDataMap);
+        } else {
+            throw new IllegalArgumentException("Player playerId='" + player.getPlayerId() + "' is trying to submit an invalid torture plan.");
         }
 
         return gameState;
