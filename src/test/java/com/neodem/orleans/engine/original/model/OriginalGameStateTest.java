@@ -48,7 +48,7 @@ public class OriginalGameStateTest {
             totalGoods += goodsInventory.get(type);
         }
         // reflects 90-47 (assigned to board)
-        assertThat(totalGoods).isEqualTo(43);
+        assertThat(totalGoods).isEqualTo(35);
 
         assertThat(gameState.getPlaceTiles1()).hasSize(12);
         assertThat(gameState.getPlaceTiles1()).contains(Hayrick, WoolManufacturer, CheeseFactory, Winery, Brewery, Sacristy, HerbGarden, Bathhouse, Windmill, Library, Hospital, TailorShop);

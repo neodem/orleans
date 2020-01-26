@@ -2,6 +2,13 @@
 
 a REST engine to play the game orleans
 
+Swagger UI
+==========
+http://localhost:8081/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config#/
+
+Examples
+========
+
 1) init Game:
 `GET /game/init?playerNames=Bob,Tony,Jane`
 
@@ -25,6 +32,9 @@ a REST engine to play the game orleans
 `GET /game/{gameId}/{playerId}/action?action=TownHall&benefit1=DefeatPlague&benefit2=PapalConclave`
 
 `GET /game/test/Bob/action/pass`
+
+
+
 
 Notes
 =====
