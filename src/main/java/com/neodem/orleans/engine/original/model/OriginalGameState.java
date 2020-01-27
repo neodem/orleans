@@ -43,7 +43,7 @@ public class OriginalGameState extends GameState {
     }
 
     public OriginalGameState(String gameId, int playerCount) {
-        super(gameId, playerCount);
+        super(gameId, playerCount, "Original");
     }
 
     @Override
@@ -83,13 +83,9 @@ public class OriginalGameState extends GameState {
         currentHourGlass = null;
         startPlayer = playerCount - 1;
 
-        initForPlayerCount(playerCount);
-
         techTilesAvailable = 16;
 
         benefitTracker = new OriginalBenefitTracker();
-
-        writeLine("Original game is set up. Welcome!");
     }
 
     @Override

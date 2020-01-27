@@ -41,7 +41,7 @@ public class GameController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = GameState.class))))
     })
-    @RequestMapping(value = "/init", method = RequestMethod.POST)
+    @RequestMapping(value = "/init", method = RequestMethod.GET)
     public GameState gameInit(
             @Parameter(description = "Comma Seperated list of player names for the game (2-4) allowed") @RequestParam(value = "playerNames") List<String> names
     ) {
@@ -53,7 +53,7 @@ public class GameController {
     }
 
     @Operation(summary = "Start a Game", description = "Start a game that has been previously initialized")
-    @RequestMapping(value = "/{gameId}/startGame", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/startGame", method = RequestMethod.GET)
     public GameState startGame(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId
     ) {
@@ -62,7 +62,7 @@ public class GameController {
     }
 
     @Operation(summary = "Submit a plan for a player", description = "On their turn a player may submit as many plans as they can 'afford' each call moves one follower from their market to the desired action spot")
-    @RequestMapping(value = "/{gameId}/{playerId}/plan", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/{playerId}/plan", method = RequestMethod.GET)
     public GameState submitPlan(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId,
             @Parameter(description = "the playerId") @PathVariable(value = "playerId") String playerId,
@@ -75,7 +75,7 @@ public class GameController {
     }
 
     @Operation(summary = "execute an action", description = "When allowed, a player may execte an action")
-    @RequestMapping(value = "/{gameId}/{playerId}/action", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/{playerId}/action", method = RequestMethod.GET)
     public GameState doAction(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId,
             @Parameter(description = "the playerId") @PathVariable(value = "playerId") String playerId,
@@ -88,7 +88,7 @@ public class GameController {
     }
 
     @Operation(summary = "player pass", description = "When done submitting plans/torture, the player can and should pass")
-    @RequestMapping(value = "/{gameId}/{playerId}/pass", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/{playerId}/pass", method = RequestMethod.GET)
     public GameState passActionPhase(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId,
             @Parameter(description = "the playerId") @PathVariable(value = "playerId") String playerId
@@ -98,7 +98,7 @@ public class GameController {
     }
 
     @Operation(summary = "Submit a torture for a player", description = "When a player owes coins, they must submit one torture plan per coin owed")
-    @RequestMapping(value = "/{gameId}/{playerId}/torture", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/{playerId}/torture", method = RequestMethod.GET)
     public GameState torturePlan(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId,
             @Parameter(description = "the playerId") @PathVariable(value = "playerId") String playerId,
@@ -112,7 +112,7 @@ public class GameController {
     }
 
     @Operation(summary = "get current game state", description = "This will return the game state at this moment in time")
-    @RequestMapping(value = "/{gameId}/gameState", method = RequestMethod.POST)
+    @RequestMapping(value = "/{gameId}/gameState", method = RequestMethod.GET)
     public GameState gameState(
             @Parameter(description = "the gameId") @PathVariable(value = "gameId") String gameId
     ) {

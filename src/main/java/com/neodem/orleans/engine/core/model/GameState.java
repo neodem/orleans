@@ -139,11 +139,13 @@ public abstract class GameState implements Loggable {
 
     protected abstract PlayerState makePlayerFromJson(JsonNode player);
 
-    public GameState(String gameId, int playerCount) {
+    public GameState(String gameId, int playerCount, String gameTypeName) {
         Assert.isTrue(playerCount > 1 && playerCount < 5, "playerCount should be 2-4");
         this.gameId = gameId;
         this.playerCount = playerCount;
         initGame(playerCount);
+        initForPlayerCount(playerCount);
+        writeLine(gameTypeName + " game is set up. Welcome!");
     }
 
     protected void initForPlayerCount(int playerCount) {

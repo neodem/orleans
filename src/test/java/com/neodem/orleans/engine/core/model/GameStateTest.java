@@ -28,7 +28,7 @@ public class GameStateTest {
     private class TestableGameState extends GameState {
 
         public TestableGameState(String gameId, int playerCount) {
-            super(gameId, playerCount);
+            super(gameId, playerCount, "Test");
         }
 
         @Override
